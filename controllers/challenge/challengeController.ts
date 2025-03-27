@@ -1,0 +1,279 @@
+import { Request, Response } from "express";
+import MatchMaking from "../../models/Challenges/MatchMaking";
+import UserChallenges from "../../models/Challenges/User-Challenges";
+import Question from "../../models/Challenges/Question";
+import mongoose from "mongoose";
+import { io } from "../../App";
+import { userSockets } from "../../App";  
+import UserDetails from "../../models/Users/UserDetails";
+import { getAll } from "../../utility/handlerFactory";
+import { updateStreak } from "../../utility/Challenge/updateStreak";
+import moment from "moment";
+
+export const getAllChallenges = getAll(UserChallenges);
+
+export const joinMatchmaking = async (req: Request, res: Response) => {
+    try {
+        const { userId, language, timeControl } = req.body;
+
+        // Check if user is already in matchmaking
+        const existingMatch = await MatchMaking.findOne({ user_id: userId });
+
+        if (!existingMatch) {
+            await MatchMaking.create({ user_id: userId, language, time_control: timeControl });
+        }
+
+        // Try to find a match
+        const opponent = await MatchMaking.findOne({
+            language,
+            time_control: timeControl,
+            user_id: { $ne: userId },
+        });
+
+        if (opponent) {
+            createChallenge(userId, opponent.user_id, language, timeControl);
+        }
+
+        res.status(200).json({ message: "Searching for a match..." });
+    } catch (error) {
+        console.error("Error joining matchmaking:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+const createChallenge = async (player1Id: mongoose.Types.ObjectId, player2Id: mongoose.Schema.Types.ObjectId, language: string, timeControl: number) => {
+    try {
+        await MatchMaking.deleteMany({ user_id: { $in: [player1Id, player2Id] } });
+
+        const difficultyMap: Record<number, string> = {
+            5: "Easy",
+            10: "Medium",
+            20: "Hard",
+        };
+
+        const difficulty = difficultyMap[timeControl]
+
+        const problem = await Question.aggregate([
+            { $match: { difficulty } },
+            { $sample: { size: 1 } }
+        ]);
+        
+        const problemId = problem[0]._id;
+
+        const challenge = await UserChallenges.create({
+            players: [player1Id, player2Id],
+            language,
+            time: timeControl,
+            problem_id: problemId,
+            winner: null,
+            rating_change: {},
+        });
+
+        await UserDetails.updateMany(
+            { user_id: { $in: [player1Id, player2Id] } },
+            { $inc: { matches_played: 1 } }
+        );
+
+        await Promise.all([updateStreak(player1Id.toString()), updateStreak(player2Id.toString())]);
+
+        const today = moment().format("YYYY-MM-DD");
+
+        await Promise.all([
+            UserDetails.findOneAndUpdate(
+                { user_id: player1Id },
+                {
+                    $inc: {
+                        matches_played: 1,
+                        [`daily_matches.${today}.count`]: 1, // Increment match count for today
+                    },
+                    $push: {
+                        [`daily_matches.${today}.challenges`]: challenge._id, // Store challenge ID
+                    },
+                },
+                { upsert: true, new: true }
+            ),
+            UserDetails.findOneAndUpdate(
+                { user_id: player2Id },
+                {
+                    $inc: {
+                        matches_played: 1,
+                        [`daily_matches.${today}.count`]: 1,
+                    },
+                    $push: {
+                        [`daily_matches.${today}.challenges`]: challenge._id,
+                    },
+                },
+                { upsert: true, new: true }
+            ),
+        ]);
+        
+
+        const player1SocketId = userSockets.get(player1Id.toString());
+        const player2SocketId = userSockets.get(player2Id.toString());
+        
+        if (player1SocketId) {
+            io.to(player1SocketId).emit("match_found", { challengeId: challenge._id, opponentId: player2Id });
+        }
+        if (player2SocketId) {
+            io.to(player2SocketId).emit("match_found", { challengeId: challenge._id, opponentId: player1Id });
+        }
+
+    } catch (error) {
+        console.error("Error creating challenge:", error);
+    }
+};
+
+export const leaveMatchmaking = async (req: Request, res: Response) => {
+    try {
+        const { userId } = req.body;
+
+        // Remove user from matchmaking queue
+        await MatchMaking.deleteOne({ user_id: userId });
+
+        res.status(200).json({ message: "Left matchmaking successfully." });
+    } catch (error) {
+        console.error("Error leaving matchmaking:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+export const leaveChallenge = async (req: Request, res: Response) => {
+    try {
+        const { challengeId, userId } = req.body;
+
+        const challenge = await UserChallenges.findById(challengeId);
+
+        if (!challenge) {
+            res.status(404).json({ message: "Challenge not found" });
+            return;
+        }
+
+        if (!challenge.active) {
+            res.status(400).json({ message: "Challenge is already ended." });
+            return;
+        }
+
+        const problem = await Question.findById(challenge.problem_id).select("difficulty");
+
+        if (!problem) {
+            res.status(404).json({ message: "Problem not found" });
+            return;
+        }
+
+        // determine the winner
+        const [player1, player2] = challenge.players;
+        const winnerId = player1.toString() === userId ? player2 : player1;
+
+        const ratingChange = problem.difficulty === "Easy" ? 6 
+                           : problem.difficulty === "Medium" ? 8 
+                           : 10;
+
+        const winnerIdStr = winnerId.toString();
+        const userIdStr = userId.toString();
+
+        // Update challenge with winner and deactivate it
+        await UserChallenges.findByIdAndUpdate(challengeId, {
+            winner: winnerId,
+            rating_change: { [winnerIdStr]: ratingChange, [userIdStr]: -ratingChange },
+            active: false
+        });
+
+        await Promise.all([
+            UserDetails.findOneAndUpdate(
+                { user_id: winnerId },
+                { $inc: { rating: ratingChange, wins: 1 } }
+            ),
+            UserDetails.findOneAndUpdate(
+                { user_id: userId },
+                { $inc: { rating: -ratingChange, loss: 1 } }
+            )
+        ]);
+
+        const winnerSocketId = userSockets.get(winnerIdStr);
+        const loserSocketId = userSockets.get(userIdStr);
+
+        if (winnerSocketId) {
+            io.to(winnerSocketId).emit("match_result", {
+                message: "Your opponent left the match! You win! 🎉",
+                ratingChange
+            });
+        }
+        if (loserSocketId) {
+            io.to(loserSocketId).emit("match_result", {
+                message: "You left the match. Your opponent wins by default. ❌",
+                ratingChange: -ratingChange
+            });
+        }
+
+        res.status(200).json({ message: "Match forfeited. Opponent declared winner." });
+
+    } catch (error) {
+        console.error("Error handling early challenge exit:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+export const submitChallengeResult = async (req: Request, res: Response) => {
+    try {
+        const { challengeId, winnerId, ratingChanges } = req.body;
+
+        await UserChallenges.findByIdAndUpdate(challengeId, {
+            winner: winnerId,
+            rating_change: ratingChanges,
+        });
+
+        const updatePromises = Object.entries(ratingChanges).map(async ([userId, ratingChange]) => {
+            await UserDetails.findOneAndUpdate(
+                { user_id: userId },
+                { $inc: { rating: ratingChange } }
+            );
+        });
+
+        await Promise.all(updatePromises);
+
+        for (const [userId, ratingChange] of Object.entries(ratingChanges)) {
+            const socketId = userSockets.get(userId);
+            if (socketId) {
+                io.to(socketId).emit("match_result", {
+                    message: userId === winnerId
+                        ? "You won the match! 🎉"
+                        : "You lost the match. Better luck next time! 💪",
+                    ratingChange
+                });
+            }
+        }
+
+        res.status(200).json({ message: "Challenge result submitted successfully and ratings updated." });
+
+    } catch (error) {
+        console.error("Error submitting challenge result:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+export const getChallengeById = async (req, res) => {
+    try {
+        const challenge = await UserChallenges.findById(req.params.id).populate({
+            path: "players",
+            model: "User",
+            select: "first_name last_name user_photo username role",
+        }).populate({
+            path: "problem_id",
+            model: "Question",
+        });
+
+        if (!challenge) {
+            return res.status(404).json({ message: "Challenge not found" });
+        }
+
+        const playerDetails = await UserDetails.find({ user_id: { $in: challenge.players } })
+            .select("user_id matches_played rating wins draw loss");
+
+        res.status(200).json({
+            ...challenge.toObject(),
+            playerDetails,
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+};

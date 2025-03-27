@@ -1,0 +1,41 @@
+@use "./styles/app.scss" as *;
+@use "./styles/fonts.scss" as *;
+@use "./styles/shortcuts.scss" as *;
+
+@use "./styles/common/additional_colors.scss" as *;
+@use "./styles/common/glassmorphism.scss" as *;
+@use "./styles/common/glass-box.scss" as *;
+
+@use "./styles/Authentication/auth_container.scss" as *;
+@use "./styles/Authentication/register.scss" as *;
+@use "./styles/Authentication/login.scss" as *;
+
+@use "./styles/Home/home.scss" as *;
+
+@use "./styles/Layout/navbar.scss" as *;
+
+@use "./styles/Challenge/challenge-section.scss" as *;
+@use "./styles/Challenge/challenge-room.scss" as *;
+
+:root {
+    --white: #ffffff;
+    --black: #000000;
+    --light-grey: #dadada;
+    --neon-blue:#00E5FF;
+    --yellow:#FB0;
+    --font-kanit: "Kanit", "Inter";
+
+    --nav-text-color: var(--white);
+    --nav-text-font: var(--font-kanit);
+    --nav-text-hover-color:var(--light-grey);
+}
+
+.profile-circle {
+    background: linear-gradient(to right, #0575e6, #021b79);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}  
