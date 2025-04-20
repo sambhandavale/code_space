@@ -9,6 +9,7 @@ import { useNavigate } from "react-router";
 import { IChallenge } from "../../interfaces/interfaces";
 import DefaultProfile from "../../components/Layout/DefaultProfile";
 import Problem from "../../components/Challenge/ChallengeRoom/Problem";
+import { toast } from "sonner";
 
 const ChallengeRoom = () => {
     const { challengeId } = useParams<{ challengeId: string }>();
@@ -69,7 +70,7 @@ const ChallengeRoom = () => {
         try{
             let data = {challengeId:challengeId, userId:isAuth()._id};
             const res = await postAction('/challenge/leaveChallenge', data);
-            console.log(res.data.message);
+            toast.success(res.data.message);
         }catch(err){
             console.error(err);
         }
@@ -79,7 +80,7 @@ const ChallengeRoom = () => {
         try{
             let data = {challengeId:challengeId, userId:isAuth()._id};
             const res = await postAction('/challenge/drawChallenge', data);
-            console.log(res.data.message);
+            toast.success(res.data.message);
         }catch(err){
             console.error(err);
         }

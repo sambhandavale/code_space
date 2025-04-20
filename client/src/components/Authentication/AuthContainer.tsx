@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { postAction } from "../../services/generalServices";
 import { authenticate } from "../../utility/helper";
+import { toast } from 'sonner';
 
 interface IAuthContainer{
     method:string;
@@ -38,7 +39,7 @@ const AuthContainer = ({
             if (res.data.error) {
                 console.error(res.data.error);
               } else {
-                console.log("You have been enrolled successfully");
+                toast.success('You have been enrolled successfully');
                 navigate("/login");
               }
         } catch (err) {
@@ -53,10 +54,12 @@ const AuthContainer = ({
         e.preventDefault();
         try {
             const data = { email: email, password: password };
-            await postAction(route,data,informParent);
+            const res = await postAction(route,data,informParent);
+            if(res.status === 200){
+                toast.success(`Welcome, ${res.data.user.first_name} ${res.data.user.last_name}`);
+            }
         } catch (err) {
             console.error("Failed Authentication, ", err);
-            // toast.error(`${err}`);
         } finally {
             setLoading(false);
         }
