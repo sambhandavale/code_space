@@ -108,10 +108,10 @@ const ChallengeRoom = () => {
                     <div className="players__details">
                         <div className="player">
                             <DefaultProfile firstName={challengeDetails?.players[0].first_name}/>
-                            <div className="playername">{`${challengeDetails?.players[0].username} (${challengeDetails?.playerDetails[0].rating})`}</div>
+                            <div className="playername">{`${challengeDetails?.players[0].first_name} ${challengeDetails?.players[0].last_name} (${challengeDetails?.playerDetails[0].rating})`}</div>
                         </div>
                         <div className="player">
-                            <div className="playername">{`(${challengeDetails?.playerDetails[1].rating}) ${challengeDetails?.players[1].username}`}</div>
+                            <div className="playername">{`(${challengeDetails?.playerDetails[1].rating}) ${challengeDetails?.players[1].first_name} ${challengeDetails?.players[1].last_name}`}</div>
                             <DefaultProfile firstName={challengeDetails?.players[1].first_name}/>
                         </div>
                     </div>

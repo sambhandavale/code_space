@@ -22,7 +22,9 @@ const Navbar = () => {
               }
         >
             <div className="navbar__left">
-                <div className="navbar__logo" onClick={()=>navigate('/')}>LOGO</div>
+                <div className="navbar__logo" onClick={()=>navigate('/')}>
+                    <img src="/icons/logo2.svg" className="logo" alt="" />
+                </div>
                 <ul className="navbar__links">
                     <li className="navbar__link pointer" onClick={()=>navigate('/')}>Home</li>
                     <li className="navbar__link pointer">Challenge</li>
