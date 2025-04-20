@@ -1,19 +1,34 @@
 import Layout from "../../components/Layout/Layout";
 import ChallengeSection from "../../components/Challenge/ChallengeSection";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getSocket } from "../../hooks/Sockets";
 import { isAuth } from "../../utility/helper";
 import { Socket } from "socket.io-client";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { postAction } from "../../services/generalServices";
 
 const Home = () => {
+    const challengeRef = useRef<HTMLDivElement | null>(null);
+    const location = useLocation();
+
     const [user, setUser] = useState(() => isAuth());
     const [controlsSelected, setControlsSelected] = useState<{ language: string; time: number }>({ language: '', time: 0 });
     const [socket, setSocket] = useState<Socket | null>(null);
     const [socketId, setSocketId] = useState<string | null | undefined>(null);
     const [message, setMessage] = useState<string>('');
     const navigate = useNavigate();
+
+    const scrollToChallenge = () => {
+        challengeRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    useEffect(() => {
+        if (location.state?.scrollToChallenge) {
+            scrollToChallenge();
+
+            navigate(location.pathname, { replace: true });
+        }
+    }, [location.state, location.pathname, navigate]);
 
     useEffect(() => {
         if (user) {
@@ -73,7 +88,7 @@ const Home = () => {
     }, [socket, navigate]);
 
     return (
-        <Layout>
+        <Layout scrollToChallenge={scrollToChallenge}>
             <div className="home">
                 <div className="home-content page-top-m page-bottom-m">
                     <div className="ls-headline">
@@ -85,11 +100,12 @@ const Home = () => {
                             <div className="headline-text-minor">Challenge your friends</div>
                         </div>
                         <div className="main-tabs">
-                            <div className="tab gls-box glassmorphism-dark pointer">Challenge</div>
+                            <div className="tab gls-box glassmorphism-dark pointer" onClick={() => scrollToChallenge()}>Challenge</div>
                             <div className="tab gls-box glassmorphism-dark pointer">Write</div>
                         </div>
                     </div>
                     <ChallengeSection 
+                        ref={challengeRef}
                         controlsSelected={controlsSelected} 
                         setControlsSelected={setControlsSelected} 
                         joinMatchmaking={joinMatchmaking}

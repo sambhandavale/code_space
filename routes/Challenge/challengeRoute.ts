@@ -1,10 +1,11 @@
 import { Router } from "express";
 const router = Router();
 
-import { joinMatchmaking, getAllChallenges, getChallengeById, leaveChallenge,leaveMatchmaking } from "../../controllers/challenge/challengeController";
+import { joinMatchmaking, getAllChallenges, getChallengeById, leaveChallenge,leaveMatchmaking, drawChallenge } from "../../controllers/challenge/challengeController";
 
 router.post("/joinMatchmaking", joinMatchmaking);
 router.route("/leaveChallenge").post(leaveChallenge);
+router.route("/drawChallenge").post(drawChallenge);
 router.route("/stopMatchmaking").post(leaveMatchmaking);
 
 router.route("/").get(getAllChallenges);

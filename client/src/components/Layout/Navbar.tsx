@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { isAuth } from "../../utility/helper";
 import { logout } from "../../services/auth";
 
-const Navbar = () => {
+const Navbar = ({ scrollToChallenge }: any) => {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -10,6 +10,14 @@ const Navbar = () => {
         logout(() => {
           window.location.href = "/";
         });
+    };
+
+    const handleChallengeClick = () => {
+        if (location.pathname !== '') {
+            navigate('/', { state: { scrollToChallenge: true } });
+        } else {
+            scrollToChallenge?.();
+        }
     };
 
     return (
@@ -27,7 +35,7 @@ const Navbar = () => {
                 </div>
                 <ul className="navbar__links">
                     <li className="navbar__link pointer" onClick={()=>navigate('/')}>Home</li>
-                    <li className="navbar__link pointer">Challenge</li>
+                    <li className="navbar__link pointer" onClick={handleChallengeClick}>Challenge</li>
                     <li className="navbar__link pointer">Write</li>
                     <li className="navbar__link pointer">Learn</li>
                 </ul>

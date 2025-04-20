@@ -8,6 +8,7 @@ import { getSocket } from "../../hooks/Sockets";
 import { useNavigate } from "react-router";
 import { IChallenge } from "../../interfaces/interfaces";
 import DefaultProfile from "../../components/Layout/DefaultProfile";
+import Problem from "../../components/Challenge/ChallengeRoom/Problem";
 
 const ChallengeRoom = () => {
     const { challengeId } = useParams<{ challengeId: string }>();
@@ -18,9 +19,36 @@ const ChallengeRoom = () => {
     const [socketId, setSocketId] = useState<string | null | undefined>(null);
     const [challengeDetails,setChallengeDetails] = useState<IChallenge>()
     const [dividerPosition, setDividerPosition] = useState(50);
+    const [timeLeft, setTimeLeft] = useState<number>(1);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const isDragging = useRef(false);
+
+    useEffect(() => {
+        if (challengeDetails?.time) {
+            setTimeLeft(200 * 60);
+        }
+    }, [challengeDetails]);
+    
+    useEffect(() => {
+        if (timeLeft <= 0){
+            drawChallenge();
+            return
+        };
+    
+        const interval = setInterval(() => {
+            setTimeLeft((prev) => prev - 1);
+        }, 1000);
+    
+        return () => clearInterval(interval);
+    }, [timeLeft]);
+
+    const formatTime = (seconds: number): string => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
+    
 
     useEffect(()=>{
         const getChallengeDetails = async () =>{
@@ -41,6 +69,16 @@ const ChallengeRoom = () => {
         try{
             let data = {challengeId:challengeId, userId:isAuth()._id};
             const res = await postAction('/challenge/leaveChallenge', data);
+            console.log(res.data.message);
+        }catch(err){
+            console.error(err);
+        }
+    }
+
+    const drawChallenge = async () =>{
+        try{
+            let data = {challengeId:challengeId, userId:isAuth()._id};
+            const res = await postAction('/challenge/drawChallenge', data);
             console.log(res.data.message);
         }catch(err){
             console.error(err);
@@ -115,48 +153,22 @@ const ChallengeRoom = () => {
                             <DefaultProfile firstName={challengeDetails?.players[1].first_name}/>
                         </div>
                     </div>
-                    <div className="problem__about">
-                        <div className="problem__title__level">
-                            <div className="problem__title ff-google-b">{challengeDetails?.problem_id.title}</div>
-                            <div className="problem__level ff-google-n">{challengeDetails?.problem_id.difficulty}</div>
-                        </div>
-                        <div className="problem_desc_text ff-google-n">Problem Description</div>
-                        <div className="problem_info">
-                            <div className="problem_description">
-                                <div className="problem_description_text ff-google-n">{challengeDetails?.problem_id.description}</div>
-                                <div className="problem_description_text ff-google-n">{challengeDetails?.problem_id.task}</div>
-                            </div>
-                            <div className="problem_in_out">
-                                <div className="problem_in">
-                                    <div className="problem_in_top">
-                                        <img src="/icons/challenge/input-icon.svg" alt="" />
-                                        <div className="output_text ff-google-b">Input</div>
-                                    </div>
-                                    <div className="problem_in_text ff-google-n">{challengeDetails?.problem_id.input_format}</div>
-                                </div>
-                                <div className="problem_out">
-                                    <div className="problem_out_top">
-                                        <img src="/icons/challenge/output-icon.svg" alt="" />
-                                        <div className="input_text ff-google-b">Out</div>
-                                    </div>
-                                    <div className="problem_out_text ff-google-n">{challengeDetails?.problem_id.output_format}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <Problem
+                        challengeDetails={challengeDetails}
+                    />
                 </div>
                 <div className="divider" onMouseDown={handleMouseDown}></div>
                 <div className="challenge-room__right panel">
                     <div className="challenge_controls">
                         <div className="challenge_controls__left">
                             <img src="/icons/challenge/time.svg" alt="" />
-                            <div className="time ff-google-n">05:00</div>
+                            <div className="time ff-google-n">{formatTime(timeLeft)}</div>
                         </div>
-                        <div className="challenge_controls__right" onClick={leaveChallenge}>
-                            <div className="leave pointer">
+                        <div className="challenge_controls__right">
+                            <div className="leave pointer" onClick={leaveChallenge}>
                                 <div className="control_text ff-google-n">Leave</div>
                             </div>
-                            <div className="draw pointer">
+                            <div className="draw pointer" onClick={drawChallenge}>
                                 <img src="/icons/challenge/draw.svg" alt="" />
                                 <div className="control_text ff-google-n">Draw</div>
                             </div>

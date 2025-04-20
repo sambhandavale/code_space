@@ -1,13 +1,14 @@
 import { Fragment } from "react";
 import Navbar from "./Navbar";
 
-const Layout = ({children}:any) => {
+const Layout = ({ children, scrollToChallenge }: any) => {
   return (
     <Fragment>
-        <Navbar/>
+        <Navbar scrollToChallenge={scrollToChallenge} />
         {children}
     </Fragment>
-  )
-}
+  );
+};
 
 export default Layout;
+

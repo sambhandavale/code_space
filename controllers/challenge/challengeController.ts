@@ -213,6 +213,82 @@ export const leaveChallenge = async (req: Request, res: Response) => {
     }
 };
 
+export const drawChallenge = async (req: Request, res: Response) => {
+    try {
+        const { challengeId } = req.body;
+
+        const challenge = await UserChallenges.findById(challengeId);
+
+        if (!challenge) {
+            res.status(404).json({ message: "Challenge not found" });
+            return;
+        }
+
+        if (!challenge.active) {
+            res.status(400).json({ message: "Challenge already ended." });
+            return;
+        }
+
+        const problem = await Question.findById(challenge.problem_id).select("difficulty");
+        if (!problem) {
+            res.status(404).json({ message: "Problem not found" });
+            return;
+        }
+
+        const [player1, player2] = challenge.players;
+        const player1Str = player1.toString();
+        const player2Str = player2.toString();
+
+        const fullRating = problem.difficulty === "Easy" ? 6
+                          : problem.difficulty === "Medium" ? 8
+                          : 10;
+
+        const drawRating = Math.floor(fullRating / 2); // 3, 4, or 5
+
+        await UserChallenges.findByIdAndUpdate(challengeId, {
+            winner: null,
+            rating_change: { [player1Str]: drawRating, [player2Str]: drawRating },
+            active: false,
+            draw: true,
+        });
+
+        await Promise.all([
+            UserDetails.findOneAndUpdate(
+                { user_id: player1 },
+                { $inc: { rating: drawRating, draws: 1 } }
+            ),
+            UserDetails.findOneAndUpdate(
+                { user_id: player2 },
+                { $inc: { rating: drawRating, draws: 1 } }
+            )
+        ]);
+
+        const socket1 = userSockets.get(player1Str);
+        const socket2 = userSockets.get(player2Str);
+
+        if (socket1) {
+            io.to(socket1).emit("match_result", {
+                message: "The match ended in a draw! 🤝",
+                ratingChange: drawRating
+            });
+        }
+
+        if (socket2) {
+            io.to(socket2).emit("match_result", {
+                message: "The match ended in a draw! 🤝",
+                ratingChange: drawRating
+            });
+        }
+
+        res.status(200).json({ message: "Match ended in a draw. Ratings updated." });
+
+    } catch (error) {
+        console.error("Error handling draw:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+
 export const submitChallengeResult = async (req: Request, res: Response) => {
     try {
         const { challengeId, winnerId, ratingChanges } = req.body;

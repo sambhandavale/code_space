@@ -17,6 +17,7 @@ interface IChallengeSection {
   joinMatchmaking:() => void;
   stopMatchmaking:() => void;
   message:string;
+  ref:React.RefObject<HTMLDivElement | null>;
 }
 
 const ChallengeSection = ({
@@ -25,6 +26,7 @@ const ChallengeSection = ({
   joinMatchmaking,
   stopMatchmaking,
   message,
+  ref,
 }: IChallengeSection) => {
 
   const setLanguage = (language: string) => {
@@ -44,7 +46,7 @@ const ChallengeSection = ({
   const navigate = useNavigate()
 
   return (
-    <div className="challenge-section">
+    <div className="challenge-section" ref={ref}>
       <header>
         <div className="title">Challenge</div>
         <img src="/icons/question.svg" alt="Help" />
@@ -62,7 +64,7 @@ const ChallengeSection = ({
               <div className="languages">
                 {languages.map((lang) => (
                   <div
-                    className={`language glassmorphism-medium gls-box pointer ${
+                    className={`language glassmorphism-medium ${!lang.avail && 'locked'} gls-box pointer ${
                       lang.name === controlsSelected.language ? "selected" : ""
                     }`}
                     key={lang.name}
