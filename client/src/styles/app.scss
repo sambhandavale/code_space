@@ -28,7 +28,7 @@ body {
     outline: none;
 }
 
-.locked{
+.locked,.disable{
     opacity: 0.5;
     pointer-events: none;
 }

@@ -24,6 +24,7 @@ export interface IQuestion extends Document {
     test_cases: ITestCase[];
     createdAt?: Date;
     updatedAt?: Date;
+    template:Record<string, string>;
 }
 
 const QuestionSchema: Schema = new Schema<IQuestion>(
@@ -49,6 +50,11 @@ const QuestionSchema: Schema = new Schema<IQuestion>(
                 output: { type: String, required: true },
             },
         ],
+        template: {
+            type: Object,
+            required: true,
+            default: {},
+        },
     },
     { timestamps: true }
 );
