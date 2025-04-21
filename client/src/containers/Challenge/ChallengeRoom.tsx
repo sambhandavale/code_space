@@ -165,15 +165,17 @@ const ChallengeRoom = () => {
                     ? `Rating increased by ${data.ratingChange}`
                     : `Rating fell down by ${Math.abs(data.ratingChange)}`
                 }`
-              );   
-              if(data.ratingChange > 0){
+              );
+              if(data.message === 'The match ended in a draw! 🤝'){
+                setChallengeEndMessage({msg:`You match is a Draw You Made a Successful Pact\nYou Gain +${data.ratingChange}`,ratingChange:data.ratingChange})   
+              } else if(data.ratingChange > 0){
                 setChallengeEndMessage({msg:`You got 5 out of 5 testcases right!!\nYou Gained +${data.ratingChange}`,ratingChange:data.ratingChange})   
               } else if(data.ratingChange < 0){
                 setChallengeEndMessage({msg:`Opponent Got the Answer Right\nPassed all 5 Test Cases, You lost ${data.ratingChange} Rating`,ratingChange:data.ratingChange})
               } else{
                 setChallengeEndMessage({msg:'',ratingChange:0})
               }       
-            console.log(data.message);
+            console.log(data);
         });
     
         return () => {

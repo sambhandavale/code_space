@@ -8,6 +8,7 @@ import passport from "passport";
 import { passportInit } from './controllers/authentication/auth';
 import { routes } from './routes';
 import { Server } from 'socket.io';
+import path from 'path';
 
 dotenv.config();
 
@@ -16,7 +17,7 @@ const server = http.createServer(app);
 export const io = new Server(server, {
   cors: {
     origin: [
-      "http://localhost:1507",
+      process.env.REACT_APP_BASE_URL,
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],

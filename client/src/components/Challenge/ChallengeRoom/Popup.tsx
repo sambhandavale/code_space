@@ -14,8 +14,8 @@ const Popup = ({challengeEndMessage}:IPopup) => {
     <div className="result_popup">
         <div className="popup glassmorphism-light">
             <div className="popup_status">
-                <img src={`/icons/challenge/${challengeEndMessage.ratingChange > 0 ? 'won' : 'lose'}.svg`} alt="" />
-                <div className="popup_text white ff-kanit-n">{challengeEndMessage.ratingChange > 0 ? 'You Won!!' :'Oh No!!'}</div>
+                <img src={`/icons/challenge/${challengeEndMessage.ratingChange > 0 ? 'won' : challengeEndMessage.msg.includes('Draw') ? 'draw_match' : 'lose'}.svg`} alt="" />
+                <div className="popup_text white ff-kanit-n">{challengeEndMessage.ratingChange > 0 ? 'You Won!!' : challengeEndMessage.msg.includes('Draw') ? 'Draw' : 'Oh No!!'}</div>
             </div>
             <div className="popup_msg white ff-google-n">
                 {challengeEndMessage.msg.split('\n').map((line, index) => (
