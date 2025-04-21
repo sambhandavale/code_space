@@ -1,0 +1,79 @@
+.result_popup {
+    --scaleby: 0.8;
+
+    /* .result_popup variables */
+    --result_popup-bg: rgba(0, 0, 0, 0.5);
+
+    /* .popup variables */
+    --popup-padding: calc(5rem * var(--scaleby)) calc(6.25rem * var(--scaleby));
+    --popup-gap: calc(2rem * var(--scaleby));
+    --popup-border-radius: calc(1.25rem * var(--scaleby));
+
+    /* .popup_status variables */
+    --popup_status-gap: calc(1rem * var(--scaleby));
+    --popup_status-img-size: calc(9.375rem * var(--scaleby));
+    --popup_text-font-size: calc(3rem * var(--scaleby));
+
+    /* .popup_msg variables */
+    --popup_msg-font-size: calc(2.375rem * var(--scaleby));
+
+    /* .back variables */
+    --back-padding: calc(1.25rem * var(--scaleby)) calc(3rem * var(--scaleby));
+    --back-border-radius: calc(3.125rem * var(--scaleby));
+    --back-bg: #1D1D1D;
+    --back-font-size: calc(1.5rem * var(--scaleby));
+}
+
+.result_popup {
+    width: 100%;
+    height: 100vh;
+    background: var(--result_popup-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    bottom: 6rem;
+
+    .popup {
+        display: flex;
+        padding: var(--popup-padding);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: var(--popup-gap);
+        border-radius: var(--popup-border-radius);
+
+        .popup_status {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--popup_status-gap);
+
+            img {
+                width: var(--popup_status-img-size);
+                height: var(--popup_status-img-size);
+            }
+
+            .popup_text {
+                font-size: var(--popup_text-font-size);
+            }
+        }
+
+        .popup_msg {
+            font-size: var(--popup_msg-font-size);
+            text-align: center;
+        }
+
+        .back {
+            display: flex;
+            padding: var(--back-padding);
+            justify-content: center;
+            align-items: center;
+
+            border-radius: var(--back-border-radius);
+            background: var(--back-bg);
+
+            font-size: var(--back-font-size);
+        }
+    }
+}

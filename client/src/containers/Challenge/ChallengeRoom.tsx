@@ -10,6 +10,20 @@ import { IChallenge } from "../../interfaces/interfaces";
 import DefaultProfile from "../../components/Layout/DefaultProfile";
 import Problem from "../../components/Challenge/ChallengeRoom/Problem";
 import { toast } from "sonner";
+import Editor from '@monaco-editor/react';
+import { languages } from "../../utility/general-utility";
+import Popup from "../../components/Challenge/ChallengeRoom/Popup";
+
+interface ITestResult {
+    actual: string | null;
+    expected: string;
+    input: string;
+    status: string;
+    test_case: number;
+    // execution_time?: number; // in milliseconds
+    // error_message?: string; // if status is ERROR
+    // memory_usage?: number; // in KB
+  }
 
 const ChallengeRoom = () => {
     const { challengeId } = useParams<{ challengeId: string }>();
@@ -21,27 +35,48 @@ const ChallengeRoom = () => {
     const [challengeDetails,setChallengeDetails] = useState<IChallenge>()
     const [dividerPosition, setDividerPosition] = useState(50);
     const [timeLeft, setTimeLeft] = useState<number>(1);
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const isDragging = useRef(false);
 
+    const [code, setCode] = useState<string>("// Write your code here\n");
+    const [language, setLanguage] = useState<string | undefined>("python");
+    const [langIcon, setLangIcon] = useState<string>('');
+
+    const [submitLoading, setSubmitLoading] = useState<boolean>(false);
+    const [submitResult, setSubmitResult] = useState<ITestResult[]>([]);
+
+    const [selectedTestCaseOption, setSelectedTestCaseOption] = useState<number>(0);
+
+    const [challengeEnded, setChallengeEnded] = useState<boolean>(false);
+    const [challengeEndMessage,setChallengeEndMessage] = useState<{msg:string,ratingChange:number}>({msg:'',ratingChange:0});
+
+    const testCaseOptions = [
+        {name:'Test Cases',icon:'test_case'},
+        {name:'Test Run',icon:'test_run'},
+    ]
+
     useEffect(() => {
         if (challengeDetails?.time) {
+            // setTimeLeft(challengeDetails.problem_id.time * 60);
             setTimeLeft(200 * 60);
         }
     }, [challengeDetails]);
     
     useEffect(() => {
-        if (timeLeft <= 0){
+        if (timeLeft <= 0) {
             drawChallenge();
-            return
-        };
+            return;
+        }
     
-        const interval = setInterval(() => {
+        timerRef.current = setInterval(() => {
             setTimeLeft((prev) => prev - 1);
         }, 1000);
     
-        return () => clearInterval(interval);
+        return () => {
+            if (timerRef.current) clearInterval(timerRef.current);
+        };
     }, [timeLeft]);
 
     const formatTime = (seconds: number): string => {
@@ -57,6 +92,10 @@ const ChallengeRoom = () => {
                 const res = await getAction(`/challenge/${challengeId}`);
                 if(res && res.data){
                     setChallengeDetails(res.data);
+                    const lang = languages.find((lang)=>lang.name === res.data.language);
+                    setLanguage(lang?.monacoLang);
+                    setLangIcon(`/icons/languages/${lang?.icon}.svg`);
+                    setCode(res.data.problem_id.template.python);
                 }
             } catch(err){
                 console.error(err);
@@ -68,7 +107,7 @@ const ChallengeRoom = () => {
 
     const leaveChallenge = async () =>{
         try{
-            let data = {challengeId:challengeId, userId:isAuth()._id};
+            let data = {challengeId:challengeId, userId:isAuth()._id,};
             const res = await postAction('/challenge/leaveChallenge', data);
             toast.success(res.data.message);
         }catch(err){
@@ -81,6 +120,17 @@ const ChallengeRoom = () => {
             let data = {challengeId:challengeId, userId:isAuth()._id};
             const res = await postAction('/challenge/drawChallenge', data);
             toast.success(res.data.message);
+        }catch(err){
+            console.error(err);
+        }
+    }
+
+    const endChallenge = async () =>{
+        try{
+            const rating = challengeDetails?.problem_id.difficulty === 'Easy' ? 6 : challengeDetails?.problem_id.difficulty === 'Medium' ? 8 : 10;
+            let data = {challengeId:challengeId, winnerId:isAuth()._id, ratingChanges : {"user1": rating, "user2": -rating}};
+            const res = await postAction('/challenge/endChallenge', data);
+            toast.message(res.data.message);
         }catch(err){
             console.error(err);
         }
@@ -105,8 +155,25 @@ const ChallengeRoom = () => {
         if (!socket) return;
     
         socket.on("match_result", (data) => {
-          console.log("Match found:", data);
-          navigate(`/`);
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+            }
+            setChallengeEnded(true);
+            toast.message(
+                `${data.message} ${
+                  data.ratingChange > 0
+                    ? `Rating increased by ${data.ratingChange}`
+                    : `Rating fell down by ${Math.abs(data.ratingChange)}`
+                }`
+              );   
+              if(data.ratingChange > 0){
+                setChallengeEndMessage({msg:`You got 5 out of 5 testcases right!!\nYou Gained +${data.ratingChange}`,ratingChange:data.ratingChange})   
+              } else if(data.ratingChange < 0){
+                setChallengeEndMessage({msg:`Opponent Got the Answer Right\nPassed all 5 Test Cases, You lost ${data.ratingChange} Rating`,ratingChange:data.ratingChange})
+              } else{
+                setChallengeEndMessage({msg:'',ratingChange:0})
+              }       
+            console.log(data.message);
         });
     
         return () => {
@@ -133,6 +200,32 @@ const ChallengeRoom = () => {
     const handleMouseUp = () => {
     isDragging.current = false;
     };
+
+    const handleSubmit = async () =>{
+        try{
+            setSubmitLoading(true);
+            const data = {
+                "user_code":code,
+                "test_cases":challengeDetails?.problem_id.test_cases,
+            }
+            const res = await postAction('/challenge/submit-answer',data);
+            if(res && res.data && res.data.results){
+                const results = res.data.results
+                setSubmitResult(results);
+                setSubmitLoading(false);
+                const allPassed = results.every((testCase:ITestResult) => testCase.status === "PASSED");
+                if(allPassed){
+                    endChallenge();
+                }
+                if(res.data.results[0].status === 'ERROR'){
+                    toast.error(res.data.results[0].error);
+                }
+            }
+        } catch(err){
+            console.error(err);
+        }
+    }
+    
 
     return (
         <Layout>
@@ -173,15 +266,111 @@ const ChallengeRoom = () => {
                                 <img src="/icons/challenge/draw.svg" alt="" />
                                 <div className="control_text ff-google-n">Draw</div>
                             </div>
-                            <div className="chat pointer">
+                            <div className="chat pointer disable">
                                 <img src="/icons/challenge/chat.svg" alt="" />
                                 <div className="control_text ff-google-n">Chat</div>
                             </div>
                         </div>
                     </div>
-                    <div className="code_editor"></div>
-                    <div className="test_cases"></div>
+                    <div className="code_editor">
+                        <div className="code_editor__controls glassmorphism-dark">
+                            <div className="code_editor__controls_left">
+                                <img src={langIcon} alt="" />
+                                <div className="editor_text ff-google-n white">Editor</div>
+                            </div>
+                            <div className="code_editor__controls_right">
+                                <div className="editor_run">
+                                    <div className="run_text ff-google-n white">Run</div>
+                                    <img src="/icons/challenge/run.svg" alt="" />
+                                </div>
+                                <div className="editor_run pointer" onClick={handleSubmit}>
+                                    <div className="run_text ff-google-n yellow">{submitLoading ? 'Loading...' : 'Submit'}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="main_editor">
+                            <Editor
+                                height="400px"
+                                language={language}
+                                value={code}
+                                onChange={(value) => setCode(value || "")}
+                                theme="vs-dark"
+                                options={{
+                                    minimap: { enabled: false },
+                                    fontSize: 14,
+                                    scrollBeyondLastLine: false,
+                                    automaticLayout: true,
+                                }}
+                            />
+                        </div>
+                    </div>
+                    <div className="test_cases__section glassmorphism-dark">
+                        <div className="test_cases__controls glassmorphism-dark">
+                            {testCaseOptions.map((op,index)=>(
+                                <div 
+                                    className={`test_case_control pointer ${index===selectedTestCaseOption ? 'selected':''}`}
+                                    onClick={()=>setSelectedTestCaseOption(index)}
+                                >
+                                    <img src={`/icons/challenge/${op.icon}.svg`} alt="" />
+                                    <div className="control_text ff-google-n white">{op.name}</div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="test_cases">
+                        {challengeDetails?.problem_id.test_cases.slice(0, 3).map((testCase, index) => (
+                            <div
+                                key={index}
+                                className={`test_case glassmorphism-medium ${
+                                    submitResult?.length > 0 && submitResult[index]?.status === 'FAILED'
+                                        ? 'wrong'
+                                        : submitResult[index]?.status === 'PASSED'
+                                        ? 'right'
+                                        : ''
+                                }`}
+                            >
+                                <div 
+                                    className={`test_case_text ff-google-b ${
+                                        submitResult?.length > 0 && submitResult[index]?.status === 'PASSED'
+                                            ? 'black'
+                                            : 'white'
+                                    }`}
+                                >
+                                    Testcase {index + 1}
+                                </div>
+                                <div
+                                    className={`test_case_text ff-google-n ${
+                                        submitResult?.length > 0 && submitResult[index]?.status === 'PASSED'
+                                            ? 'black'
+                                            : 'white'
+                                    }`}
+                                >
+                                    {testCase.input.includes('\n') &&
+                                        testCase.input.split('\n').map((line, index) => (
+                                            <div key={index}>{line}</div>
+                                        ))}
+                                    {!testCase.input.includes('\n') && <div key={index}>{testCase.input}</div>}
+                                </div>
+                                {submitResult?.length > 0 && (
+                                    <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
+                                        Expected: {submitResult[index]?.expected}
+                                    </div>
+                                )}
+                                {submitResult?.length > 0 && (
+                                    <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
+                                        Your Output: {submitResult[index]?.actual}
+                                    </div>
+                                )}
+                            </div>
+
+                            ))}
+                        </div>
+                    </div>
                 </div>
+                {challengeEnded && (
+                    <Popup
+                        challengeEndMessage={challengeEndMessage}
+                    />
+                )}
             </div>
         </Layout>
     )

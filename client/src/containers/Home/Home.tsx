@@ -6,6 +6,7 @@ import { isAuth } from "../../utility/helper";
 import { Socket } from "socket.io-client";
 import { useLocation, useNavigate } from "react-router";
 import { postAction } from "../../services/generalServices";
+import { toast } from "sonner";
 
 const Home = () => {
     const challengeRef = useRef<HTMLDivElement | null>(null);
@@ -49,7 +50,10 @@ const Home = () => {
         if (!socket) return;
         try{
             const data = {userId:isAuth()._id, language:controlsSelected.language, timeControl:controlsSelected.time}
-            console.log(data);
+            if(controlsSelected.language === '' || controlsSelected.time === 0 ){
+                toast.error('Please Select the Challenge Controlls!!');
+                return;
+            }
             const res = await postAction('/challenge/joinMatchmaking',data)
             if(res && res.data){
                 setMessage(res.data.message);
@@ -101,7 +105,7 @@ const Home = () => {
                         </div>
                         <div className="main-tabs">
                             <div className="tab gls-box glassmorphism-dark pointer" onClick={() => scrollToChallenge()}>Challenge</div>
-                            <div className="tab gls-box glassmorphism-dark pointer">Write</div>
+                            <div className="tab gls-box glassmorphism-dark pointer locked">Write</div>
                         </div>
                     </div>
                     <ChallengeSection 

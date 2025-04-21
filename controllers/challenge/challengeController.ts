@@ -293,39 +293,79 @@ export const submitChallengeResult = async (req: Request, res: Response) => {
     try {
         const { challengeId, winnerId, ratingChanges } = req.body;
 
+        // Convert ratingChanges to an array to get [winnerRating, loserRating]
+        const ratingValues = Object.values(ratingChanges);
+
+        if (ratingValues.length !== 2) {
+            res.status(400).json({ error: "Invalid ratingChanges format. Expected 2 values." });
+            return;
+        }
+
+        const winnerRatingChange = ratingValues[0]  as number;
+        const loserRatingChange = ratingValues[1]  as number;
+
+        // Fetch challenge to find participants
+        const challenge = await UserChallenges.findById(challengeId);
+        if (!challenge) {
+            res.status(404).json({ error: "Challenge not found." });
+            return;
+        }
+
+        const participants: string[] = challenge.players.map(player => player.toString());
+
+        // Identify loser ID
+        const loserId = participants.find((id) => id !== winnerId);
+        if (!loserId) {
+            res.status(400).json({ error: "Could not determine loser from participants." });
+            return;
+        }
+
+        // Update challenge result
         await UserChallenges.findByIdAndUpdate(challengeId, {
             winner: winnerId,
-            rating_change: ratingChanges,
+            rating_change: {
+                [winnerId]: winnerRatingChange,
+                [loserId]: loserRatingChange,
+            },
+            active: false,
         });
 
-        const updatePromises = Object.entries(ratingChanges).map(async ([userId, ratingChange]) => {
-            await UserDetails.findOneAndUpdate(
-                { user_id: userId },
-                { $inc: { rating: ratingChange } }
-            );
-        });
+        // Update users' ratings
+        await Promise.all([
+            UserDetails.findOneAndUpdate(
+                { user_id: winnerId },
+                { $inc: { rating: winnerRatingChange } }
+            ),
+            UserDetails.findOneAndUpdate(
+                { user_id: loserId },
+                { $inc: { rating: loserRatingChange } }
+            )
+        ]);
 
-        await Promise.all(updatePromises);
-
-        for (const [userId, ratingChange] of Object.entries(ratingChanges)) {
+        // Notify both users via socket
+        const notifyUser = (userId: string, isWinner: boolean, ratingChange: number) => {
             const socketId = userSockets.get(userId);
             if (socketId) {
                 io.to(socketId).emit("match_result", {
-                    message: userId === winnerId
+                    message: isWinner
                         ? "You won the match! 🎉"
                         : "You lost the match. Better luck next time! 💪",
                     ratingChange
                 });
             }
-        }
+        };
 
-        res.status(200).json({ message: "Challenge result submitted successfully and ratings updated." });
+        notifyUser(winnerId, true, winnerRatingChange);
+        notifyUser(loserId, false, loserRatingChange);
+
+        res.status(200).json({ message: "Challenge result submitted and ratings updated." });
 
     } catch (error) {
         console.error("Error submitting challenge result:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 };
+
 
 export const getChallengeById = async (req, res) => {
     try {
@@ -351,5 +391,41 @@ export const getChallengeById = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
+    }
+};
+
+export const proxyPythonTestCaseCompiler = async (req: Request, res: Response) => {
+    try {
+        const response = await fetch("https://python-compiler-mu.vercel.app/api/test-code", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(req.body),
+        });
+
+        const result = await response.json();
+        res.status(200).json(result);
+    } catch (error) {
+        console.error("Error in proxyPythonCompiler:", error);
+        res.status(500).json({ error: "Failed to proxy request" });
+    }
+};
+
+export const proxyPythonCompiler = async (req: Request, res: Response) => {
+    try {
+        const response = await fetch("https://python-compiler-mu.vercel.app/api/test-code", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(req.body),
+        });
+
+        const result = await response.json();
+        res.status(200).json(result);
+    } catch (error) {
+        console.error("Error in proxyPythonCompiler:", error);
+        res.status(500).json({ error: "Failed to proxy request" });
     }
 };

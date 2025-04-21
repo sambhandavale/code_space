@@ -36,8 +36,8 @@ const Navbar = ({ scrollToChallenge }: any) => {
                 <ul className="navbar__links">
                     <li className="navbar__link pointer" onClick={()=>navigate('/')}>Home</li>
                     <li className="navbar__link pointer" onClick={handleChallengeClick}>Challenge</li>
-                    <li className="navbar__link pointer">Write</li>
-                    <li className="navbar__link pointer">Learn</li>
+                    <li className="navbar__link pointer locked">Write</li>
+                    <li className="navbar__link pointer locked">Learn</li>
                 </ul>
             </div>
             {!isAuth() ? (

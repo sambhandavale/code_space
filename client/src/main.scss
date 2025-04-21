@@ -1,6 +1,7 @@
 @use "./styles/app.scss" as *;
 @use "./styles/fonts.scss" as *;
 @use "./styles/shortcuts.scss" as *;
+@use "./styles/colors.scss" as *;
 
 @use "./styles/common/additional_colors.scss" as *;
 @use "./styles/common/glassmorphism.scss" as *;
@@ -16,6 +17,7 @@
 
 @use "./styles/Challenge/challenge-section.scss" as *;
 @use "./styles/Challenge/challenge-room.scss" as *;
+@use "./styles/Challenge/popup.scss" as *;
 
 :root {
     --white: #ffffff;
@@ -29,6 +31,7 @@
     --nav-text-font: var(--font-kanit);
     --nav-text-hover-color:var(--light-grey);
 }
+
 
 .profile-circle {
     background: linear-gradient(to right, #0575e6, #021b79);

@@ -25,8 +25,15 @@ interface IProblem {
     output_format: string;
     time: number;
     examples: IExample[];
-    test_cases: any[];
+    test_cases:TestCase[];
 }
+
+interface TestCase {
+    _id: string;
+    input: string;
+    output: string;
+}
+  
 
 interface IPlayerDetails {
     _id: string;
