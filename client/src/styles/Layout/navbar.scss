@@ -14,7 +14,7 @@
 }
 
 .navbar {    
-    position: relative;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
@@ -24,6 +24,7 @@
     align-items: center;
     padding: var(--navbar-padding);
     z-index: 2;
+    background: linear-gradient(0deg, #b9b9b900, #000c 70%);
 
     .navbar__left,
     .navbar__right {

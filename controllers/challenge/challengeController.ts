@@ -326,7 +326,8 @@ export const submitChallengeResult = async (req: Request, res: Response) => {
             rating_change: {
                 [winnerId]: winnerRatingChange,
                 [loserId]: loserRatingChange,
-            }
+            },
+            active: false,
         });
 
         // Update users' ratings

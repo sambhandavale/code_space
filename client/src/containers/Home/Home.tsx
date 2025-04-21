@@ -105,7 +105,7 @@ const Home = () => {
                         </div>
                         <div className="main-tabs">
                             <div className="tab gls-box glassmorphism-dark pointer" onClick={() => scrollToChallenge()}>Challenge</div>
-                            <div className="tab gls-box glassmorphism-dark pointer">Write</div>
+                            <div className="tab gls-box glassmorphism-dark pointer locked">Write</div>
                         </div>
                     </div>
                     <ChallengeSection 

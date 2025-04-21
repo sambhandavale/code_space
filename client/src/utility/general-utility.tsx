@@ -32,7 +32,7 @@ export const languages = [
     {
         name: "JavaScript",
         icon: "js",
-        avail: 1,
+        avail: 0,
         monacoLang: "javascript" // Monaco language ID
     },
 ];

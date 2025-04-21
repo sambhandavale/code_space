@@ -9,8 +9,6 @@ import { passportInit } from './controllers/authentication/auth';
 import { routes } from './routes';
 import { Server } from 'socket.io';
 
-import { joinMatchmaking } from './controllers/challenge/challengeController';
-
 dotenv.config();
 
 const app = express();

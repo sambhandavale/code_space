@@ -12,6 +12,7 @@ import Problem from "../../components/Challenge/ChallengeRoom/Problem";
 import { toast } from "sonner";
 import Editor from '@monaco-editor/react';
 import { languages } from "../../utility/general-utility";
+import Popup from "../../components/Challenge/ChallengeRoom/Popup";
 
 interface ITestResult {
     actual: string | null;
@@ -34,6 +35,7 @@ const ChallengeRoom = () => {
     const [challengeDetails,setChallengeDetails] = useState<IChallenge>()
     const [dividerPosition, setDividerPosition] = useState(50);
     const [timeLeft, setTimeLeft] = useState<number>(1);
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const isDragging = useRef(false);
@@ -47,6 +49,9 @@ const ChallengeRoom = () => {
 
     const [selectedTestCaseOption, setSelectedTestCaseOption] = useState<number>(0);
 
+    const [challengeEnded, setChallengeEnded] = useState<boolean>(false);
+    const [challengeEndMessage,setChallengeEndMessage] = useState<{msg:string,ratingChange:number}>({msg:'',ratingChange:0});
+
     const testCaseOptions = [
         {name:'Test Cases',icon:'test_case'},
         {name:'Test Run',icon:'test_run'},
@@ -54,21 +59,24 @@ const ChallengeRoom = () => {
 
     useEffect(() => {
         if (challengeDetails?.time) {
+            // setTimeLeft(challengeDetails.problem_id.time * 60);
             setTimeLeft(200 * 60);
         }
     }, [challengeDetails]);
     
     useEffect(() => {
-        if (timeLeft <= 0){
+        if (timeLeft <= 0) {
             drawChallenge();
-            return
-        };
+            return;
+        }
     
-        const interval = setInterval(() => {
+        timerRef.current = setInterval(() => {
             setTimeLeft((prev) => prev - 1);
         }, 1000);
     
-        return () => clearInterval(interval);
+        return () => {
+            if (timerRef.current) clearInterval(timerRef.current);
+        };
     }, [timeLeft]);
 
     const formatTime = (seconds: number): string => {
@@ -120,7 +128,7 @@ const ChallengeRoom = () => {
     const endChallenge = async () =>{
         try{
             const rating = challengeDetails?.problem_id.difficulty === 'Easy' ? 6 : challengeDetails?.problem_id.difficulty === 'Medium' ? 8 : 10;
-            let data = {challengeId:challengeId, userId:isAuth()._id, ratingChanges : {"user1": rating, "user2": -rating}};
+            let data = {challengeId:challengeId, winnerId:isAuth()._id, ratingChanges : {"user1": rating, "user2": -rating}};
             const res = await postAction('/challenge/endChallenge', data);
             toast.message(res.data.message);
         }catch(err){
@@ -147,8 +155,25 @@ const ChallengeRoom = () => {
         if (!socket) return;
     
         socket.on("match_result", (data) => {
-          console.log("Match found:", data);
-          navigate(`/`);
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+            }
+            setChallengeEnded(true);
+            toast.message(
+                `${data.message} ${
+                  data.ratingChange > 0
+                    ? `Rating increased by ${data.ratingChange}`
+                    : `Rating fell down by ${Math.abs(data.ratingChange)}`
+                }`
+              );   
+              if(data.ratingChange > 0){
+                setChallengeEndMessage({msg:`You got 5 out of 5 testcases right!!\nYou Gained +${data.ratingChange}`,ratingChange:data.ratingChange})   
+              } else if(data.ratingChange < 0){
+                setChallengeEndMessage({msg:`Opponent Got the Answer Right\nPassed all 5 Test Cases, You lost ${data.ratingChange} Rating`,ratingChange:data.ratingChange})
+              } else{
+                setChallengeEndMessage({msg:'',ratingChange:0})
+              }       
+            console.log(data.message);
         });
     
         return () => {
@@ -191,6 +216,9 @@ const ChallengeRoom = () => {
                 const allPassed = results.every((testCase:ITestResult) => testCase.status === "PASSED");
                 if(allPassed){
                     endChallenge();
+                }
+                if(res.data.results[0].status === 'ERROR'){
+                    toast.error(res.data.results[0].error);
                 }
             }
         } catch(err){
@@ -338,6 +366,11 @@ const ChallengeRoom = () => {
                         </div>
                     </div>
                 </div>
+                {challengeEnded && (
+                    <Popup
+                        challengeEndMessage={challengeEndMessage}
+                    />
+                )}
             </div>
         </Layout>
     )
