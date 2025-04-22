@@ -58,7 +58,7 @@ const AuthContainer = ({
             console.log(res);
             if(res.status === 200){
                 toast.success(`Welcome, ${res.data.user.first_name} ${res.data.user.last_name}`);
-                setLocalStorage('token',res.data.jwtToken);
+                // setLocalStorage('token',res.data.jwtToken);
             }
         } catch (err) {
             console.error("Failed Authentication, ", err);
