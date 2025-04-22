@@ -18,9 +18,9 @@ axiosInstance.interceptors.request.use((config) => {
     const cleanToken = token.replace(/^"(.*)"$/, '$1').replace(/\\"/g, '"');
     config.headers.Authorization = `Bearer ${cleanToken}`;
     
-    // Debugging
-    console.log("Cleaned token:", cleanToken);
-    console.log("Full header:", config.headers.Authorization);
+    // // Debugging
+    // console.log("Cleaned token:", cleanToken);
+    // console.log("Full header:", config.headers.Authorization);
   }
 
   return config;
