@@ -68,26 +68,12 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
       });
 
       const isProduction = process.env.NODE_ENV === 'production';
-
-      if(isProduction){
-        console.log('prod');
-        res.cookie("jwt", jwtToken, {
-            expires: new Date(Date.now() + 7 * 60 * 60 * 1000),
-            httpOnly: true,
-            secure: true, // Must be true for HTTPS
-            sameSite: 'none', // Required for cross-site
-            domain: '.onrender.com', // Notice the leading dot
-            path: '/', // Important for cross-origin
-            partitioned: true // New Chrome requirement for third-party cookies
-          });
-      } else{
-        console.log('local');
-        res.cookie("jwt", jwtToken, {
-            expires: new Date(Date.now() + 7 * 60 * 60 * 1000),
-            httpOnly: true,
-            secure: req.secure || req.headers["x-forwarded-proto"] === "https",
-        });
-      }
+      
+      res.cookie("jwt", jwtToken, {
+          expires: new Date(Date.now() + 7 * 60 * 60 * 1000),
+          httpOnly: true,
+          secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+      });
 
       res.json({ jwtToken, user });
   } catch (error) {
