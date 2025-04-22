@@ -30,6 +30,7 @@ app.use(
       credentials: true,
       origin: [
         process.env.REACT_APP_BASE_URL,
+        "https://code-space-frontend.onrender.com",
       ],
     }),
   );

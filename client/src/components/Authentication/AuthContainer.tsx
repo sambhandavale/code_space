@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { postAction } from "../../services/generalServices";
-import { authenticate } from "../../utility/helper";
+import { authenticate, setLocalStorage } from "../../utility/helper";
 import { toast } from 'sonner';
 
 interface IAuthContainer{
@@ -57,6 +57,7 @@ const AuthContainer = ({
             const res = await postAction(route,data,informParent);
             if(res.status === 200){
                 toast.success(`Welcome, ${res.data.user.first_name} ${res.data.user.last_name}`);
+                setLocalStorage('token',res.data.jwtToken);
             }
         } catch (err) {
             console.error("Failed Authentication, ", err);

@@ -67,6 +67,8 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
           expiresIn: "7h",
       });
 
+      const isProduction = process.env.NODE_ENV === 'production';
+      
       res.cookie("jwt", jwtToken, {
           expires: new Date(Date.now() + 7 * 60 * 60 * 1000),
           httpOnly: true,

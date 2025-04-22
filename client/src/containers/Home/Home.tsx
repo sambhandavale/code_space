@@ -55,6 +55,7 @@ const Home = () => {
                 return;
             }
             const res = await postAction('/challenge/joinMatchmaking',data)
+            // console.log(res);
             if(res && res.data){
                 setMessage(res.data.message);
             }

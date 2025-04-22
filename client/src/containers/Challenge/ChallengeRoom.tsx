@@ -34,7 +34,7 @@ const ChallengeRoom = () => {
     const [socketId, setSocketId] = useState<string | null | undefined>(null);
     const [challengeDetails,setChallengeDetails] = useState<IChallenge>()
     const [dividerPosition, setDividerPosition] = useState(50);
-    const [timeLeft, setTimeLeft] = useState<number>(1);
+    const [timeLeft, setTimeLeft] = useState<number>(10);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -59,13 +59,13 @@ const ChallengeRoom = () => {
 
     useEffect(() => {
         if (challengeDetails?.time) {
-            // setTimeLeft(challengeDetails.problem_id.time * 60);
-            setTimeLeft(200 * 60);
+            setTimeLeft(challengeDetails.problem_id.time * 60);
         }
     }, [challengeDetails]);
     
     useEffect(() => {
         if (timeLeft <= 0) {
+            console.log('timeup!');
             drawChallenge();
             return;
         }
