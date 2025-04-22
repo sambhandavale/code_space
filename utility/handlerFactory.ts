@@ -2,17 +2,11 @@ import AppError from "./appError";
 import { Request, Response, NextFunction } from "express";
 import { Model } from "mongoose";
 import APIFeatures from "./apiFeatures";
-import { IUser } from "../models/Users/Users";
+import { IBaseRequest } from "../interfaces/core_interfaces";
 
 export interface IFilter {
   _id?: string;
 }
-
-export interface IBaseRequest extends Request {
-    user: Partial<IUser>;
-    baseUrl: string;
-    query: { [index: string]: string };
-  }
 
 const catchAsync = (
     // skipcq: JS-0323
