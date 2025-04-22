@@ -6,18 +6,23 @@ const JwtStrategy = passport_jwt.Strategy;
 
 export const passportInit = (passport: any) => {
   const jwtExtractor = function (req: Request) {
-    let token = null;
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      token = req.headers.authorization.split(" ")[1];
-    } else if (req.cookies.jwt) {
-      token = req.cookies.jwt;
-    } else if (req.cookies) {
-      token = req.cookies["jwt"];
+    // Check authorization header first
+    const authHeader = req.headers.authorization;
+    if (authHeader) {
+      // More robust header parsing
+      const parts = authHeader.split(' ');
+      if (parts.length === 2 && parts[0] === 'Bearer') {
+        // Clean the token from any escape characters
+        return parts[1].replace(/^"(.*)"$/, '$1').replace(/\\"/g, '"');
+      }
     }
-    return token;
+    
+    // Fallback to cookies if needed
+    if (req.cookies?.jwt) {
+      return req.cookies.jwt;
+    }
+    
+    return null;
   };
 
   const options = {

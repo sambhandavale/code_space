@@ -9,20 +9,24 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = getLocalStorage("token");
+// Updated axios interceptor
+axiosInstance.interceptors.request.use((config) => {
+  const token = getLocalStorage("token");
+  
+  if (token) {
+    // Clean the token by removing any quotes or escape characters
+    const cleanToken = token.replace(/^"(.*)"$/, '$1').replace(/\\"/g, '"');
+    config.headers.Authorization = `Bearer ${cleanToken}`;
+    
+    // Debugging
+    console.log("Cleaned token:", cleanToken);
+    console.log("Full header:", config.headers.Authorization);
+  }
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
 
 // axiosInstance.interceptors.response.use(
 //   (response) => {
