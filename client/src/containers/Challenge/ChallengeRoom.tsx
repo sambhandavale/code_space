@@ -64,7 +64,6 @@ const ChallengeRoom = () => {
     }, [challengeDetails]);
     
     useEffect(() => {
-        console.log(timeLeft);
         if (timeLeft <= 0) {
             console.log('timeup!');
             drawChallenge();
