@@ -26,17 +26,14 @@ export const io = new Server(server, {
 });
 
 app.use(
-  cors({
-    credentials: true,
-    origin: [
-      process.env.REACT_APP_BASE_URL,
-      "https://code-space-frontend.onrender.com",
-      "https://code-space-backend.onrender.com"
-    ],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie'],
-    exposedHeaders: ['Set-Cookie']
-  })
-);
+    cors({
+      credentials: true,
+      origin: [
+        process.env.REACT_APP_BASE_URL,
+        "https://code-space-frontend.onrender.com",
+      ],
+    }),
+  );
 
 // Middleware
 app.use(express.json());
