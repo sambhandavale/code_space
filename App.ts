@@ -68,6 +68,12 @@ io.on("connection", (socket) => {
   });
 }); 
 
+app.use((req, res, next) => {
+  console.log('Cookies:', req.cookies);
+  console.log('Headers:', req.headers);
+  next();
+});
+
 // Start server
 const PORT = process.env.PORT || 6000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
