@@ -71,6 +71,8 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
           expires: new Date(Date.now() + 7 * 60 * 60 * 1000),
           httpOnly: true,
           secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+          sameSite: 'none', // Crucial for cross-site cookies
+          domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
       });
 
       res.json({ jwtToken, user });

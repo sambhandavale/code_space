@@ -23,6 +23,7 @@ export const passportInit = (passport: any) => {
   const options = {
     jwtFromRequest: jwtExtractor,
     secretOrKey: process.env.JWT_SECRET,
+    ignoreExpiration: false
   };
 
   passport.use(
