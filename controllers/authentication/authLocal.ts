@@ -67,10 +67,14 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
           expiresIn: "7h",
       });
 
+      const isProduction = process.env.NODE_ENV === 'production';
+
       res.cookie("jwt", jwtToken, {
           expires: new Date(Date.now() + 7 * 60 * 60 * 1000),
           httpOnly: true,
           secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+          sameSite: isProduction ? 'none' : 'lax',
+          ...(isProduction && { domain: '.onrender.com' })
       });
 
       res.json({ jwtToken, user });
