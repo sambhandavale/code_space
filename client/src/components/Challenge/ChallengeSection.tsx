@@ -117,7 +117,7 @@ const ChallengeSection = ({
         )}
       </div>
       {isAuth() && (
-        <div className="challenge__bts">
+        <div className="challenge__bts ff-google-n">
           <div 
             className="find_challenge glassmorphism-medium gls-box pointer"
             onClick={joinMatchmaking}

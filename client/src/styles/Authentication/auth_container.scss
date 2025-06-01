@@ -1,107 +1,105 @@
 .auth_container{
-    --auth-switch:var(--neon-blue);
-    --auth-switch-font-size:1.25rem;
+  --scale: 1;
 
-    --auth-title-highlight:var(--yellow);
-    --auth-title-top-font-size:3.5rem;
-    --auth-title-bottom-font-size:2rem;
+  --auth-switch: var(--neon-blue);
+  --auth_container--padding: 0 calc(1.5rem * var(--scale)) 0 calc(4rem * var(--scale));
 
-    --auth-input-padding:14px 20px;
-    --auth-input-font-size:1.375rem;
-    --auth-input-gap:2rem;
-
-    --auth-submit-padding:1rem 3rem;
+  --auth-switch-font-size: calc(1.25rem * var(--scale));
+  --auth-title-top-font-size: calc(3.5rem * var(--scale));
+  --auth-title-bottom-font-size: calc(2rem * var(--scale));
+  --auth-input-padding: calc(14px * var(--scale)) calc(20px * var(--scale));
+  --auth-input-font-size: calc(1.375rem * var(--scale));
+  --auth-input-gap: calc(2rem * var(--scale));
+  --auth-submit-padding: calc(0.75rem * var(--scale)) calc(3rem * var(--scale));
 }
 
-.auth_container{
+.auth_container {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     align-self: stretch;
-    margin: 0 0 0 70px;
+    margin: var(--auth_container--padding);
+    max-width: calc(600px * var(--scale));
 
-    .form_container{
+    .form_container {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        gap: 30px;
+        gap: calc(30px * var(--scale));
 
-        header{
+        header {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            gap: 20px;
+            gap: calc(20px * var(--scale));
             align-self: stretch;
 
-            .title{
+            .title {
                 color: var(--white);
                 font-family: 'ARP 240';
                 font-size: var(--auth-title-top-font-size);
 
-                .lower-half{
+                .lower-half {
                     font-size: var(--auth-title-bottom-font-size);
                 }
 
-                .highlight{
-                    color:var(--auth-title-highlight);
+                .highlight {
+                    color: var(--auth-title-highlight);
                 }
             }
 
-            .switch{
+            .switch {
                 color: #FFF;
                 font-family: "GoogleSansRegular";
                 font-size: var(--auth-switch-font-size);
                 letter-spacing: 0.4px;
 
-                span{
-                    color:var(--auth-switch);
+                span {
+                    color: var(--auth-switch);
                 }
             }
         }
 
-        form{
+        form {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
             gap: var(--auth-input-gap);
             align-self: stretch;
 
-            .ly{
+            .ly {
                 display: flex;
                 align-items: center;
                 gap: var(--auth-input-gap);
                 align-self: stretch;
 
-                input{
+                input {
                     display: flex;
                     padding: var(--auth-input-padding);
                     flex: 1 0 0;
 
                     font-family: 'GoogleSansRegular';
-                    color:var(--white);
+                    color: var(--white);
                     font-size: var(--auth-input-font-size);
+                    border-radius: calc(10px * var(--scale));
 
-                    border-radius: 10px;
-
-                    &::placeholder{
+                    &::placeholder {
                         font-family: 'GoogleSansRegular';
-                        color:var(--white);
+                        color: var(--white);
                         font-size: var(--auth-input-font-size);
                     }
                 }
             }
 
-            button{
+            button {
                 display: flex;
                 padding: var(--auth-submit-padding);
                 justify-content: center;
                 align-items: center;
-    
-                border-radius: 10px;
+                border-radius: calc(10px * var(--scale));
                 border: 1px solid rgba(255, 255, 255, 0.26);
                 background: #FFF;
-                backdrop-filter: blur(11.399999618530273px);
-    
+                backdrop-filter: blur(11.4px);
                 color: #202020;
                 font-family: "GoogleSansRegular";
                 font-size: var(--auth-input-font-size);
@@ -110,33 +108,22 @@
         }
     }
 }
-
-@media screen and (max-width: 1530px) and (max-height:713px){
-    .auth_container{
-        --auth-switch-font-size:1.125rem;
-
-        --auth-title-top-font-size:3rem;
-        --auth-title-bottom-font-size:1.5rem;
-
-        --auth-input-padding:12px 18px;
-        --auth-input-font-size:1.125rem;
-        --auth-input-gap:1.5rem;
-
-        --auth-submit-padding:0.725rem 2.5rem;
-    }
+@media screen and (max-width: 1024px) {
+  .auth_container {
+    --scale: 0.9;
+  }
 }
 
-@media screen and (max-width: 1370px) and (max-height:650px) {
-    .auth_container{
-        --auth-switch-font-size:1rem;
-
-        --auth-title-top-font-size:2.75rem;
-        --auth-title-bottom-font-size:1.5rem;
-
-        --auth-input-padding:10px 18px;
-        --auth-input-font-size:1rem;
-        --auth-input-gap:1.375rem;
-
-        --auth-submit-padding:0.725rem 2.5rem;
-    }
+@media screen and (max-width: 768px) {
+  .auth_container {
+    --scale: 0.75;
+  }
 }
+
+@media screen and (max-width: 480px) {
+  .auth_container {
+    --scale: 0.7;
+    --auth_container--padding: 0 calc(1.5rem * var(--scale)) 0 calc(2rem * var(--scale));
+  }
+}
+

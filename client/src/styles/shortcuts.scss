@@ -1,5 +1,9 @@
 .page-top-m{
     margin-top: 10rem !important;
+
+    @media (max-width: 576px) {
+        margin-top: 7rem !important;
+    }
 }
 
 .page-bottom-m{

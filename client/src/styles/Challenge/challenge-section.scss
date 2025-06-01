@@ -2,12 +2,12 @@
     --challenge-section-font-color:var(--white);
 
     --challenge-section-margin:2rem 3rem;
-    --challenge-section-gap:4rem;
-
-    --challenge-section-header-font-size:3rem;
-    --challenge-section-header-img-size:2rem;
+    --challenge-section-gap:calc(4rem * var(--challenge-section-controls-scaleby));
 
     --challenge-section-controls-scaleby: 1;
+
+    --challenge-section-header-font-size:calc(3rem * var(--challenge-section-controls-scaleby));
+    --challenge-section-header-img-size:calc(2rem * var(--challenge-section-controls-scaleby));
 
     --challenge-section-img-size:calc(37.5rem * var(--challenge-section-controls-scaleby));
 
@@ -26,6 +26,8 @@
     --challenge-section-controls-tcontroltab-title-font-size: calc(2.5rem * var(--challenge-section-controls-scaleby));
     --challenge-section-controls-tcontroltab-title-min-width: calc(7.5rem * var(--challenge-section-controls-scaleby));
     --challenge-section-controls-tcontroltab-userrating-font-size: calc(1.375rem * var(--challenge-section-controls-scaleby));
+
+    --challenge-section-submit-button:calc(2rem * var(--challenge-section-controls-scaleby));
 }
 
 .challenge-section{
@@ -192,6 +194,7 @@
                     font-family: "GoogleSansBold";
                     font-size: 2.125rem;
                     text-transform: capitalize;
+                    text-align: center;
                 }
 
                 img{
@@ -228,8 +231,7 @@
             border-radius: 20px;
     
             color: var(--challenge-section-font-color);
-            font-family: "Google Sans Display";
-            font-size: 2rem;
+            font-size: var(--challenge-section-submit-button);
             font-style: normal;
             font-weight: 700;
             line-height: normal;
@@ -257,7 +259,6 @@
 
         .challenge-sec2{
             flex-direction: column;
-            gap:6rem;
         }
     }
 }
@@ -272,4 +273,17 @@
     .challenge-section{
         --challenge-section-controls-scaleby: 0.8;
     }
+}
+
+
+@media (max-width: 576px) {
+  .challenge-section {
+    --challenge-section-controls-scaleby: 0.6;
+  }
+}
+
+@media (max-width: 450px) {
+  .challenge-section {
+    --challenge-section-controls-scaleby: 0.5;
+  }
 }
