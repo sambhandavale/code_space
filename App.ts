@@ -25,16 +25,41 @@ export const io = new Server(server, {
   path: '/socket.io/',
 });
 
+// app.use(
+//     cors({
+//       credentials: true,
+//       origin: [
+//         process.env.REACT_APP_BASE_URL,
+//         "https://code-space-frontend.onrender.com",
+//         "https://code-space-w5m1.vercel.app",
+//       ],
+//     }),
+//   );
+
 app.use(
-    cors({
-      credentials: true,
-      origin: [
+  cors({
+    credentials: true,
+    origin: (origin, callback) => {
+      const allowedOrigins = [
         process.env.REACT_APP_BASE_URL,
         "https://code-space-frontend.onrender.com",
-        "https://code-space-w5m1.vercel.app",
-      ],
-    }),
-  );
+      ];
+
+      const vercelRegex = /^https:\/\/[a-z0-9-]+\.vercel\.app$/;
+
+      if (
+        !origin || // allow requests like curl or mobile apps
+        allowedOrigins.includes(origin) ||
+        vercelRegex.test(origin)
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+  })
+);
+
 
 // Middleware
 app.use(express.json());
