@@ -43,7 +43,7 @@ const Register = () => {
               <>
                 Join Us <br />
                 <span className="lower-half">
-                  To Become a <span className="highlight">Grandmaster</span>
+                  Become a Grandmaster
                 </span>
               </>
             }
