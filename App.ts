@@ -31,6 +31,7 @@ app.use(
       origin: [
         process.env.REACT_APP_BASE_URL,
         "https://code-space-frontend.onrender.com",
+        "https://code-space-w5m1.vercel.app",
       ],
     }),
   );
