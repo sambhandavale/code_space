@@ -2,7 +2,7 @@ import { Request } from "express";
 import { IUser } from "../models/Users/Users";
 import { ParamsDictionary } from 'express-serve-static-core';
 
-export interface IBaseRequest extends Request<ParamsDictionary> {
+export interface IBaseRequest extends Request<ParamsDictionary, any, any, any> {
   user: Partial<IUser>;
   baseUrl: string;
   query: { [index: string]: string };
