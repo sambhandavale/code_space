@@ -9,10 +9,10 @@ import UserDetails from "../../models/Users/UserDetails";
 import { getAll } from "../../utility/handlerFactory";
 import { updateStreak } from "../../utility/Challenge/updateStreak";
 import moment from "moment";
-import { IBaseRequest } from "../../interfaces/core_interfaces";
 import MatchMakingModel from "../../models/Challenges/MatchMaking";
 import UserChallengesModel from "../../models/Challenges/User-Challenges";
 import { catchAsync } from "../../utility/utils";
+import { IBaseRequest } from "../../interfaces/core_interfaces";
 
 /*
 Note: Message code meaning -

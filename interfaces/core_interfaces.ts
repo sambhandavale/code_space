@@ -3,6 +3,8 @@ import { IUser } from "../models/Users/Users";
 
 export interface IBaseRequest extends Request {
   user: Partial<IUser>;
+  baseUrl: string;
+  query: { [index: string]: string };
 }
 
 export interface IError extends Error {

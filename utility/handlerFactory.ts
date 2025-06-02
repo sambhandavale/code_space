@@ -2,7 +2,7 @@ import { NextFunction } from "express";
 import { IBaseRequest } from "../interfaces/core_interfaces";
 
 // utils/handlerFactory.js or similar
-export const getAll = (Model) => async (req, res) => {
+export const getAll = (Model:any) => async (req:any, res:any) => {
   try {
     const docs = await Model.find();
     res.status(200).json({
@@ -10,7 +10,7 @@ export const getAll = (Model) => async (req, res) => {
       results: docs.length,
       data: docs,
     });
-  } catch (err) {
+  } catch (err:any) {
     res.status(500).json({
       status: "error",
       message: err.message,
