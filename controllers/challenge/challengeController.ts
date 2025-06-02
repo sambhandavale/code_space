@@ -9,12 +9,14 @@ import UserDetails from "../../models/Users/UserDetails";
 import { getAll } from "../../utility/handlerFactory";
 import { updateStreak } from "../../utility/Challenge/updateStreak";
 import moment from "moment";
+import { IBaseRequest } from "../../interfaces/core_interfaces";
 
 export const getAllChallenges = getAll(UserChallenges);
 
-export const joinMatchmaking = async (req: Request, res: Response) => {
+export const joinMatchmaking = async (req:IBaseRequest, res:Response) => {
     try {
-        const { userId, language, timeControl } = req.body;
+        const userId = req.user._id;
+        const { language, timeControl } = req.body;
 
         // Check if user is already in matchmaking
         const existingMatch = await MatchMaking.findOne({ user_id: userId });
@@ -41,7 +43,7 @@ export const joinMatchmaking = async (req: Request, res: Response) => {
     }
 };
 
-const createChallenge = async (player1Id: mongoose.Types.ObjectId, player2Id: mongoose.Schema.Types.ObjectId, language: string, timeControl: number) => {
+const createChallenge = async (player1Id: mongoose.Schema.Types.ObjectId, player2Id: mongoose.Schema.Types.ObjectId, language: string, timeControl: number) => {
     try {
         await MatchMaking.deleteMany({ user_id: { $in: [player1Id, player2Id] } });
 
@@ -123,7 +125,7 @@ const createChallenge = async (player1Id: mongoose.Types.ObjectId, player2Id: mo
     }
 };
 
-export const leaveMatchmaking = async (req: Request, res: Response) => {
+export const leaveMatchmaking = async (req:IBaseRequest, res:Response) => {
     try {
         const { userId } = req.body;
 
@@ -137,7 +139,7 @@ export const leaveMatchmaking = async (req: Request, res: Response) => {
     }
 };
 
-export const leaveChallenge = async (req: Request, res: Response) => {
+export const leaveChallenge = async (req:IBaseRequest, res:Response) => {
     try {
         const { challengeId, userId } = req.body;
 
@@ -213,7 +215,7 @@ export const leaveChallenge = async (req: Request, res: Response) => {
     }
 };
 
-export const drawChallenge = async (req: Request, res: Response) => {
+export const drawChallenge = async (req:IBaseRequest, res:Response) => {
     try {
         const { challengeId } = req.body;
 
@@ -288,8 +290,7 @@ export const drawChallenge = async (req: Request, res: Response) => {
     }
 };
 
-
-export const submitChallengeResult = async (req: Request, res: Response) => {
+export const submitChallengeResult = async (req:IBaseRequest, res:Response) => {
     try {
         const { challengeId, winnerId, ratingChanges } = req.body;
 
@@ -330,15 +331,28 @@ export const submitChallengeResult = async (req: Request, res: Response) => {
             active: false,
         });
 
-        // Update users' ratings
         await Promise.all([
             UserDetails.findOneAndUpdate(
                 { user_id: winnerId },
-                { $inc: { rating: winnerRatingChange } }
+                {
+                    $inc: {
+                        rating: winnerRatingChange,
+                        wins: 1,
+                        matches_played: 1,
+                    },
+                    $set: { last_match_date: new Date() }
+                }
             ),
             UserDetails.findOneAndUpdate(
                 { user_id: loserId },
-                { $inc: { rating: loserRatingChange } }
+                {
+                    $inc: {
+                        rating: loserRatingChange,
+                        loss: 1,
+                        matches_played: 1,
+                    },
+                    $set: { last_match_date: new Date() }
+                }
             )
         ]);
 
@@ -366,8 +380,7 @@ export const submitChallengeResult = async (req: Request, res: Response) => {
     }
 };
 
-
-export const getChallengeById = async (req, res) => {
+export const getChallengeById = async (req:IBaseRequest, res:Response) => {
     try {
         const challenge = await UserChallenges.findById(req.params.id).populate({
             path: "players",
@@ -379,7 +392,8 @@ export const getChallengeById = async (req, res) => {
         });
 
         if (!challenge) {
-            return res.status(404).json({ message: "Challenge not found" });
+            res.status(404).json({ message: "Challenge not found" });
+            return;
         }
 
         const playerDetails = await UserDetails.find({ user_id: { $in: challenge.players } })

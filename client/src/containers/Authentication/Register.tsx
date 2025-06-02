@@ -19,9 +19,14 @@ const Register = () => {
       e.preventDefault();
       try {
           const data = { username: username, email: email, password: password, fullname: name };
+          if (!name || !username || !email || !password) {
+            toast.error('Please fill in all fields');
+            return;
+          }
           const res = await postAction('/auth/signup',data);
           if (res.data.error) {
               console.error(res.data.error);
+              toast.error(res.data.error);
           } else {
               toast.success('You have been enrolled successfully');
               navigate("/login");

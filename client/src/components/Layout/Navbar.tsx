@@ -33,7 +33,7 @@ const Navbar = ({ scrollToChallenge, isMobileMenuOpen, setMobileMenuOpen }: any)
     return (
         <nav className="navbar" style={isAuthPage ? { background: "none" } : {}}>
             <div className="navbar__left">
-                <div className="navbar__logo" onClick={() => handleNavigate("/")}>
+                <div className="navbar__logo pointer" onClick={() => handleNavigate("/")}>
                     <img src="/icons/logo.svg" className="logo" alt="Logo" />
                     <img src="/icons/logo_full.svg" className="full_logo" alt="Logo" />
                 </div>
