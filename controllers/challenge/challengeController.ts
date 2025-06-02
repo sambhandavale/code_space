@@ -10,13 +10,34 @@ import { getAll } from "../../utility/handlerFactory";
 import { updateStreak } from "../../utility/Challenge/updateStreak";
 import moment from "moment";
 import { IBaseRequest } from "../../interfaces/core_interfaces";
+import MatchMakingModel from "../../models/Challenges/MatchMaking";
+import UserChallengesModel from "../../models/Challenges/User-Challenges";
 
-export const getAllChallenges = getAll(UserChallenges);
+/*
+Note: Message code meaning -
+10: Got all right u---won,
+11: Opponent got all answers right---lost,
+30: Opponent left---won,
+31: You left---lost,
+40: Draw
+*/
+
+export const getAllChallenges = getAll(UserChallenges); 
 
 export const joinMatchmaking = async (req:IBaseRequest, res:Response) => {
     try {
         const userId = req.user._id;
         const { language, timeControl } = req.body;
+
+        const existingChallenge = await UserChallengesModel.findOne({
+            players: userId,
+            active: true,
+        });
+
+        if(existingChallenge){
+            res.status(400).json({ message: "Already in a challenge", challengeId: existingChallenge._id });
+            return;
+        }
 
         // Check if user is already in matchmaking
         const existingMatch = await MatchMaking.findOne({ user_id: userId });
@@ -71,10 +92,10 @@ const createChallenge = async (player1Id: mongoose.Schema.Types.ObjectId, player
             rating_change: {},
         });
 
-        await UserDetails.updateMany(
-            { user_id: { $in: [player1Id, player2Id] } },
-            { $inc: { matches_played: 1 } }
-        );
+        // await UserDetails.updateMany(
+        //     { user_id: { $in: [player1Id, player2Id] } },
+        //     { $inc: { matches_played: 1 } }
+        // );
 
         await Promise.all([updateStreak(player1Id.toString()), updateStreak(player2Id.toString())]);
 
@@ -122,6 +143,35 @@ const createChallenge = async (player1Id: mongoose.Schema.Types.ObjectId, player
 
     } catch (error) {
         console.error("Error creating challenge:", error);
+    }
+};
+
+export const getChallengeStatus = async (req: IBaseRequest, res: Response) => {
+    try {
+        const { challengeId } = req.params;
+        const challenge = await UserChallenges.findById(challengeId);
+
+        if (!challenge) {
+            res.status(404).json({ error: 'Challenge not found' });
+            return;
+        }
+
+        const now = new Date();
+        const elapsed = (now.getTime() - challenge.start_time.getTime()) / 1000;
+        const total = challenge.time * 60;
+        const remaining = Math.max(total - elapsed, 0);
+
+        res.status(200).json({
+            challengeId: challenge._id,
+            remainingTime: remaining,
+            problemId: challenge.problem_id,
+            players: challenge.players,
+        });
+        return;
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal server error" });
+        return;
     }
 };
 
@@ -196,12 +246,14 @@ export const leaveChallenge = async (req:IBaseRequest, res:Response) => {
 
         if (winnerSocketId) {
             io.to(winnerSocketId).emit("match_result", {
+                code:30,
                 message: "Your opponent left the match! You win! 🎉",
                 ratingChange
             });
         }
         if (loserSocketId) {
             io.to(loserSocketId).emit("match_result", {
+                code:31,
                 message: "You left the match. Your opponent wins by default. ❌",
                 ratingChange: -ratingChange
             });
@@ -270,6 +322,7 @@ export const drawChallenge = async (req:IBaseRequest, res:Response) => {
 
         if (socket1) {
             io.to(socket1).emit("match_result", {
+                code:40,
                 message: "The match ended in a draw! 🤝",
                 ratingChange: drawRating
             });
@@ -277,6 +330,7 @@ export const drawChallenge = async (req:IBaseRequest, res:Response) => {
 
         if (socket2) {
             io.to(socket2).emit("match_result", {
+                code:40,
                 message: "The match ended in a draw! 🤝",
                 ratingChange: drawRating
             });
@@ -361,6 +415,7 @@ export const submitChallengeResult = async (req:IBaseRequest, res:Response) => {
             const socketId = userSockets.get(userId);
             if (socketId) {
                 io.to(socketId).emit("match_result", {
+                    code: isWinner ? 10 : 11,
                     message: isWinner
                         ? "You won the match! 🎉"
                         : "You lost the match. Better luck next time! 💪",

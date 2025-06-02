@@ -35,6 +35,18 @@ const Problem = ({
                     <div className="problem_out_text ff-google-n">{challengeDetails?.problem_id.output_format}</div>
                 </div>
             </div>
+            {
+                challengeDetails?.problem_id.examples.map((example,index)=>(
+                    <div className="problem_example">
+                        <div className="problem_example_number ff-google-b">Example {index+1}</div>
+                        <div className="problem_example_details">
+                            <div className="problem_example_detail ff-google-n">Explaination: {example.explanation}</div>
+                            <div className="problem_example_detail ff-google-n">Input: {example.input}</div>
+                            <div className="problem_example_detail ff-google-n">Output: {example.output}</div>
+                        </div>
+                    </div>
+                ))
+            }
         </div>
     </div>
   )

@@ -36,3 +36,13 @@ export const languages = [
         monacoLang: "javascript" // Monaco language ID
     },
 ];
+
+export function getInitials(name: string): string {
+  if (!name) return '';
+
+  return name
+    .trim()
+    .split(/\s+/) // split by whitespace
+    .map(word => word[0].toUpperCase())
+    .join('');
+}

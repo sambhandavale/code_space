@@ -1,14 +1,13 @@
 interface ProfileProps {
-  firstName: string | undefined;
+  initals: string;
   size?: number;
 }
 
-const DefaultProfile = ({ firstName, size = 30 }:ProfileProps) => {
-  const initial = firstName?.charAt(0).toUpperCase();
+const DefaultProfile = ({ initals }:ProfileProps) => {
 
   return (
-    <div className="profile-circle ff-google-n" style={{ width: size, height: size, fontSize: size / 2 }}>
-      {initial}
+    <div className="profile-circle ff-google-n">
+      {initals}
     </div>
   );
 };

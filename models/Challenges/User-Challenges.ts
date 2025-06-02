@@ -13,6 +13,7 @@ interface IUserChallenges {
     winner: mongoose.Types.ObjectId;
     rating_change: Record<string, number>;
     active:boolean;
+    start_time:Date,
 }
 
 const UserChallengesSchema = new mongoose.Schema<IUserChallenges>(
@@ -66,7 +67,11 @@ const UserChallengesSchema = new mongoose.Schema<IUserChallenges>(
         active:{
             type:Boolean,
             default:true,
-        }
+        },
+        start_time: {
+            type: Date,
+            default: () => new Date(),
+        },
     },
     {
         timestamps:true,

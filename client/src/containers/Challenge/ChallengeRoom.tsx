@@ -11,8 +11,18 @@ import DefaultProfile from "../../components/Layout/DefaultProfile";
 import Problem from "../../components/Challenge/ChallengeRoom/Problem";
 import { toast } from "sonner";
 import Editor from '@monaco-editor/react';
-import { languages } from "../../utility/general-utility";
+import { getInitials, languages } from "../../utility/general-utility";
 import Popup from "../../components/Challenge/ChallengeRoom/Popup";
+import { useWindowWidth } from "../../utility/screen-utility";
+ 
+/*
+Note: Message code meaning -
+10: Got all right u---won,
+11: Opponent got all answers right---lost,
+30: Opponent left---won,
+31: You left---lost,
+40: Draw
+*/
 
 interface ITestResult {
     actual: string | null;
@@ -28,6 +38,7 @@ interface ITestResult {
 const ChallengeRoom = () => {
     const { challengeId } = useParams<{ challengeId: string }>();
     const navigate = useNavigate();
+    const width = useWindowWidth();
 
     const [user, setUser] = useState(() => isAuth());
     const [socket, setSocket] = useState<Socket | null>(null);
@@ -51,6 +62,9 @@ const ChallengeRoom = () => {
 
     const [challengeEnded, setChallengeEnded] = useState<boolean>(false);
     const [challengeEndMessage,setChallengeEndMessage] = useState<{msg:string,ratingChange:number}>({msg:'',ratingChange:0});
+    const [challengeEndCode, setChallengeEndCode] = useState<number>(0);
+
+    const [resultPopup, setResultPopup] = useState<boolean>(false);
 
     const testCaseOptions = [
         {name:'Test Cases',icon:'test_case'},
@@ -58,10 +72,28 @@ const ChallengeRoom = () => {
     ]
 
     useEffect(() => {
-        if (challengeDetails?.time) {
-            setTimeLeft(challengeDetails.problem_id.time * 60);
-        }
-    }, [challengeDetails]);
+        const fetchRemainingTime = async () => {
+            try {
+                const res = await getAction(`/challenge/status/${challengeId}`);
+                if (res?.data?.remainingTime != null) {
+                    setTimeLeft(Math.floor(res.data.remainingTime)); // seconds
+                } else if (challengeDetails?.problem_id?.time) {
+                    // Fallback in case API doesn't return remaining time
+                    setTimeLeft(challengeDetails.problem_id.time * 60);
+                }
+            } catch (err) {
+                console.error("Error fetching challenge status:", err);
+                if (challengeDetails?.problem_id?.time) {
+                    setTimeLeft(challengeDetails.problem_id.time * 60);
+                }
+            }
+        };
+
+        fetchRemainingTime();
+    }, [challengeId, challengeDetails]);
+
+
+
     
     useEffect(() => {
         if (timeLeft <= 0) {
@@ -69,15 +101,32 @@ const ChallengeRoom = () => {
             drawChallenge();
             return;
         }
-    
+
         timerRef.current = setInterval(() => {
-            setTimeLeft((prev) => prev - 1);
+            setTimeLeft(prev => {
+                if (prev <= 1) {
+                    clearInterval(timerRef.current!);
+                    timerRef.current = null;
+                    drawChallenge();
+                    return 0;
+                }
+                return prev - 1;
+            });
         }, 1000);
-    
+
         return () => {
             if (timerRef.current) clearInterval(timerRef.current);
         };
-    }, [timeLeft]);
+    }, []);
+
+
+
+    const stopTimer = () => {
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+        }
+    };
 
     const formatTime = (seconds: number): string => {
         const m = Math.floor(seconds / 60);
@@ -159,23 +208,29 @@ const ChallengeRoom = () => {
                 clearInterval(timerRef.current);
             }
             setChallengeEnded(true);
+            setResultPopup(true);
             toast.message(
                 `${data.message} ${
-                  data.ratingChange > 0
+                    data.ratingChange > 0
                     ? `Rating increased by ${data.ratingChange}`
                     : `Rating fell down by ${Math.abs(data.ratingChange)}`
                 }`
-              );
-              if(data.message === 'The match ended in a draw! 🤝'){
-                setChallengeEndMessage({msg:`You match is a Draw You Made a Successful Pact\nYou Gain +${data.ratingChange}`,ratingChange:data.ratingChange})   
-              } else if(data.ratingChange > 0){
+            );
+            stopTimer();
+            setChallengeEndCode(data.code);
+            if(data.code === 40){
+                setChallengeEndMessage({msg:`You match is a Draw\nYou Gain +${data.ratingChange}`,ratingChange:data.ratingChange})   
+            } else if(data.code === 30){
+                setChallengeEndMessage({msg:`Your opponent left the match! You win! 🎉\nYou Gained +${data.ratingChange}`,ratingChange:data.ratingChange})
+            } else if(data.code === 31){
+                setChallengeEndMessage({msg:`You left the match. Your opponent wins by default. \nYou Lost ${data.ratingChange}`,ratingChange:data.ratingChange})
+            } else if(data.code === 10){
                 setChallengeEndMessage({msg:`You got 5 out of 5 testcases right!!\nYou Gained +${data.ratingChange}`,ratingChange:data.ratingChange})   
-              } else if(data.ratingChange < 0){
+            } else if(data.code === 11){
                 setChallengeEndMessage({msg:`Opponent Got the Answer Right\nPassed all 5 Test Cases, You lost ${data.ratingChange} Rating`,ratingChange:data.ratingChange})
-              } else{
+            } else{
                 setChallengeEndMessage({msg:'',ratingChange:0})
-              }       
-            console.log(data);
+            }
         });
     
         return () => {
@@ -238,15 +293,15 @@ const ChallengeRoom = () => {
                 onMouseUp={handleMouseUp} 
                 onMouseLeave={handleMouseUp}
             >
-                <div className="challenge-room__left panel" style={{ width: `${dividerPosition}%` }}>
+                <div className="challenge-room__left panel" style={width > 840 ?{ width: `${dividerPosition}%` }:{}}>
                     <div className="players__details">
                         <div className="player">
-                            <DefaultProfile firstName={challengeDetails?.players[0].first_name}/>
+                            <DefaultProfile initals={getInitials(`${challengeDetails?.players[0].first_name} ${challengeDetails?.players[0].last_name}`)}/>
                             <div className="playername">{`${challengeDetails?.players[0].first_name} ${challengeDetails?.players[0].last_name} (${challengeDetails?.playerDetails[0].rating})`}</div>
                         </div>
                         <div className="player">
                             <div className="playername">{`(${challengeDetails?.playerDetails[1].rating}) ${challengeDetails?.players[1].first_name} ${challengeDetails?.players[1].last_name}`}</div>
-                            <DefaultProfile firstName={challengeDetails?.players[1].first_name}/>
+                            <DefaultProfile initals={getInitials(`${challengeDetails?.players[1].first_name} ${challengeDetails?.players[1].last_name}`)}/>
                         </div>
                     </div>
                     <Problem
@@ -368,9 +423,12 @@ const ChallengeRoom = () => {
                         </div>
                     </div>
                 </div>
-                {challengeEnded && (
+                {resultPopup && (
                     <Popup
                         challengeEndMessage={challengeEndMessage}
+                        challengeEndCode={challengeEndCode}
+                        onCloseText={'Back'}
+                        onClose={() => setResultPopup(false)}
                     />
                 )}
             </div>

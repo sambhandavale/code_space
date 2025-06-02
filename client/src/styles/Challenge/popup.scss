@@ -31,8 +31,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    position: absolute;
-    bottom: 6rem;
+    position: fixed;
+    bottom: 0rem;
 
     .popup {
         display: flex;
@@ -42,6 +42,7 @@
         align-items: center;
         gap: var(--popup-gap);
         border-radius: var(--popup-border-radius);
+        margin: 0 1rem;
 
         .popup_status {
             display: flex;
@@ -76,4 +77,22 @@
             font-size: var(--back-font-size);
         }
     }
+}
+ 
+@media screen and (max-width: 1024px) {
+  .result_popup {
+    --scaleby: 0.8;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .result_popup {
+    --scaleby: 0.7;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .result_popup {
+    --scaleby: 0.6;
+  }
 }
