@@ -1,3 +1,5 @@
+import { NextFunction } from "express";
+import { IBaseRequest } from "../interfaces/core_interfaces";
 
 // utils/handlerFactory.js or similar
 export const getAll = (Model) => async (req, res) => {
@@ -26,15 +28,6 @@ export const getAll = (Model) => async (req, res) => {
 // export interface IFilter {
 //   _id?: string;
 // }
-
-// const catchAsync = (
-//     // skipcq: JS-0323
-//     fn: (req: Request, res: Response, next?: NextFunction) => Promise<any>,
-//   ) => {
-//     return (req: Request, res: Response, next?: NextFunction) => {
-//       fn(req, res, next).catch(next);
-//     };
-//   };
 
 // export const getOne = (Model: any, popOptions?: string | null) =>
 //   catchAsync(async (req: IBaseRequest, res: Response, next: NextFunction) => {
