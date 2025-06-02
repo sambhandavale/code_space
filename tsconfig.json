@@ -92,7 +92,7 @@
     "exclude": [
       "node_modules",
       "client",
-      "football_fantasy",
+      "codespace",
       "build",
       ".*/",
       "_*/"
