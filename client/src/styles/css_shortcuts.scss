@@ -1,0 +1,55 @@
+// === Display ===
+.flex { display: flex; }
+.grid { display: grid; }
+.block { display: block; }
+.inline-block { display: inline-block; }
+.hidden { display: none; }
+
+// === Flexbox ===
+.flex-row { flex-direction: row; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+
+.justify-start { justify-content: flex-start; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.justify-between { justify-content: space-between; }
+.justify-around { justify-content: space-around; }
+
+.items-start { align-items: flex-start; }
+.items-center { align-items: center; }
+.items-end { align-items: flex-end; }
+
+// === Spacing (based on 4px scale) ===
+@for $i from 0 through 10 {
+  .m-#{$i} { margin: #{4px * $i}; }
+  .p-#{$i} { padding: #{4px * $i}; }
+
+  .mt-#{$i} { margin-top: #{4px * $i}; }
+  .mb-#{$i} { margin-bottom: #{4px * $i}; }
+  .ml-#{$i} { margin-left: #{4px * $i}; }
+  .mr-#{$i} { margin-right: #{4px * $i}; }
+
+  .pt-#{$i} { padding-top: #{4px * $i}; }
+  .pb-#{$i} { padding-bottom: #{4px * $i}; }
+  .pl-#{$i} { padding-left: #{4px * $i}; }
+  .pr-#{$i} { padding-right: #{4px * $i}; }
+}
+
+@for $i from 0 through 10 {
+  $gap: $i * 0.25rem;
+
+  .gap-#{$i} { gap: $gap; }
+  .gap-x-#{$i} { column-gap: $gap; }
+  .gap-y-#{$i} { row-gap: $gap; }
+}
+
+// === Width & Height ===
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.w-screen { width: 100vw; }
+.h-screen { height: 100vh; }
+
+.w-1\/2 { width: 50%; }
+.w-1\/3 { width: 33.333%; }
+.w-2\/3 { width: 66.666%; }

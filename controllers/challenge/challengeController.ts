@@ -279,7 +279,7 @@ export const leaveChallenge = async (req:Request, res:Response) => {
     }
 };
 
-export const drawChallenge = async (req:Request, res:Response) => {
+export const acceptDrawChallenge = async (req:Request, res:Response) => {
     try {
         const { challengeId } = req.body;
 
@@ -320,11 +320,11 @@ export const drawChallenge = async (req:Request, res:Response) => {
 
         await Promise.all([
             UserDetails.findOneAndUpdate(
-                { user_id: player1 },
+                { user_id: player1Str },
                 { $inc: { rating: drawRating, draws: 1 } }
             ),
             UserDetails.findOneAndUpdate(
-                { user_id: player2 },
+                { user_id: player2Str },
                 { $inc: { rating: drawRating, draws: 1 } }
             )
         ]);
@@ -355,6 +355,89 @@ export const drawChallenge = async (req:Request, res:Response) => {
         res.status(500).json({ error: "Internal server error" });
     }
 };
+
+export const askDrawChallenge = async (req: Request, res: Response) => {
+    try {
+        const { challengeId, userId } = req.body;
+
+        const challenge = await UserChallenges.findById(challengeId);
+
+        if (!challenge) {
+            res.status(404).json({ message: "Challenge not found" });
+            return;
+        }
+
+        if (!challenge.active) {
+            res.status(400).json({ message: "Challenge already ended." });
+            return;
+        }
+
+        const [player1, player2] = challenge.players;
+        const player1Str = player1.toString();
+        const player2Str = player2.toString();
+
+        const opponentId = userId === player1Str ? player2Str : player1Str;
+        const opponentSocket = userSockets.get(opponentId);
+
+        if (opponentSocket) {
+            io.to(opponentSocket).emit("ask_draw", {
+                code: 41,
+                message: "Opponent is asking for a draw",
+            });
+        }
+
+        res.status(200).json({ message: "Draw request sent to opponent." });
+        return
+
+    } catch (error) {
+        console.error("Error handling draw:", error);
+        
+        res.status(500).json({ error: "Internal server error" });
+        return;
+    }
+};
+
+export const rejectDrawChallenge = async (req: Request, res: Response) => {
+    try {
+        const { challengeId, userId } = req.body;
+
+        const challenge = await UserChallenges.findById(challengeId);
+
+        if (!challenge) {
+            res.status(404).json({ message: "Challenge not found" });
+            return;
+        }
+
+        if (!challenge.active) {
+            res.status(400).json({ message: "Challenge already ended." });
+            return;
+        }
+
+        const [player1, player2] = challenge.players;
+        const player1Str = player1.toString();
+        const player2Str = player2.toString();
+
+        const opponentId = userId === player1Str ? player2Str : player1Str;
+        const opponentSocket = userSockets.get(opponentId);
+
+        if (opponentSocket) {
+            io.to(opponentSocket).emit("reject_draw", {
+                code: 41,
+                message: "Opponent has rejected draw",
+            });
+        }
+
+        res.status(200).json({ message: "Draw rejected" });
+        return
+
+    } catch (error) {
+        console.error("Error handling draw:", error);
+        
+        res.status(500).json({ error: "Internal server error" });
+        return;
+    }
+};
+
 
 export const submitChallengeResult = async (req:Request, res:Response) => {
     try {

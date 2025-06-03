@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { postAction } from "../../services/generalServices";
 import GenericFormContainer from "../../components/Authentication/AuthContainer";
+import { authenticate, setLocalStorage } from "../../utility/helper";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -12,6 +13,18 @@ const Register = () => {
   const [name, setName] = useState<string>('')
   const [email, setEmail] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false);
+
+
+  const informParent = (response: any) => {
+      if (response.data && response.data.error) {
+        console.error(response.data.error);
+        toast.error(response.data.error);
+      } else {
+        authenticate(response, () => {
+          navigate("/");
+        });
+      }
+  };
 
 
   const handleRegisterSubmit = async (e: any) => {
@@ -29,7 +42,7 @@ const Register = () => {
               toast.error(res.data.error);
           } else {
               toast.success('You have been enrolled successfully');
-              navigate("/login");
+              handleLoginSubmit(email,password);
           }
       } catch (err) {
           console.error("Failed Authentication, ", err);
@@ -39,6 +52,23 @@ const Register = () => {
       }
   };
 
+
+  const handleLoginSubmit = async (userEmail:any, userPassword:any) => {
+      try {
+          const data = { email: userEmail, password: userPassword };
+          const res = await postAction('/auth/signin',data,informParent);
+          if(res.status === 200){
+              setLocalStorage('token',res.data.jwtToken);
+          }
+      } catch (err) {
+          console.error("Failed Authentication, ", err);
+          toast.error("Login failed. Please try again later.");
+          setLoading(false);
+      } finally {
+          setLoading(false);
+      }
+  };
+    
 
   return (
     <Layout>

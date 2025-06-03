@@ -69,6 +69,7 @@ const ChallengeRoom = () => {
     const [challengeEndCode, setChallengeEndCode] = useState<number>(0);
 
     const [resultPopup, setResultPopup] = useState<boolean>(false);
+    const [drawPopup, setDrawPopup] = useState<boolean>(false);
 
     const testCaseOptions = [
         {name:'Test Cases',icon:'test_case'},
@@ -102,7 +103,7 @@ const ChallengeRoom = () => {
     useEffect(() => {
         if (timeLeft <= 0) {
             console.log('timeup!');
-            drawChallenge();
+            acceptDrawChallenge();
             return;
         }
 
@@ -111,7 +112,7 @@ const ChallengeRoom = () => {
                 if (prev <= 1) {
                     clearInterval(timerRef.current!);
                     timerRef.current = null;
-                    drawChallenge();
+                    acceptDrawChallenge();
                     return 0;
                 }
                 return prev - 1;
@@ -174,10 +175,32 @@ const ChallengeRoom = () => {
         }
     }
 
-    const drawChallenge = async () =>{
+    const acceptDrawChallenge = async () =>{
+        try{
+            setDrawPopup(false);
+            let data = {challengeId:challengeId, userId:isAuth()._id};
+            const res = await postAction('/challenge/acceptDrawChallenge', data);
+            toast.success(res.data.message);
+        }catch(err){
+            console.error(err);
+        }
+    }
+
+    const rejectDrawChallenge = async () =>{
+        try{
+            setDrawPopup(false);
+            let data = {challengeId:challengeId, userId:isAuth()._id};
+            const res = await postAction('/challenge/rejectDrawChallenge', data);
+            toast.success(res.data.message);
+        }catch(err){
+            console.error(err);
+        }
+    }
+
+    const askDrawChallenge = async () =>{
         try{
             let data = {challengeId:challengeId, userId:isAuth()._id};
-            const res = await postAction('/challenge/drawChallenge', data);
+            const res = await postAction('/challenge/askDrawChallenge', data);
             toast.success(res.data.message);
         }catch(err){
             console.error(err);
@@ -244,9 +267,34 @@ const ChallengeRoom = () => {
         });
     
         return () => {
-          socket.off("matchResult");
+          socket.off("match_result");
         };
-      }, [socket, navigate]);
+    }, [socket, navigate]);
+
+    useEffect(()=>{
+        if(!socket) return;
+
+        socket.on("ask_draw",(data)=>{
+            setDrawPopup(true);
+        })
+
+        return () => {
+          socket.off("ask_draw");
+        };
+    },[socket, navigate])
+
+    useEffect(()=>{
+        if(!socket) return;
+
+        socket.on("reject_draw",(data)=>{
+            console.log(data)
+            toast.error(data.message);
+        })
+
+        return () => {
+          socket.off("reject_draw");
+        };
+    },[socket, navigate])
     
     const handleMouseDown = () => {
         isDragging.current = true;
@@ -365,7 +413,7 @@ const ChallengeRoom = () => {
                             <div className="leave pointer" onClick={leaveChallenge} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>
                                 <div className="control_text ff-google-n">Leave</div>
                             </div>
-                            <div className="draw pointer" onClick={drawChallenge} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>
+                            <div className="draw pointer" onClick={askDrawChallenge} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>
                                 <img src="/icons/challenge/draw.svg" alt="" />
                                 <div className="control_text ff-google-n">Draw</div>
                             </div>
@@ -422,6 +470,14 @@ const ChallengeRoom = () => {
                         </div>
                         {selectedTestCaseOption === 0 ? (
                             <div className="test_cases">
+                                {
+                                    submitResult.length > 0 && (
+                                        <div className="testcase_result_count nn-google-n white">
+                                            Test Cases Passed: { submitResult.filter((testCase: ITestResult) => testCase.status === "PASSED").length} / {submitResult.length}
+                                        </div>
+
+                                    )
+                                }
                                 {challengeDetails?.problem_id.test_cases.slice(0, 3).map((testCase, index) => (
                                     <div
                                         key={index}
@@ -521,10 +577,20 @@ const ChallengeRoom = () => {
                 </div>
                 {resultPopup && (
                     <Popup
-                        challengeEndMessage={challengeEndMessage}
-                        challengeEndCode={challengeEndCode}
-                        onCloseText={'Back'}
-                        onClose={() => setResultPopup(false)}
+                        message={challengeEndMessage.msg}
+                        messageCode={challengeEndCode}
+                        button1Text={'Back'}
+                        onButton1Submit={() => setResultPopup(false)}
+                    />
+                )}
+                {drawPopup && (
+                    <Popup
+                        message={'User Asking for a Draw'}
+                        messageCode={40}
+                        button1Text={'Accept'}
+                        onButton1Submit={() => acceptDrawChallenge()}
+                        button2Text={'Reject'}
+                        onButton2Submit={() => rejectDrawChallenge()}
                     />
                 )}
             </div>

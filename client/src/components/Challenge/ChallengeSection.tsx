@@ -2,6 +2,8 @@ import { languages } from "../../utility/general-utility";
 import TimeControlTab from "./TimeControlTab";
 import { isAuth } from "../../utility/helper";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import DescriptionPopup from "../Shared/DescriptionPopup";
 
 interface IChallengeSection {
   controlsSelected: {
@@ -28,6 +30,7 @@ const ChallengeSection = ({
   message,
   ref,
 }: IChallengeSection) => {
+  const [showHelp, setShowHelp] = useState(false);
 
   const setLanguage = (language: string) => {
     setControlsSelected((prev) => ({
@@ -47,10 +50,19 @@ const ChallengeSection = ({
 
   return (
     <div className="challenge-section" ref={ref}>
-      <header>
+      <header style={{position:"relative"}}>
         <div className="title">Challenge</div>
-        <img src="/icons/question.svg" alt="Help" />
+        <img src="/icons/question.svg" alt="Help" className="pointer" onClick={() => setShowHelp(true)}/>
       </header>
+      <DescriptionPopup
+          isOpen={showHelp}
+          onClose={() => setShowHelp(false)}
+          title="How Challenge Works"
+        >
+          <div style={{lineHeight:"1.5"}} className="ff-google-n">
+            Select a language and a time format to begin matchmaking. Once matched, you'll face an opponent in a timed coding challenge. Increase your rating with a win. Click "FIND CHALLENGE" to start!
+          </div>
+      </DescriptionPopup>
       <div className="challenge-sec2">
         <div className="challenge-icon glassmorphism-medium">
           <img src="/assets/challenge/challenge-icon.svg" alt="Challenge Icon" />

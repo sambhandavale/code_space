@@ -286,196 +286,196 @@
 
       
     .challenge-room__right {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    gap: var(--challenge-room-right-gap);
-    flex-grow: 1;
-
-    .challenge_controls {
-        display: flex;
-        padding: 0 var(--challenge-controls-padding-x);
-        justify-content: space-between;
-        align-items: center;
-        align-self: stretch;
-        gap: var(--challenge-controls-gap);
-
-        .challenge_controls__left {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: var(--challenge-controls-left-gap);
-
-        .time {
-            color: var(--challenge-room-light-color);
-            font-size: var(--challenge-time-font-size);
-            line-height: 1;
-        }
-        }
-
-        .challenge_controls__right {
-        display: flex;
-        align-items: center;
-        gap: var(--challenge-controls-right-gap);
-
-        .leave,
-        .draw,
-        .chat {
-            display: flex;
-            padding: var(--challenge-control-button-padding);
-            justify-content: center;
-            align-items: center;
-            gap: var(--challenge-control-button-gap);
-            border-radius: var(--challenge-control-border-radius);
-
-            .control_text {
-            color: var(--challenge-room-light-color);
-            font-size: var(--challenge-control-text-font-size);
-            line-height: 1;
-            }
-        }
-
-        .leave {
-            background: var(--challenge-leave-bg);
-        }
-
-        .draw,
-        .chat {
-            background: var(--challenge-draw-chat-bg);
-        }
-        }
-
-        img {
-        width: var(--challenge-control-icon-size);
-        height: var(--challenge-control-icon-size);
-        }
-    }
-
-    .code_editor {
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
-        align-self: stretch;
-
-        .code_editor__controls {
-        display: flex;
-        padding: var(--code-editor-controls-padding);
-        justify-content: space-between;
         align-items: center;
-        align-self: stretch;
-        border-radius: var(--code-editor-border-radius);
+        justify-content: flex-start;
+        gap: var(--challenge-room-right-gap);
+        flex-grow: 1;
 
-        img {
-            width: var(--editor-icon-size);
-            height: var(--editor-icon-size);
-        }
+        .challenge_controls {
+            display: flex;
+            padding: 0 var(--challenge-controls-padding-x);
+            justify-content: space-between;
+            align-items: center;
+            align-self: stretch;
+            gap: var(--challenge-controls-gap);
 
-        .code_editor__controls_left {
+            .challenge_controls__left {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: var(--code-editor-controls-left-gap);
+            gap: var(--challenge-controls-left-gap);
 
-            .editor_text {
-            font-size: var(--editor-text-font-size);
-            }
-        }
-
-        .code_editor__controls_right {
-            display: flex;
-            align-items: center;
-            gap: var(--code-editor-controls-right-gap);
-
-            .editor_run {
-            display: flex;
-            align-items: center;
-            gap: var(--editor-run-gap);
-
-            .run_text {
-                font-size: var(--editor-text-font-size);
+            .time {
+                color: var(--challenge-room-light-color);
+                font-size: var(--challenge-time-font-size);
+                line-height: 1;
             }
             }
-        }
-        }
 
-        .main_editor {
-        align-self: stretch;
-        border: var(--main-editor-border);
-        background: var(--main-editor-bg);
-        box-shadow: var(--main-editor-shadow);
-        }
-    }
-
-    .test_cases__section {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        align-self: stretch;
-        margin-bottom: var(--test-cases-section-margin-bottom);
-        border-radius: var(--test-cases-border-radius);
-
-        .test_cases__controls {
-        display: flex;
-        padding: 0 var(--test-cases-controls-padding-x);
-        align-items: center;
-        gap: var(--test-cases-controls-gap);
-        align-self: stretch;
-
-        .test_case_control {
+            .challenge_controls__right {
             display: flex;
-            padding: var(--test-case-control-padding);
-            justify-content: center;
             align-items: center;
-            gap: var(--test-case-control-gap);
+            gap: var(--challenge-controls-right-gap);
+
+            .leave,
+            .draw,
+            .chat {
+                display: flex;
+                padding: var(--challenge-control-button-padding);
+                justify-content: center;
+                align-items: center;
+                gap: var(--challenge-control-button-gap);
+                border-radius: var(--challenge-control-border-radius);
+
+                .control_text {
+                color: var(--challenge-room-light-color);
+                font-size: var(--challenge-control-text-font-size);
+                line-height: 1;
+                }
+            }
+
+            .leave {
+                background: var(--challenge-leave-bg);
+            }
+
+            .draw,
+            .chat {
+                background: var(--challenge-draw-chat-bg);
+            }
+            }
 
             img {
-            width: var(--test-case-control-icon-size);
-            height: var(--test-case-control-icon-size);
-            }
-
-            .control_text {
-            font-size: var(--test-case-control-text-font-size);
+            width: var(--challenge-control-icon-size);
+            height: var(--challenge-control-icon-size);
             }
         }
-        }
 
-        .test_cases {
-        display: flex;
-        padding: var(--test-cases-padding);
-        flex-direction: column;
-        align-items: center;
-        gap: var(--test-cases-gap);
-        align-self: stretch;
-
-        .test_case {
+        .code_editor {
             display: flex;
-            padding: var(--test-case-padding);
             flex-direction: column;
-            justify-content: center;
             align-items: flex-start;
-            gap: var(--test-case-gap);
             align-self: stretch;
-            border-radius: var(--test-case-border-radius);
 
-            .test_case_text {
-            font-size: var(--test-case-text-font-size);
+            .code_editor__controls {
+            display: flex;
+            padding: var(--code-editor-controls-padding);
+            justify-content: space-between;
+            align-items: center;
+            align-self: stretch;
+            border-radius: var(--code-editor-border-radius);
+
+            img {
+                width: var(--editor-icon-size);
+                height: var(--editor-icon-size);
+            }
+
+            .code_editor__controls_left {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: var(--code-editor-controls-left-gap);
+
+                .editor_text {
+                font-size: var(--editor-text-font-size);
+                }
+            }
+
+            .code_editor__controls_right {
+                display: flex;
+                align-items: center;
+                gap: var(--code-editor-controls-right-gap);
+
+                .editor_run {
+                display: flex;
+                align-items: center;
+                gap: var(--editor-run-gap);
+
+                .run_text {
+                    font-size: var(--editor-text-font-size);
+                }
+                }
+            }
+            }
+
+            .main_editor {
+            align-self: stretch;
+            border: var(--main-editor-border);
+            background: var(--main-editor-bg);
+            box-shadow: var(--main-editor-shadow);
             }
         }
-        }
 
-        .selected {
-        background: var(--test-case-bg-selected);
-        }
+        .test_cases__section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            align-self: stretch;
+            margin-bottom: var(--test-cases-section-margin-bottom);
+            border-radius: var(--test-cases-border-radius);
 
-        .wrong {
-        background: var(--test-case-bg-wrong);
-        }
+            .test_cases__controls {
+            display: flex;
+            padding: 0 var(--test-cases-controls-padding-x);
+            align-items: center;
+            gap: var(--test-cases-controls-gap);
+            align-self: stretch;
 
-        .right {
-        background: var(--test-case-bg-right);
+            .test_case_control {
+                display: flex;
+                padding: var(--test-case-control-padding);
+                justify-content: center;
+                align-items: center;
+                gap: var(--test-case-control-gap);
+
+                img {
+                width: var(--test-case-control-icon-size);
+                height: var(--test-case-control-icon-size);
+                }
+
+                .control_text {
+                font-size: var(--test-case-control-text-font-size);
+                }
+            }
+            }
+
+            .test_cases {
+                display: flex;
+                padding: var(--test-cases-padding);
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--test-cases-gap);
+                align-self: stretch;
+
+            .test_case {
+                display: flex;
+                padding: var(--test-case-padding);
+                flex-direction: column;
+                justify-content: center;
+                align-items: flex-start;
+                gap: var(--test-case-gap);
+                align-self: stretch;
+                border-radius: var(--test-case-border-radius);
+
+                .test_case_text {
+                font-size: var(--test-case-text-font-size);
+                }
+            }
+            }
+
+            .selected {
+            background: var(--test-case-bg-selected);
+            }
+
+            .wrong {
+            background: var(--test-case-bg-wrong);
+            }
+
+            .right {
+            background: var(--test-case-bg-right);
+            }
         }
-    }
     }
 
 
