@@ -362,10 +362,10 @@ const ChallengeRoom = () => {
                             <div className="time ff-google-n">{formatTime(timeLeft)}</div>
                         </div>
                         <div className="challenge_controls__right">
-                            <div className="leave pointer" onClick={leaveChallenge} style={challengeEnded ? {pointerEvents:"none"}:{}}>
+                            <div className="leave pointer" onClick={leaveChallenge} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>
                                 <div className="control_text ff-google-n">Leave</div>
                             </div>
-                            <div className="draw pointer" onClick={drawChallenge} style={challengeEnded ? {pointerEvents:"none"}:{}}>
+                            <div className="draw pointer" onClick={drawChallenge} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>
                                 <img src="/icons/challenge/draw.svg" alt="" />
                                 <div className="control_text ff-google-n">Draw</div>
                             </div>
@@ -382,11 +382,11 @@ const ChallengeRoom = () => {
                                 <div className="editor_text ff-google-n white">Editor</div>
                             </div>
                             <div className="code_editor__controls_right">
-                                <div className="editor_run pointer" onClick={handleRun} style={challengeEnded ? {pointerEvents:"none"}:{}}>
+                                <div className="editor_run pointer" onClick={handleRun} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>
                                     <div className="run_text ff-google-n white">{runLoading ? 'Running...' : 'Run'}</div>
                                     <img src="/icons/challenge/run.svg" alt="" />
                                 </div>
-                                <div className="editor_run pointer" onClick={handleSubmit} style={challengeEnded ? {pointerEvents:"none"}:{}}>
+                                <div className="editor_run pointer" onClick={handleSubmit} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>
                                     <div className="run_text ff-google-n yellow">{submitLoading ? 'Submitting...' : 'Submit'}</div>
                                 </div>
                             </div>
