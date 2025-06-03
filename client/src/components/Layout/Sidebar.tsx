@@ -4,10 +4,14 @@ import { MdSettings } from "react-icons/md";
 import { isAuth } from "../../utility/helper";
 import { useNavigate } from "react-router";
 import { logout } from "../../services/auth";
+import DefaultProfile from "./DefaultProfile";
+import { getInitials } from "../../utility/general-utility";
+import { useWindowWidth } from "../../utility/screen-utility";
 
-const MobileSidebar = ({ isOpen, onClose, scrollToChallenge }: any) => {
+const MobileSidebar = ({ isOpen, onClose, scrollToChallenge, userRating }: any) => {
     const navigate = useNavigate();
     const CloseIcon = FiX as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
+    const width = useWindowWidth();
 
     const handleNavigate = (path: string) => {
         navigate(path);
@@ -32,17 +36,33 @@ const MobileSidebar = ({ isOpen, onClose, scrollToChallenge }: any) => {
     return (
         <div className={`mobile-sidebar ${isOpen ? "open" : ""}`}>
             <div className="sidebar-top">
-                <span className="sidebar-title ff-google-n"><MdSettings /> Settings</span>
+                {isAuth() ? (
+                    <span className="sidebar-title ff-google-n">
+                        <DefaultProfile initals={getInitials(`${isAuth().first_name} ${isAuth().last_name}`)}/>
+                        <div className="name_rating">
+                            <div className="name">{`${isAuth().first_name} ${isAuth().last_name}`}</div>
+                            <div className="rating">Rating {userRating}</div>
+                        </div>
+                    </span>                    
+                ):(
+                    <span className="sidebar-title ff-google-n">
+                        <span className="sidebar-title ff-google-n"><MdSettings /> Settings</span>
+                    </span> 
+                )}
                 <CloseIcon className="close-icon" onClick={onClose} />
             </div>
 
-            <div className="sidebar-item locked ff-google-n"><FaUser /> Profile</div>
-            <hr />
-            <div className="sidebar-item ff-google-n" onClick={() => handleNavigate("/")}><FaHome /> Home</div>
-            <div className="sidebar-item ff-google-n" onClick={handleChallengeClick}><FaRocket /> Challenge</div>
-            <div className="sidebar-item locked ff-google-n"><FaPenNib /> Write</div>
-            <div className="sidebar-item locked ff-google-n"><FaBookOpen /> Learn</div>
-            <hr />
+            {isAuth() && <div className="sidebar-item locked ff-google-n"><FaUser /> Profile</div>}
+            {width < 768 && (
+                <>
+                    <hr />
+                    <div className="sidebar-item ff-google-n" onClick={() => handleNavigate("/")}><FaHome /> Home</div>
+                    <div className="sidebar-item ff-google-n" onClick={handleChallengeClick}><FaRocket /> Challenge</div>
+                    <div className="sidebar-item locked ff-google-n"><FaPenNib /> Write</div>
+                    <div className="sidebar-item locked ff-google-n"><FaBookOpen /> Learn</div>
+                    <hr />
+                </>
+            )}
             {
                 isAuth() ? (
                     <div className="sidebar-item logout ff-google-n" onClick={handleLogoutClick}><FaSignOutAlt /> Logout</div>

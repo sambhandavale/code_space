@@ -1,12 +1,12 @@
 interface ProfileProps {
   initals: string;
-  size?: number;
+  scale?: number;
 }
 
-const DefaultProfile = ({ initals }:ProfileProps) => {
+const DefaultProfile = ({ initals, scale = 1 }:ProfileProps) => {
 
   return (
-    <div className="profile-circle ff-google-n">
+    <div className="profile-circle ff-google-n" style={{scale:scale}}>
       {initals}
     </div>
   );

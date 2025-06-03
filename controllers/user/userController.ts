@@ -27,3 +27,15 @@ export const getUserDetailsById = async (req, res) => {
         res.status(500).json({ message: "Server error", error });
     }
 };
+
+export const getUserRating = async (req, res) => {
+    try {
+        const userRating = await UserDetails.findOne({ user_id: req.params.id }).select('rating');
+        if (!userRating) {
+            return res.status(404).json({ message: "User details not found" });
+        }
+        res.status(200).json(userRating);
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+};

@@ -47,6 +47,12 @@ UserSchema.virtual("password")
         return this._password;
     });
 
+UserSchema.virtual("full_name")
+    .get(function (this: IUser) {
+        return `${this.first_name || ""} ${this.last_name || ""}`.trim();
+    });
+
+
 UserSchema.methods = {
     authenticate: function (this: IUser, plainText: string): boolean {
         return this.encryptPassword(plainText) === this.hashed_password;

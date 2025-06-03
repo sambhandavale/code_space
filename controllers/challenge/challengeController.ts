@@ -13,6 +13,19 @@ import { IBaseRequest } from "../../interfaces/core_interfaces";
 import MatchMakingModel from "../../models/Challenges/MatchMaking";
 import UserChallengesModel from "../../models/Challenges/User-Challenges";
 
+interface TestCase{
+  input: string;
+  output: string;
+};
+
+interface TestResult{
+  actual: string;
+  output: string;
+  input: string;
+  status: "PASSED" | "FAILED";
+  test_case: number;
+};
+
 /*
 Note: Message code meaning -
 10: Got all right u---won,
@@ -496,4 +509,69 @@ export const proxyPythonCompiler = async (req: Request, res: Response) => {
         console.error("Error in proxyPythonCompiler:", error);
         res.status(500).json({ error: "Failed to proxy request" });
     }
+};
+
+export const runCodeWithTestCases = async (req: Request, res: Response) => {
+  const language = req.body.language;
+  const version = req.body.version;
+
+  console.log(language,version)
+
+  const results: TestResult[] = [];
+
+  for (let i = 0; i < req.body.test_cases.length; i++) {
+    const { input, output } = req.body.test_cases[i];
+    console.log(req.body.test_cases[i]);
+
+    // Compose full code with input redirection (simulate input via stdin)
+    // Piston allows "stdin" field to send input
+    const body = {
+      language,
+      version,
+      files: [{ name: "main.js", content: req.body.user_code }],
+      stdin: input,
+      args: [],
+      compile_timeout: 10000,
+      run_timeout: 3000,
+    };
+
+    try {
+      const response = await fetch("https://emkc.org/api/v2/piston/execute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+      console.log(data.run.output,output)
+      console.log(data)
+
+      let actualOutput = "";
+      if (data.run && data.run.output) {
+        actualOutput = data.run.output.trim();
+      } else {
+        actualOutput = "";
+      }
+
+      const status = actualOutput === output ? "PASSED" : "FAILED";
+
+      results.push({
+        actual: actualOutput,
+        output,
+        input,
+        status,
+        test_case: i + 1,
+      });
+    } catch (error) {
+      results.push({
+        actual: "",
+        output,
+        input,
+        status: "FAILED",
+        test_case: i + 1,
+      });
+    }
+  }
+
+  res.status(200).json(results);
 };

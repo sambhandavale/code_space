@@ -37,7 +37,7 @@ const Problem = ({
             </div>
             {
                 challengeDetails?.problem_id.examples.map((example,index)=>(
-                    <div className="problem_example">
+                    <div className="problem_example" key={index}>
                         <div className="problem_example_number ff-google-b">Example {index+1}</div>
                         <div className="problem_example_details">
                             <div className="problem_example_detail ff-google-n">Explaination: {example.explanation}</div>

@@ -136,17 +136,23 @@
             align-self: stretch;
             gap: var(--players-details-gap);
 
-        .player {
-            display: flex;
-            align-items: center;
-            gap: var(--player-gap);
+            .player {
+                display: flex;
+                align-items: center;
+                gap: var(--player-gap);
 
-            .playername {
-                color: var(--challenge-room-light-color);
-                font-size: var(--playername-font-size);
-                line-height: normal;
+                .playername {
+                    color: var(--challenge-room-light-color);
+                    font-size: var(--playername-font-size);
+                    line-height: normal;
+                    display: flex;
+                    flex-direction: column;
+                }
+                .right{
+                    align-items: flex-end;
+                    text-align: end;
+                }
             }
-        }
         }
 
         .problem__about {

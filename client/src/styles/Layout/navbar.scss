@@ -76,6 +76,31 @@
         align-items: center;
     }
 
+    .setting{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap:0.5rem;
+
+        .name_rating{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap:0.25rem;
+            align-self: stretch;
+
+            .name{
+                font-weight: 600;
+            }
+
+            .rating{
+                font-size: 0.875rem;
+                font-weight: 500;
+                color:#ffffffbd
+            }
+        }
+    }
+
     .navbar__action {
         display: flex;
         padding: var(--navbar-action-padding);
@@ -127,7 +152,7 @@
             display: flex;
         }
 
-        .navbar__action--login,.navbar__action--signup{
+        .navbar__action--login,.navbar__action--signup,.setting{
             display: none;
         }
 

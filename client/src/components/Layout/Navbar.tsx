@@ -2,8 +2,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { isAuth } from "../../utility/helper";
 import { logout } from "../../services/auth";
 import { FiMenu, FiX } from "react-icons/fi";
+import DefaultProfile from "./DefaultProfile";
+import { getInitials } from "../../utility/general-utility";
+import { FiChevronDown } from 'react-icons/fi';
 
-const Navbar = ({ scrollToChallenge, isMobileMenuOpen, setMobileMenuOpen }: any) => {
+const Navbar = ({ scrollToChallenge, isMobileMenuOpen, setMobileMenuOpen, userRating }: any) => {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -47,7 +50,15 @@ const Navbar = ({ scrollToChallenge, isMobileMenuOpen, setMobileMenuOpen }: any)
 
             <div className="navbar__right">
                 {isAuthUser ? (
-                    <div className="navbar__action navbar__action--login pointer" onClick={handleLogoutClick}>Logout</div>
+                    <div className="setting pointer" onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}>
+                        <DefaultProfile scale={0.9} initals={getInitials(`${isAuth().first_name} ${isAuth().last_name}`)}/>
+                        <div className="name_rating">
+                            <div className="name white">{`${isAuth().username}`}</div>
+                            <div className="rating">Rating {userRating}</div>
+                        </div>
+                        <FiChevronDown color="grey" size={24}/>
+                    </div>
+                    // <div className="navbar__action navbar__action--login pointer" onClick={handleLogoutClick}>Logout</div>
                 ) : (
                     <>
                     <div className="navbar__action navbar__action--login pointer" onClick={() => handleNavigate("/login")}>Log In</div>

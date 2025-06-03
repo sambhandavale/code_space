@@ -3,39 +3,52 @@ export const languages = [
         name: "Python",
         icon: "python",
         avail: 1,
-        monacoLang: "python" // Monaco language ID
+        monacoLang: "python",
+        pistonLang: "python",
+        version: "3.10.0"
     },
     {
         name: "C++",
         icon: "cpp",
-        avail: 0,
-        monacoLang: "cpp" // Monaco language ID
+        avail: 1,
+        monacoLang: "cpp",
+        pistonLang: "cpp",
+        version: "10.2.0"
     },
     {
         name: "Java",
         icon: "java",
-        avail: 0,
-        monacoLang: "java" // Monaco language ID
+        avail: 1,
+        monacoLang: "java",
+        pistonLang: "java",
+        version: "15.0.2"
     },
     {
         name: "C",
         icon: "c",
-        avail: 0,
-        monacoLang: "c" // Monaco language ID
+        avail: 1,
+        monacoLang: "c",
+        pistonLang: "c",
+        version: "10.2.0"
     },
     {
         name: "Go",
         icon: "go",
         avail: 0,
-        monacoLang: "go" // Monaco language ID
+        monacoLang: "go",
+        pistonLang: "go",
+        version: "1.16.2"
     },
     {
         name: "JavaScript",
         icon: "js",
-        avail: 0,
-        monacoLang: "javascript" // Monaco language ID
-    },
+        avail: 1,
+        monacoLang: "javascript",
+        pistonLang: "javascript",
+        version: "18.15.0"
+    }
 ];
+
 
 export function getInitials(name: string): string {
   if (!name) return '';

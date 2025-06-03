@@ -36,8 +36,23 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 1rem;
-  font-weight: 600;
   opacity: 0.8;
+}
+
+.name_rating{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap:0.25rem;
+
+  .name{
+      font-weight: 600;
+  }
+
+  .rating{
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
 }
 
 .close-icon {

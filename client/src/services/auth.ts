@@ -6,5 +6,6 @@ import { getAction } from "./generalServices";
 export const logout = (next: NextFunction) => {
     removeLocalStorage("user");
     removeLocalStorage("expirationDate");
+    removeLocalStorage('token');
     getAction("/auth/logout", next);
   };
