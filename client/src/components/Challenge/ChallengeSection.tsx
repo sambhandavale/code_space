@@ -156,7 +156,7 @@ const ChallengeSection = ({
         )}
       </div>
       {isAuth() && (
-        <div className="challenge_buttons flex gap-4">
+        <div className="challenge_buttons flex gap-4 items-center justify-center">
           <div className="challenge__bts ff-google-n">
             <div 
               className="find_challenge glassmorphism-medium gls-box pointer"

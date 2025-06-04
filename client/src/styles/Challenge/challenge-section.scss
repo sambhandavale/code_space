@@ -216,11 +216,16 @@
         }
     }
 
+    .challenge_buttons{
+        align-self: stretch;
+    }
+
     .challenge__bts{
         display: flex;
         justify-content: center;
         align-items: center;
         gap:1rem;
+        align-self: stretch;
 
         .find_challenge{
             display: flex;
@@ -229,6 +234,8 @@
             align-items: center;
             gap: 10px;
             border-radius: 20px;
+            align-self: stretch;
+            flex:1 0 0;
     
             color: var(--challenge-section-font-color);
             font-size: var(--challenge-section-submit-button);
@@ -236,6 +243,7 @@
             font-weight: 700;
             line-height: normal;
             text-transform: capitalize;
+            text-align: center;
         }
     }
 }
@@ -279,6 +287,10 @@
 @media (max-width: 576px) {
   .challenge-section {
     --challenge-section-controls-scaleby: 0.6;
+
+    .challenge_buttons{
+        flex-direction: column;
+    }
   }
 }
 
