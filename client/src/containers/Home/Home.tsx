@@ -5,8 +5,9 @@ import { getSocket } from "../../hooks/Sockets";
 import { isAuth } from "../../utility/helper";
 import { Socket } from "socket.io-client";
 import { useLocation, useNavigate } from "react-router";
-import { postAction } from "../../services/generalServices";
+import { getAction, postAction } from "../../services/generalServices";
 import { toast } from "sonner";
+import { create } from "domain";
 
 const Home = () => {
     const challengeRef = useRef<HTMLDivElement | null>(null);
@@ -17,6 +18,8 @@ const Home = () => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [socketId, setSocketId] = useState<string | null | undefined>(null);
     const [message, setMessage] = useState<string>('');
+    const [roomCode, setRoomCode] = useState("");
+    const [userCode, setUserCode] = useState<string>('');
     const navigate = useNavigate();
 
     const scrollToChallenge = () => {
@@ -81,6 +84,70 @@ const Home = () => {
         }
     }
 
+    const createRoom = async () =>{
+        try{
+            const data = {
+                userId:isAuth()._id, 
+                language:controlsSelected.language, 
+                timeControl:controlsSelected.time,
+            }
+            if(controlsSelected.language === '' || controlsSelected.time === 0 ){
+                toast.error('Please Select the Challenge Controlls!!');
+                return;
+            }
+            const res = await postAction('/challenge/create-private', data);
+            if(res && res.data){
+                if(res.status === 200){
+                    setUserCode(res.data.roomCode);
+                    checkRoomStatus(res.data.roomCode);
+                }
+            }
+        }catch(err){
+            console.error(err);
+        }
+    }
+
+    const joinRoom = async () =>{
+        try{
+            const data = {
+                userId:isAuth()._id, 
+                roomCode:roomCode,
+            }
+            if(roomCode === '' ){
+                toast.error('Please enter the code !!');
+                return;
+            }
+            const res = await postAction('/challenge/join-private', data);
+            if(res && res.data){
+                if(res.status === 200){
+                    navigate(`/challenge/live/${res.data.challengeId}`)
+                }
+            }
+        }catch(err){
+            console.error(err);
+        }
+    }
+
+    const checkRoomStatus = async (roomCode: string) => {
+        try {
+            const res = await getAction(`/challenge/room-status/${roomCode}`);
+            if (res && res.data) {
+                if (res.data.status === "active") {
+                    navigate(`/challenge/live/${res.data.challengeId}`);
+                }else if(res.data.status === "stale"){
+                    toast.error("Opponent failed to join.")
+                    setUserCode('');
+                } else {
+                    setTimeout(() => checkRoomStatus(roomCode), 5000);
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            setTimeout(() => checkRoomStatus(roomCode), 5000);
+        }
+    };
+
+
     useEffect(() => {
         if (!socket) return;
     
@@ -118,6 +185,11 @@ const Home = () => {
                         joinMatchmaking={joinMatchmaking}
                         stopMatchmaking={stopMatchmaking}
                         message={message}
+                        roomCode={roomCode} 
+                        setRoomCode={setRoomCode}
+                        userCode={userCode}
+                        joinRoom={joinRoom}
+                        createRoom={createRoom}
                     />
                 </div>
             </div>

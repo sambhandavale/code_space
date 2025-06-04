@@ -13,6 +13,7 @@
     --popup_status-gap: calc(1rem * var(--scaleby));
     --popup_status-img-size: calc(9.375rem * var(--scaleby));
     --popup_text-font-size: calc(3rem * var(--scaleby));
+    --popup_text_below-font-size: calc(1.5rem * var(--scaleby));
 
     /* .popup_msg variables */
     --popup_msg-font-size: calc(2.375rem * var(--scaleby));
@@ -22,6 +23,8 @@
     --back-border-radius: calc(3.125rem * var(--scaleby));
     --back-bg: #1D1D1D;
     --back-font-size: calc(1.5rem * var(--scaleby));
+
+    --code_section-font-size:calc(1.75rem * var(--scaleby));
 }
 
 .result_popup {
@@ -33,6 +36,7 @@
     align-items: center;
     position: fixed;
     bottom: 0rem;
+    z-index: 5;
 
     .popup {
         display: flex;
@@ -57,6 +61,12 @@
 
             .popup_text {
                 font-size: var(--popup_text-font-size);
+                text-align: center;
+            }
+
+            .popup_text_below {
+                font-size: var(--popup_text_below-font-size);
+                text-align: center;
             }
         }
 
@@ -75,6 +85,72 @@
             background: var(--back-bg);
 
             font-size: var(--back-font-size);
+        }
+
+        .code_area{
+          align-self: stretch;  
+
+          input{
+            display: flex;
+            padding: 0.25rem 1rem;
+            flex: 1 0 0;
+            align-self: stretch;
+          }
+        }
+
+        .codesection{
+          display: flex;
+          padding: 0.75rem 1.25rem;
+          justify-content: center;
+          align-items: center;
+          gap: 0.625rem;
+          align-self: stretch;
+          flex: 1 0 0;
+
+          border-radius: 0.5rem;
+          background: #2B2B2B;
+
+          font-size: var(--code_section-font-size);
+        }
+
+        .joinnow{
+          display: flex;
+          padding: 0.5rem 1.25rem;
+          justify-content: center;
+          align-items: center;
+          gap: 0.625rem;
+
+          border-radius: 0.5rem;
+          background: #2B2B2B;
+
+          font-size: var(--code_section-font-size);
+        }
+
+        .option{
+          display: flex;
+          padding: var(--back-padding);
+          justify-content: center;
+          align-items: center;
+          min-width: 4rem;
+
+          border: 1.5px solid rgba(255, 255, 255, 0.25);
+          background: #464646;
+          backdrop-filter: blur(9.600000381469727px);
+
+          font-size: var(--back-font-size);
+        }
+
+        .selected{
+          background: #ffd000;
+          color:#1D1D1D
+        }
+
+        .create{
+          border-radius: var(--back-border-radius) 0 0 var(--back-border-radius);
+        }
+
+        .join{
+          border-radius: 0 var(--back-border-radius) var(--back-border-radius) 0;
         }
     }
 }

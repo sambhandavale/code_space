@@ -13,7 +13,10 @@ interface IUserChallenges {
     winner: mongoose.Types.ObjectId;
     rating_change: Record<string, number>;
     active:boolean;
-    start_time:Date,
+    start_time:Date;
+    room_code:string;
+    status:string;
+    is_private:boolean;
 }
 
 const UserChallengesSchema = new mongoose.Schema<IUserChallenges>(
@@ -70,8 +73,23 @@ const UserChallengesSchema = new mongoose.Schema<IUserChallenges>(
         },
         start_time: {
             type: Date,
-            default: () => new Date(),
         },
+        room_code: {
+            type: String,
+            unique: true,
+            sparse: true,
+            index: true,
+        },
+        status: {
+            type: String,
+            enum: ["waiting", "active", "completed",'stale'],
+            default: "waiting",
+        },
+        is_private: {
+            type: Boolean,
+            default: false,
+        },
+
     },
     {
         timestamps:true,

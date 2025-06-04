@@ -102,6 +102,7 @@ const createChallenge = async (player1Id: mongoose.Schema.Types.ObjectId, player
             problem_id: problemId,
             winner: null,
             rating_change: {},
+            start_time:new Date(),
         });
 
         // await UserDetails.updateMany(
