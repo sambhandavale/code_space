@@ -17,7 +17,7 @@ interface TestResult{
   actual: string;
   output: string;
   input: string;
-  status: "PASSED" | "FAILED";
+  status: "PASSED" | "FAILED" | string;
   test_case: number;
 };
 
@@ -600,11 +600,13 @@ export const proxyPythonCompiler = async (req: Request, res: Response) => {
     }
 };
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export const runCodeWithTestCases = async (req: Request, res: Response) => {
     const language = req.body.language;
     const version = req.body.version;
     const userCode = req.body.user_code;
-    const testCases = [...req.body.test_cases]; // Prevent mutation
+    const testCases = [...req.body.test_cases];
     const ext = req.body.extension;
 
     const results: TestResult[] = [];
@@ -613,20 +615,21 @@ export const runCodeWithTestCases = async (req: Request, res: Response) => {
         const { input, output } = testCases[i];
         const trimmedExpectedOutput = String(output).trim();
 
-        const body = {
-            language,
-            version,
-            files: [{ name: `main.${ext}`, content: userCode }],
-            stdin: input + '\n',
-            args: [],
-            compile_timeout: 10000,
-            run_timeout: 3000,
-        };
-
         let actualOutput = '';
+        let status = 'FAILED';
         let success = false;
 
         for (let attempt = 0; attempt < 2 && !success; attempt++) {
+            const body = {
+                language,
+                version,
+                files: [{ name: `main.${ext}`, content: userCode }],
+                stdin: input + '\n',
+                args: [],
+                compile_timeout: 10000,
+                run_timeout: 3000,
+            };
+
             try {
                 const response = await fetch("https://emkc.org/api/v2/piston/execute", {
                     method: "POST",
@@ -634,11 +637,19 @@ export const runCodeWithTestCases = async (req: Request, res: Response) => {
                     body: JSON.stringify(body),
                 });
 
-                const data = await response.json();
+                const text = await response.text();
+                let data: any;
+
+                try {
+                    data = JSON.parse(text);
+                } catch (err) {
+                    console.warn(`Attempt ${attempt + 1}: Invalid JSON, retrying...`);
+                    await sleep(250);
+                    continue;
+                }
 
                 actualOutput = data?.run?.output?.trim() ?? '';
-
-                const status = actualOutput === trimmedExpectedOutput ? "PASSED" : "FAILED";
+                status = actualOutput === trimmedExpectedOutput ? "PASSED" : "FAILED";
 
                 results.push({
                     test_case: i + 1,
@@ -649,23 +660,28 @@ export const runCodeWithTestCases = async (req: Request, res: Response) => {
                 });
 
                 console.log(`output:${JSON.stringify(data)} --------${actualOutput}`);
-
-
                 success = true;
-            } catch (error) {
-                if (attempt === 1) {
-                    results.push({
-                        test_case: i + 1,
-                        input,
-                        output: trimmedExpectedOutput,
-                        actual: '',
-                        status: 'FAILED',
-                    });
-                }
+            } catch (err) {
+                console.warn(`Attempt ${attempt + 1}: Request failed, retrying...`);
+                await sleep(250);
             }
+
+            await sleep(250); // Always wait to avoid hitting rate limits
+        }
+
+        // If all retries fail (i.e., invalid JSON every time), mark failed with empty output
+        if (!success) {
+            results.push({
+                test_case: i + 1,
+                input,
+                output: trimmedExpectedOutput,
+                actual: '',
+                status: 'FAILED',
+            });
         }
     }
 
     res.status(200).json(results);
 };
+
 
