@@ -56,6 +56,7 @@ const ChallengeRoom = () => {
     const [language, setLanguage] = useState<string | undefined>("python");
     const [langIcon, setLangIcon] = useState<string>('');
     const [langVersion, setLangVersion] = useState<string | undefined>('');
+    const [langExtension, setLangExtension] = useState<string | undefined>('');
 
     const [submitLoading, setSubmitLoading] = useState<boolean>(false);
     const [submitResult, setSubmitResult] = useState<ITestResult[]>([]);
@@ -165,6 +166,7 @@ const ChallengeRoom = () => {
                     const lang = languages.find((lang)=>lang.name === res.data.language);
                     setLanguage(lang?.monacoLang);
                     setLangIcon(`/icons/languages/${lang?.icon}.svg`);
+                    setLangExtension(lang?.extension);
                     if (lang?.monacoLang && res.data.problem_id.template[lang.monacoLang]) {
                         setCode(res.data.problem_id.template[lang.monacoLang]);
                     } else {
@@ -342,6 +344,7 @@ const ChallengeRoom = () => {
                 "test_cases":challengeDetails?.problem_id.test_cases,
                 'language':language,
                 'version':langVersion,
+                'extension':langExtension
             }
             const res = await postAction('/challenge/submit-answer-new',data);
             if(res && res.data){
@@ -370,6 +373,7 @@ const ChallengeRoom = () => {
                 "test_cases":challengeDetails?.problem_id.test_cases.slice(-2),
                 'language':language,
                 'version':langVersion,
+                'extension':langExtension
             }
             const res = await postAction('/challenge/submit-answer-new',data);
             if(res && res.data){

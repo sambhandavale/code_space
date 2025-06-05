@@ -601,66 +601,68 @@ export const proxyPythonCompiler = async (req: Request, res: Response) => {
 };
 
 export const runCodeWithTestCases = async (req: Request, res: Response) => {
-  const language = req.body.language;
-  const version = req.body.version;
+    const language = req.body.language;
+    const version = req.body.version;
+    const userCode = req.body.user_code;
+    const testCases = [...req.body.test_cases]; // Prevent mutation
+    const ext = req.body.extension;
 
-  console.log(language,version)
+    const results: TestResult[] = [];
 
-  const results: TestResult[] = [];
+    for (let i = 0; i < testCases.length; i++) {
+        const { input, output } = testCases[i];
+        const trimmedExpectedOutput = String(output).trim();
 
-  for (let i = 0; i < req.body.test_cases.length; i++) {
-    const { input, output } = req.body.test_cases[i];
-    console.log(req.body.test_cases[i]);
+        const body = {
+            language,
+            version,
+            files: [{ name: `main.${ext}`, content: userCode }],
+            stdin: input + '\n',
+            args: [],
+            compile_timeout: 10000,
+            run_timeout: 3000,
+        };
 
-    // Compose full code with input redirection (simulate input via stdin)
-    // Piston allows "stdin" field to send input
-    const body = {
-      language,
-      version,
-      files: [{ name: "main.js", content: req.body.user_code }],
-      stdin: input,
-      args: [],
-      compile_timeout: 10000,
-      run_timeout: 3000,
-    };
+        let actualOutput = '';
+        let success = false;
 
-    try {
-      const response = await fetch("https://emkc.org/api/v2/piston/execute", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+        for (let attempt = 0; attempt < 2 && !success; attempt++) {
+            try {
+                const response = await fetch("https://emkc.org/api/v2/piston/execute", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body),
+                });
 
-      const data = await response.json();
-      console.log(data.run.output,output)
-      console.log(body)
+                const data = await response.json();
 
-      let actualOutput = "";
-      if (data.run && data.run.output) {
-        actualOutput = data.run.output.trim();
-      } else {
-        actualOutput = "";
-      }
+                actualOutput = data?.run?.output?.trim() ?? '';
 
-      const status = actualOutput === output ? "PASSED" : "FAILED";
+                const status = actualOutput === trimmedExpectedOutput ? "PASSED" : "FAILED";
 
-      results.push({
-        actual: actualOutput,
-        output,
-        input,
-        status,
-        test_case: i + 1,
-      });
-    } catch (error) {
-      results.push({
-        actual: "",
-        output,
-        input,
-        status: "FAILED",
-        test_case: i + 1,
-      });
+                results.push({
+                    test_case: i + 1,
+                    input,
+                    output: trimmedExpectedOutput,
+                    actual: actualOutput,
+                    status,
+                });
+
+                success = true;
+            } catch (error) {
+                if (attempt === 1) {
+                    results.push({
+                        test_case: i + 1,
+                        input,
+                        output: trimmedExpectedOutput,
+                        actual: '',
+                        status: 'FAILED',
+                    });
+                }
+            }
+        }
     }
-  }
 
-  res.status(200).json(results);
+    res.status(200).json(results);
 };
+
