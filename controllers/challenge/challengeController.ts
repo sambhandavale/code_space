@@ -648,7 +648,8 @@ export const runCodeWithTestCases = async (req: Request, res: Response) => {
                     status,
                 });
 
-                console.log(`output:${data} --------${actualOutput}`)
+                console.log(`output:${JSON.stringify(data.run)} --------${actualOutput}`);
+
 
                 success = true;
             } catch (error) {
