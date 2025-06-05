@@ -648,7 +648,7 @@ export const runCodeWithTestCases = async (req: Request, res: Response) => {
                     status,
                 });
 
-                console.log(`output:${JSON.stringify(data.run)} --------${actualOutput}`);
+                console.log(`output:${JSON.stringify(data)} --------${actualOutput}`);
 
 
                 success = true;
