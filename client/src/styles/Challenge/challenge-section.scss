@@ -245,6 +245,33 @@
             text-transform: capitalize;
             text-align: center;
         }
+
+        .find_challenge_container {
+            position: relative;
+        }
+
+        .cancel-button {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: background-color 0.2s ease;
+        }
+
+        .cancel-button:hover {
+            background-color: darkred;
+        }
+
     }
 }
 

@@ -5,7 +5,7 @@ import Question from "../../models/Challenges/Question";
 import mongoose from "mongoose";
 import { io } from "../../App";
 import { userSockets } from "../../App";  
-import UserDetails from "../../models/Users/UserDetails";
+import UserStats from "../../models/Users/UserStats";
 import { getAll } from "../../utility/handlerFactory";
 import { updateStreak } from "../../utility/Challenge/updateStreak";
 import moment from "moment";
@@ -99,7 +99,7 @@ const createChallenge = async (player1Id: mongoose.Schema.Types.ObjectId, player
             start_time:new Date(),
         });
 
-        // await UserDetails.updateMany(
+        // await UserStats.updateMany(
         //     { user_id: { $in: [player1Id, player2Id] } },
         //     { $inc: { matches_played: 1 } }
         // );
@@ -109,7 +109,7 @@ const createChallenge = async (player1Id: mongoose.Schema.Types.ObjectId, player
         const today = moment().format("YYYY-MM-DD");
 
         await Promise.all([
-            UserDetails.findOneAndUpdate(
+            UserStats.findOneAndUpdate(
                 { user_id: player1Id },
                 {
                     $inc: {
@@ -122,7 +122,7 @@ const createChallenge = async (player1Id: mongoose.Schema.Types.ObjectId, player
                 },
                 { upsert: true, new: true }
             ),
-            UserDetails.findOneAndUpdate(
+            UserStats.findOneAndUpdate(
                 { user_id: player2Id },
                 {
                     $inc: {
@@ -239,11 +239,11 @@ export const leaveChallenge = async (req:Request, res:Response) => {
         });
 
         await Promise.all([
-            UserDetails.findOneAndUpdate(
+            UserStats.findOneAndUpdate(
                 { user_id: winnerId },
                 { $inc: { rating: ratingChange, wins: 1 } }
             ),
-            UserDetails.findOneAndUpdate(
+            UserStats.findOneAndUpdate(
                 { user_id: userId },
                 { $inc: { rating: -ratingChange, loss: 1 } }
             )
@@ -315,11 +315,11 @@ export const acceptDrawChallenge = async (req:Request, res:Response) => {
         });
 
         await Promise.all([
-            UserDetails.findOneAndUpdate(
+            UserStats.findOneAndUpdate(
                 { user_id: player1Str },
                 { $inc: { rating: drawRating, draws: 1 } }
             ),
-            UserDetails.findOneAndUpdate(
+            UserStats.findOneAndUpdate(
                 { user_id: player2Str },
                 { $inc: { rating: drawRating, draws: 1 } }
             )
@@ -478,7 +478,7 @@ export const submitChallengeResult = async (req:Request, res:Response) => {
         });
 
         await Promise.all([
-            UserDetails.findOneAndUpdate(
+            UserStats.findOneAndUpdate(
                 { user_id: winnerId },
                 {
                     $inc: {
@@ -489,7 +489,7 @@ export const submitChallengeResult = async (req:Request, res:Response) => {
                     $set: { last_match_date: new Date() }
                 }
             ),
-            UserDetails.findOneAndUpdate(
+            UserStats.findOneAndUpdate(
                 { user_id: loserId },
                 {
                     $inc: {
@@ -543,7 +543,7 @@ export const getChallengeById = async (req:Request, res:Response) => {
             return;
         }
 
-        const playerDetails = await UserDetails.find({ user_id: { $in: challenge.players } })
+        const playerDetails = await UserStats.find({ user_id: { $in: challenge.players } })
             .select("user_id matches_played rating wins draw loss");
 
         res.status(200).json({

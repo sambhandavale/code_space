@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { ObjectId } from "mongoose";
 
-interface IUserDetails{
+interface IUserStats{
     _id?:ObjectId;
     user_id:ObjectId;
     matches_played?:number;
@@ -17,9 +17,10 @@ interface IUserDetails{
     };
     last_match_date?: Date;
     daily_matches?: Record<string, { count: number; challenges: ObjectId[] }>;
+    last_login_date?: Date;
 }
 
-const UserDetailsSchema = new mongoose.Schema<IUserDetails>(
+const UserStatsSchema = new mongoose.Schema<IUserStats>(
     {
         user_id:{
             type:mongoose.Schema.Types.ObjectId,
@@ -63,14 +64,18 @@ const UserDetailsSchema = new mongoose.Schema<IUserDetails>(
             },
             default: {},
         },
+        last_login_date: {
+            type: Date,
+        },
+
     },
     {
         timestamps:true,
     }
 );
 
-UserDetailsSchema.index({ user_id: 1 }, { unique: true });
+UserStatsSchema.index({ user_id: 1 }, { unique: true });
 
-const UserDetailsModel = mongoose.model<IUserDetails>("UserDetails", UserDetailsSchema);
+const UserStats = mongoose.model<IUserStats>("UserStats", UserStatsSchema);
 
-export default UserDetailsModel;
+export default UserStats;

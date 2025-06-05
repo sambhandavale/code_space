@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import DescriptionPopup from "../Shared/DescriptionPopup";
 import ChallengeFriendPopup from "./ChallengeFriendPopup";
+import { AiOutlineClose } from "react-icons/ai";
 
 interface IChallengeSection {
   controlsSelected: {
@@ -158,27 +159,40 @@ const ChallengeSection = ({
       {isAuth() && (
         <div className="challenge_buttons flex gap-4 items-center justify-center">
           <div className="challenge__bts ff-google-n">
-            <div 
-              className="find_challenge glassmorphism-medium gls-box pointer"
-              onClick={joinMatchmaking}
-            >
-              {message !== '' ? message : 'CHALLENGE ONLINE'}
+            <div className="find_challenge_container">
+              <div className="find_challenge glassmorphism-medium gls-box pointer" onClick={joinMatchmaking}>
+                {message !== '' ? message : 'CHALLENGE ONLINE'}
+                {
+                  message !== '' && (
+                    <button
+                      className="cancel-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        stopMatchmaking();
+                      }}
+                      title="Cancel"
+                    >
+                      <AiOutlineClose size={14} />
+                    </button>
+                  )
+                }
+              </div>
             </div>
-            {message && (
+            {/* {message && (
               <div 
                 className="find_challenge glassmorphism-medium gls-box pointer"
                 onClick={stopMatchmaking}
               >
                 {'Cancel'}
               </div>
-            )}
+            )} */}
           </div>
           <div className="challenge__bts ff-google-n">
             <div 
               className="find_challenge glassmorphism-medium gls-box pointer"
               onClick={()=>setShowFriendPopup(true)}
             >
-              {message !== '' ? message : 'CHALLENGE FRIEND'}
+              {'CHALLENGE FRIEND'}
             </div>
           </div>
         </div>

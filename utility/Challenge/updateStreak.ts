@@ -1,8 +1,8 @@
-import UserDetails from "../../models/Users/UserDetails";
+import UserStats from "../../models/Users/UserStats";
 
 export const updateStreak = async (userId: string) => {
     try {
-        const userDetails = await UserDetails.findOne({ user_id: userId });
+        const userDetails = await UserStats.findOne({ user_id: userId });
 
         if (!userDetails) return;
 
@@ -42,7 +42,7 @@ export const updateStreak = async (userId: string) => {
             longestStreakStartDate = streakStartDate;
         }
 
-        await UserDetails.findOneAndUpdate(
+        await UserStats.findOneAndUpdate(
             { user_id: userId },
             {
                 $set: {

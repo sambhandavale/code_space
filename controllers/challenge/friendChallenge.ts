@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import UserChallengesModel from "../../models/Challenges/User-Challenges";
 import Question from "../../models/Challenges/Question";
-import UserDetails from "../../models/Users/UserDetails";
+import UserStats from "../../models/Users/UserStats";
 import moment from "moment";
 
 function generateRoomCode(length = 6) {
@@ -71,7 +71,7 @@ export const joinPrivateChallenge = async (req: Request, res: Response) => {
   const today = moment().format("YYYY-MM-DD");
 
   await Promise.all([
-    UserDetails.findOneAndUpdate(
+    UserStats.findOneAndUpdate(
         { user_id: userId },
         {
             $inc: {
@@ -84,7 +84,7 @@ export const joinPrivateChallenge = async (req: Request, res: Response) => {
         },
         { upsert: true, new: true }
     ),
-    UserDetails.findOneAndUpdate(
+    UserStats.findOneAndUpdate(
         { user_id: challenge.players[0] },
         {
             $inc: {

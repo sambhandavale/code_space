@@ -33,7 +33,8 @@ const Login = () => {
     }
 
     try {
-        const data = { email: email, password: password };
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const data = { email, password, timezone };
         const res = await postAction('/auth/signin',data,informParent);
         if(res.status === 200){
             toast.success(`Welcome, ${res.data.user.first_name} ${res.data.user.last_name}`);

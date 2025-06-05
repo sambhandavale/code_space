@@ -1,55 +1,70 @@
 import User from "../../models/Users/Users";
 import { Response, Request, NextFunction } from "express";
 import { sign, verify } from "jsonwebtoken";
-import UserDetails from "../../models/Users/UserDetails";
+import UserStats from "../../models/Users/UserStats";
+import moment from "moment-timezone";
+import UserProfile from "../../models/Users/UserProfile";
 
 export const signup = async (req: Request, res: Response): Promise<any> => {
   try {
-      const { username, email, password, fullname } = req.body;
+    const { username, email, password, fullname } = req.body;
 
-      if (!username || !email || !password || !fullname) {
-          return res.status(400).json({ error: "All fields are required." });
-      }
+    if (!username || !email || !password || !fullname) {
+      return res.status(400).json({ error: "All fields are required." });
+    }
 
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-          return res.status(400).json({ error: "Email is already taken." });
-      }
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: "Email is already taken." });
+    }
 
-      const nameParts = fullname.trim().split(/\s+/);
-      const first_name = nameParts[0];
-      const last_name = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+      return res.status(400).json({ error: "Username is already taken." });
+    }
 
-      const newUser = new User({
-          username,
-          email,
-          password,
-          first_name,
-          last_name,
-      });
+    const nameParts = fullname.trim().split(/\s+/);
+    const first_name = nameParts[0];
+    const last_name = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
 
-      const savedUser = await newUser.save();
+    const newUser = new User({
+      username,
+      email,
+      password,
+      first_name,
+      last_name,
+    });
 
-      const newUserDetails = new UserDetails({
-          user_id: savedUser._id,
-      });
+    const savedUser = await newUser.save();
 
-      await newUserDetails.save();
+    const newUserStats = new UserStats({
+      user_id: savedUser._id,
+    });
 
-      return res.status(201).json({
-          message: `${username} is enrolled successfully. Welcome to the party!!`,
-      });
+    const newUserProfile = new UserProfile({
+      user_id: savedUser._id,
+      favorite: [],
+      social: [],
+    });
+
+    await Promise.all([
+      newUserStats.save(),
+      newUserProfile.save(),
+    ]);
+
+    return res.status(201).json({
+      message: `${username} is enrolled successfully. Welcome to the party!!`,
+    });
 
   } catch (err) {
-      console.error("Signup error:", err);
-      return res.status(500).json({ error: "Internal server error" });
+    console.error("Signup error:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
-
 export const signin = async (req: Request, res: Response): Promise<void> => {
   try {
-      const { email, password } = req.body;
+      const { email, password, timezone } = req.body; 
 
       if (!email || !password) {
           res.status(400).json({ error: "Email and password are required." });
@@ -67,8 +82,8 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
           expiresIn: "7h",
       });
 
-      const isProduction = process.env.NODE_ENV === 'production';
-      
+      const isProduction = process.env.NODE_ENV === "production";
+
       res.cookie("jwt", jwtToken, {
           expires: new Date(Date.now() + 7 * 60 * 60 * 1000),
           httpOnly: true,
