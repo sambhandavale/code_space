@@ -648,6 +648,8 @@ export const runCodeWithTestCases = async (req: Request, res: Response) => {
                     status,
                 });
 
+                console.log(`output:${data} --------${actualOutput}`)
+
                 success = true;
             } catch (error) {
                 if (attempt === 1) {
