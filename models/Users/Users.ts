@@ -32,7 +32,7 @@ const UserSchema = new mongoose.Schema<IUser>(
         email: { type: String, lowercase: true, unique: true },
         username: { type: String },
         mobile_number: { type: Number },
-        role: { type: String, enum: ["user", "admin"], default: "user" },
+        role: { type: String, enum: ["user", "admin", "tester"], default: "user" },
     },
     { timestamps: true }
 );

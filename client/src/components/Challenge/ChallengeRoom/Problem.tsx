@@ -41,18 +41,28 @@ const Problem = ({
                         <div className="problem_example_number ff-google-b">Example {index+1}</div>
                         <div className="problem_example_details">
                             <div className="problem_example_detail ff-google-n">Explaination: {example.explanation}</div>
-                            <div className="problem_example_detail ff-google-n flex flex-col gap-1">
-                                Input:        {example.input.includes('\n') &&
-                                                example.input.split('\n').map((line, index) => (
-                                                    <div key={index}>{line}</div>
-                                                ))}
+                            <div className={`problem_example_detail ff-google-n flex ${example.input.includes('\n') ? 'flex-col':'flex-row'} gap-1`}>
+                                <>Input:</>
+                                {example.input.includes('\n') ? (
+                                    example.input.split('\n').map((line, index) => (
+                                        <div key={index}>{line}</div>
+                                    ))
+                                ) : (
+                                    <div>{example.input}</div>
+                                )}
                             </div>
-                            <div className="problem_example_detail ff-google-n flex flex-col gap-1">
-                                Output: {example.output.includes('\n') &&
-                                                example.output.split('\n').map((line, index) => (
-                                                    <div key={index}>{line}</div>
-                                                ))}
+
+                            <div className={`problem_example_detail ff-google-n flex ${example.input.includes('\n') ? 'flex-col':'flex-row'} gap-1`}>
+                                <>Output:</>
+                                {example.output.includes('\n') ? (
+                                    example.output.split('\n').map((line, index) => (
+                                        <div key={index}>{line}</div>
+                                    ))
+                                ) : (
+                                    <div>{example.output}</div>
+                                )}
                             </div>
+
                         </div>
                     </div>
                 ))

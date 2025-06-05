@@ -293,7 +293,7 @@ const ChallengeRoom = () => {
     useEffect(()=>{
         if(!socket) return;
 
-        socket.on("ask_draw",(data)=>{
+        socket.on("ask_draw",(_)=>{
             setDrawPopup(true);
         })
 

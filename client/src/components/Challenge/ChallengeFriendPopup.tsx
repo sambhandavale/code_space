@@ -66,7 +66,7 @@ const ChallengeFriendPopup = ({
         ) : (
           <div className="code_area flex gap-2">
             <div className="codesection ff-kanit-n white">{userCode}</div>
-            <div className="joinnow ff-kanit-n white pointer" onClick={createRoom}>GET CODE</div>
+            <div className={`joinnow ff-kanit-n white pointer ${userCode ? 'locked' :''}`} onClick={userCode ? ()=>{} : createRoom}>GET CODE</div>
           </div>
         )}
 

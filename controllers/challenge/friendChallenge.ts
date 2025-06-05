@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import UserChallengesModel from "../../models/Challenges/User-Challenges";
 import Question from "../../models/Challenges/Question";
+import UserDetails from "../../models/Users/UserDetails";
+import moment from "moment";
 
 function generateRoomCode(length = 6) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -53,7 +55,7 @@ export const joinPrivateChallenge = async (req: Request, res: Response) => {
 
   if (!challenge || challenge.status !== "waiting") {
     res.status(400).json({ message: "Room not found or already started" });
-    return
+    return 
   }
 
   if (challenge.players.length >= 2) {
@@ -65,6 +67,37 @@ export const joinPrivateChallenge = async (req: Request, res: Response) => {
   challenge.status = "active";
   challenge.start_time = new Date();
   await challenge.save();
+
+  const today = moment().format("YYYY-MM-DD");
+
+  await Promise.all([
+    UserDetails.findOneAndUpdate(
+        { user_id: userId },
+        {
+            $inc: {
+                matches_played: 1,
+                [`daily_matches.${today}.count`]: 1, // Increment match count for today
+            },
+            $push: {
+                [`daily_matches.${today}.challenges`]: challenge._id, // Store challenge ID
+            },
+        },
+        { upsert: true, new: true }
+    ),
+    UserDetails.findOneAndUpdate(
+        { user_id: challenge.players[0] },
+        {
+            $inc: {
+                matches_played: 1,
+                [`daily_matches.${today}.count`]: 1,
+            },
+            $push: {
+                [`daily_matches.${today}.challenges`]: challenge._id,
+            },
+        },
+        { upsert: true, new: true }
+    ),
+]);
 
   res.json({ challengeId: challenge._id });
 };

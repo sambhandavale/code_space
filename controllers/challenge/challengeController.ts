@@ -10,13 +10,7 @@ import { getAll } from "../../utility/handlerFactory";
 import { updateStreak } from "../../utility/Challenge/updateStreak";
 import moment from "moment";
 import { IBaseRequest } from "../../interfaces/core_interfaces";
-import MatchMakingModel from "../../models/Challenges/MatchMaking";
 import UserChallengesModel from "../../models/Challenges/User-Challenges";
-
-interface TestCase{
-  input: string;
-  output: string;
-};
 
 interface TestResult{
   actual: string;
@@ -240,7 +234,8 @@ export const leaveChallenge = async (req:Request, res:Response) => {
         await UserChallenges.findByIdAndUpdate(challengeId, {
             winner: winnerId,
             rating_change: { [winnerIdStr]: ratingChange, [userIdStr]: -ratingChange },
-            active: false
+            active: false,
+            status:'completed'
         });
 
         await Promise.all([
@@ -479,6 +474,7 @@ export const submitChallengeResult = async (req:Request, res:Response) => {
                 [loserId]: loserRatingChange,
             },
             active: false,
+            status:'completed'
         });
 
         await Promise.all([
