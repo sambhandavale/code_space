@@ -248,6 +248,9 @@
 
         .find_challenge_container {
             position: relative;
+            display: flex;
+            align-self: stretch;
+            flex:1 0 0;
         }
 
         .cancel-button {

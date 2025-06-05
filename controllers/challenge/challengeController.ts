@@ -11,6 +11,7 @@ import { updateStreak } from "../../utility/Challenge/updateStreak";
 import moment from "moment";
 import { IBaseRequest } from "../../interfaces/core_interfaces";
 import UserChallengesModel from "../../models/Challenges/User-Challenges";
+import { updateUserTitleByRating } from "../../utility/User/updateUserTitle";
 
 interface TestResult{
   actual: string;
@@ -87,7 +88,7 @@ const createChallenge = async (player1Id: mongoose.Schema.Types.ObjectId, player
             { $sample: { size: 1 } }
         ]);
         
-        const problemId = problem[0]._id;
+        const problemId = "683d68d7720768a6a57866df";
 
         const challenge = await UserChallenges.create({
             players: [player1Id, player2Id],
@@ -267,6 +268,9 @@ export const leaveChallenge = async (req:Request, res:Response) => {
             });
         }
 
+        await updateUserTitleByRating(winnerIdStr);
+        await updateUserTitleByRating(userIdStr);
+
         res.status(200).json({ message: "Match forfeited. Opponent declared winner." });
 
     } catch (error) {
@@ -343,6 +347,9 @@ export const acceptDrawChallenge = async (req:Request, res:Response) => {
                 ratingChange: drawRating
             });
         }
+
+        await updateUserTitleByRating(player1Str);
+        await updateUserTitleByRating(player2Str);
 
         res.status(200).json({ message: "Match ended in a draw. Ratings updated." });
 
@@ -519,6 +526,8 @@ export const submitChallengeResult = async (req:Request, res:Response) => {
         notifyUser(winnerId, true, winnerRatingChange);
         notifyUser(loserId, false, loserRatingChange);
 
+        await updateUserTitleByRating(winnerId);
+        await updateUserTitleByRating(loserId);
         res.status(200).json({ message: "Challenge result submitted and ratings updated." });
 
     } catch (error) {
@@ -624,7 +633,7 @@ export const runCodeWithTestCases = async (req: Request, res: Response) => {
 
       const data = await response.json();
       console.log(data.run.output,output)
-      console.log(data)
+      console.log(body)
 
       let actualOutput = "";
       if (data.run && data.run.output) {
