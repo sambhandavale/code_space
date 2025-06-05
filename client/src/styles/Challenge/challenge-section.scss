@@ -15,6 +15,7 @@
     --challenge-section-controls-title-font-size: calc(1.625rem * var(--challenge-section-controls-scaleby));
     --challenge-section-controls-languages-gap: calc(1rem * var(--challenge-section-controls-scaleby));
     --challenge-section-controls-languages-language-padding: calc(0.25rem * var(--challenge-section-controls-scaleby)) calc(0.5rem * var(--challenge-section-controls-scaleby));
+    --challenge-section-controls-languages-language-gap:calc(10px * var(--challenge-section-controls-scaleby));
     --challenge-section-controls-languages-img-size: calc(1.75rem * var(--challenge-section-controls-scaleby));
     --challenge-section-controls-languages-font-size: calc(1.125rem * var(--challenge-section-controls-scaleby));
 
@@ -116,7 +117,7 @@
                         padding: var(--challenge-section-controls-languages-language-padding);
                         justify-content: center;
                         align-items: center;
-                        gap: 10px;
+                        gap: var(--challenge-section-controls-languages-language-gap);
 
                         border-radius: 5px;
 
@@ -326,6 +327,6 @@
 
 @media (max-width: 450px) {
   .challenge-section {
-    --challenge-section-controls-scaleby: 0.5;
+    --challenge-section-controls-scaleby: 0.6;
   }
 }

@@ -88,7 +88,7 @@ const createChallenge = async (player1Id: mongoose.Schema.Types.ObjectId, player
             { $sample: { size: 1 } }
         ]);
         
-        const problemId = "683d68d7720768a6a57866df";
+        const problemId = problem[0]._id;
 
         const challenge = await UserChallenges.create({
             players: [player1Id, player2Id],
