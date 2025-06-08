@@ -1,4 +1,4 @@
-# CODE_SPACE
+# CODESPACE
 
 *Transforming coding challenges into engaging competitions.*
 
