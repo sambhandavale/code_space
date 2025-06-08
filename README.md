@@ -15,7 +15,6 @@
 ![Passport](https://img.shields.io/badge/-Passport-green)
 ![React](https://img.shields.io/badge/-React-cyan)
 ![TypeScript](https://img.shields.io/badge/-TypeScript-blue)
-![Tianede](https://img.shields.io/badge/-tianede-blue)
 ![Vite](https://img.shields.io/badge/-Vite-purple)
 ![ESLint](https://img.shields.io/badge/-ESLint-purple)
 ![Axios](https://img.shields.io/badge/-Axios-pink)
