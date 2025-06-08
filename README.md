@@ -42,7 +42,7 @@
 
 ## Overview
 
-**code_space** is a cutting-edge gamified coding platform that revolutionizes the way developers engage with coding challenges, making learning both fun and competitive.
+**Codespace** is a cutting-edge gamified coding platform that revolutionizes the way developers engage with coding challenges, making learning both fun and competitive.
 
 ### Why code_space?
 
