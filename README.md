@@ -2,10 +2,6 @@
 
 *Transforming coding challenges into engaging competitions.*
 
-![Last Commit](https://img.shields.io/github/last-commit/sambhandavale/code_space)
-![TypeScript](https://img.shields.io/badge/typescript-72.6%25-blue)
-![Languages](https://img.shields.io/github/languages/count/sambhandavale/code_space)
-
 ## Built with the tools and technologies:
 ![Express](https://img.shields.io/badge/-Express-black)
 ![JSON](https://img.shields.io/badge/-JSON-black)
