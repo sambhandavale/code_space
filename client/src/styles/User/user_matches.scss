@@ -1,0 +1,168 @@
+.matches {
+    --scaleby: 1;
+
+    --matches-height: calc(21rem * var(--scaleby));
+    --matches-padding: calc(1.6875rem * var(--scaleby)) calc(2.1875rem * var(--scaleby));
+    --matches-gap: calc(1.5rem * var(--scaleby));
+    --matches-border-radius: calc(1.375rem * var(--scaleby));
+
+    --matches-header-font-size: calc(2rem * var(--scaleby));
+
+    --all-matches-gap: calc(0.9375rem * var(--scaleby));
+
+    --match-padding: calc(0.3125rem * var(--scaleby)) 0rem;
+
+    --match-details-padding: calc(1rem * var(--scaleby)) calc(1.5rem * var(--scaleby));
+    --match-details-gap: calc(1.5rem * var(--scaleby));
+    --match-details-border-radius: calc(1rem * var(--scaleby));
+
+    --match-user-font-size: calc(1.125rem * var(--scaleby));
+    --match-control-font-size: calc(1.125rem * var(--scaleby));
+    --match-lang-font-size: calc(1.125rem * var(--scaleby));
+    --match-time-font-size: calc(1.125rem * var(--scaleby));
+    --match-date-font-size: calc(1.125rem * var(--scaleby));
+    --match-vs-font-size: calc(0.875rem * var(--scaleby));
+
+    --match-image-width: calc(1.75rem * var(--scaleby));
+
+    --match-time-width: calc(2.5rem * var(--scaleby));
+}
+
+
+.matches {
+    display: flex;
+    padding: var(--matches-padding);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--matches-gap);
+    align-self: stretch;
+    flex: 1 0 0;
+
+    border-radius: var(--matches-border-radius);
+    background: #232323;
+
+    header {
+        .header_text {
+            font-size: var(--matches-header-font-size);
+        }
+    }
+
+    .all_matches {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--all-matches-gap);
+        align-self: stretch;
+        min-height: var(--matches-height);
+        // overflow-y: auto;
+        // padding: 0 0.5rem 0 0;
+
+        .match {
+            display: flex;
+            padding: var(--match-padding);
+            align-items: center;
+            gap: 0.625rem;
+            align-self: stretch;
+
+            .match_details {
+                display: flex;
+                padding: var(--match-details-padding);
+                justify-content: space-between;
+                align-items: center;
+                flex: 1 0 0;
+                gap:1rem;
+
+                border-radius: var(--match-details-border-radius);
+                background: #454545;
+
+                .match__users,
+                .match__controls {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--match-details-gap);
+                }
+
+                .match__user,
+                .lang,
+                .time,
+                .date {
+                    font-size: var(--match-user-font-size);
+                }
+
+                .vs {
+                    font-size: var(--match-vs-font-size);
+                }
+
+                img {
+                    width: var(--match-image-width);
+                }
+            }
+
+            .time {
+                width: var(--match-time-width);
+            }
+        }
+    }
+}
+
+.pagination-controls {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+    align-self: stretch;
+}
+
+.pagination-btn {
+    background-color: #444;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.pagination-btn:hover:not(.disabled) {
+    background-color: #666;
+}
+
+.pagination-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-info {
+    font-size: 1rem;
+}
+
+@media screen and (max-width: 1200px) {
+    .match__users{
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.25rem !important;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .match__users,.match__controls{
+        gap: 0.25rem !important;
+    }
+}
+
+@media screen and (max-width: 650px) {
+    .match__users{
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .matches{
+        --scaleby:0.85;
+        --matches-padding: calc(1.6875rem * var(--scaleby)) calc(1.5rem * var(--scaleby));
+    }
+
+    .pagination-controls{
+        justify-content: center;
+    }
+}

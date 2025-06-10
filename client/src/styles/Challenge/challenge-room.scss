@@ -20,6 +20,7 @@
     --players-details-gap: calc(1rem * var(--scaleleft));
     --player-gap: calc(0.625rem * var(--scaleleft));
     --playername-font-size: calc(1.25rem * var(--scaleleft));
+    --playerrating-font-size: calc(0.875rem * var(--scaleleft));
 
     /* Problem About */
     --problem-about-padding: calc(1.75rem * var(--scaleleft)) calc(1.5rem * var(--scaleleft));
@@ -148,6 +149,13 @@
                     display: flex;
                     flex-direction: column;
                 }
+
+                .playerrating{
+                    color: var(--challenge-room-light-color);
+                    font-size: var(--playerrating-font-size);
+                    opacity: 0.8;
+                }
+
                 .right{
                     align-items: flex-end;
                     text-align: end;

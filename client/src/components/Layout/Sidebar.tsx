@@ -52,7 +52,7 @@ const MobileSidebar = ({ isOpen, onClose, scrollToChallenge, userRating }: any) 
                 <CloseIcon className="close-icon" onClick={onClose} />
             </div>
 
-            {isAuth() && <div className="sidebar-item locked ff-google-n"><FaUser /> Profile</div>}
+            {isAuth() && <div className="sidebar-item ff-google-n" onClick={() => handleNavigate(`/profile/${isAuth().username}`)}><FaUser /> Profile</div>}
             {width < 768 && (
                 <>
                     <hr />

@@ -10,14 +10,13 @@ interface SocialItem {
     url: string;
 }
 
-interface IUserProfile {
+export interface IUserProfile {
     _id?: ObjectId;
     user_id: ObjectId;
 
     favorites?: FavoriteItem[];
     socials?: SocialItem[];
 
-    highest_rating?: number;
     title?: string;
 
     bio?: string;
@@ -28,7 +27,7 @@ interface IUserProfile {
 const FavoriteSchema = new mongoose.Schema<FavoriteItem>(
     {
         category: { type: String },
-        value: { type: String },
+        value: { type: String, default: "" },
     },
     { _id: false }
 );
@@ -36,28 +35,42 @@ const FavoriteSchema = new mongoose.Schema<FavoriteItem>(
 const SocialSchema = new mongoose.Schema<SocialItem>(
     {
         platform: { type: String },
-        url: { type: String },
+        url: { type: String, default: "" },
     },
     { _id: false }
 );
 
+// Default favorites
+const defaultFavorites: FavoriteItem[] = [
+    { category: "Language", value: "" },
+    { category: "Time Control", value: "" },
+    { category: "Topic", value: "" },
+];
+
+// Default socials
+const defaultSocials: SocialItem[] = [
+    { platform: "GitHub", url: "https://github.com/..." },
+    { platform: "LinkedIn", url: "https://linkedin.com/..." },
+    { platform: "Twitter", url: "https://twitter.com/..." },
+    { platform: "Portfolio", url: "https://..." },
+];
+
 const UserProfileSchema = new mongoose.Schema<IUserProfile>(
     {
         user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, unique: true },
-        favorites: [FavoriteSchema],
-        socials: [SocialSchema],
-        highest_rating: Number,
+        favorites: { type: [FavoriteSchema], default: defaultFavorites },
+        socials: { type: [SocialSchema], default: defaultSocials },
         title: {
-            type:String,
-            default:'Pupil (PU)'
+            type: String,
+            default: 'Pupil (PU)'
         },
         bio: {
-            type:String,
+            type: String,
         },
         theme_preference: { type: String, default: "dark" },
         avatar_frame: {
-            type:String,
-            default:'default.png'
+            type: String,
+            default: 'default.png'
         },
     },
     { timestamps: true }

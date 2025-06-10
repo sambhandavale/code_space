@@ -7,11 +7,12 @@ import { io } from "../../App";
 import { userSockets } from "../../App";  
 import UserStats from "../../models/Users/UserStats";
 import { getAll } from "../../utility/handlerFactory";
-import { updateStreak } from "../../utility/Challenge/updateStreak";
 import moment from "moment";
 import { IBaseRequest } from "../../interfaces/core_interfaces";
 import UserChallengesModel from "../../models/Challenges/User-Challenges";
 import { updateUserTitleByRating } from "../../utility/User/updateUserTitle";
+import { updateChallengeStreak } from "../../utility/Challenge/updateStreak";
+import { updateUserFavorites } from "../../utility/User/updateFavourites";
 
 interface TestResult{
   actual: string;
@@ -35,6 +36,7 @@ export const getAllChallenges = getAll(UserChallenges);
 export const joinMatchmaking = async (req:Request, res:Response) => {
     try {
         const {userId, language, timeControl } = req.body;
+        const timezone = req.headers['x-user-timezone'] as string;
 
         const existingChallenge = await UserChallengesModel.findOne({
             players: userId,
@@ -61,7 +63,7 @@ export const joinMatchmaking = async (req:Request, res:Response) => {
         });
 
         if (opponent) {
-            createChallenge(userId, opponent.user_id, language, timeControl);
+            createChallenge(userId, opponent.user_id, language, timeControl,timezone);
         }
 
         res.status(200).json({ message: "Searching for a match..." });
@@ -71,7 +73,7 @@ export const joinMatchmaking = async (req:Request, res:Response) => {
     }
 };
 
-const createChallenge = async (player1Id: mongoose.Schema.Types.ObjectId, player2Id: mongoose.Schema.Types.ObjectId, language: string, timeControl: number) => {
+const createChallenge = async (player1Id: mongoose.Schema.Types.ObjectId, player2Id: mongoose.Schema.Types.ObjectId, language: string, timeControl: number, timezone:string) => {
     try {
         await MatchMaking.deleteMany({ user_id: { $in: [player1Id, player2Id] } });
 
@@ -98,6 +100,7 @@ const createChallenge = async (player1Id: mongoose.Schema.Types.ObjectId, player
             winner: null,
             rating_change: {},
             start_time:new Date(),
+            status:'active',
         });
 
         // await UserStats.updateMany(
@@ -105,7 +108,7 @@ const createChallenge = async (player1Id: mongoose.Schema.Types.ObjectId, player
         //     { $inc: { matches_played: 1 } }
         // );
 
-        await Promise.all([updateStreak(player1Id.toString()), updateStreak(player2Id.toString())]);
+        await Promise.all([updateChallengeStreak(player1Id.toString(),timezone), updateChallengeStreak(player2Id.toString(),timezone)]);
 
         const today = moment().format("YYYY-MM-DD");
 
@@ -137,6 +140,9 @@ const createChallenge = async (player1Id: mongoose.Schema.Types.ObjectId, player
                 { upsert: true, new: true }
             ),
         ]);
+
+        await updateUserFavorites(player1Id.toString());
+        await updateUserFavorites(player2Id.toString());
         
 
         const player1SocketId = userSockets.get(player1Id.toString());
@@ -239,10 +245,17 @@ export const leaveChallenge = async (req:Request, res:Response) => {
             status:'completed'
         });
 
+        const winnerStats = await UserStats.findOne({ user_id: winnerId }).select('rating');
+        const currentWinnerRating = winnerStats?.rating || 0
+
         await Promise.all([
             UserStats.findOneAndUpdate(
                 { user_id: winnerId },
-                { $inc: { rating: ratingChange, wins: 1 } }
+                { 
+                    $inc: { rating: ratingChange, wins: 1 },
+                    $max: { highest_rating: currentWinnerRating + ratingChange }
+                }
+                
             ),
             UserStats.findOneAndUpdate(
                 { user_id: userId },
@@ -318,14 +331,25 @@ export const acceptDrawChallenge = async (req:Request, res:Response) => {
             draw: true,
         });
 
+        const [player1Stats, player2Stats] = await Promise.all([
+            UserStats.findOne({ user_id: player1Str }),
+            UserStats.findOne({ user_id: player2Str })
+        ]);
+
         await Promise.all([
             UserStats.findOneAndUpdate(
                 { user_id: player1Str },
-                { $inc: { rating: drawRating, draws: 1 } }
+                {
+                    $inc: { rating: drawRating, draws: 1 },
+                    $max: { highest_rating: (player1Stats?.rating || 0) + drawRating }
+                }
             ),
             UserStats.findOneAndUpdate(
                 { user_id: player2Str },
-                { $inc: { rating: drawRating, draws: 1 } }
+                {
+                    $inc: { rating: drawRating, draws: 1 },
+                    $max: { highest_rating: (player2Stats?.rating || 0) + drawRating }
+                }
             )
         ]);
 
@@ -441,7 +465,6 @@ export const rejectDrawChallenge = async (req: Request, res: Response) => {
     }
 };
 
-
 export const submitChallengeResult = async (req:Request, res:Response) => {
     try {
         const { challengeId, winnerId, ratingChanges } = req.body;
@@ -484,6 +507,9 @@ export const submitChallengeResult = async (req:Request, res:Response) => {
             status:'completed'
         });
 
+        const winnerStats = await UserStats.findOne({ user_id: winnerId }).select('rating');
+        const currentWinnerRating = winnerStats?.rating || 0
+
         await Promise.all([
             UserStats.findOneAndUpdate(
                 { user_id: winnerId },
@@ -493,7 +519,8 @@ export const submitChallengeResult = async (req:Request, res:Response) => {
                         wins: 1,
                         matches_played: 1,
                     },
-                    $set: { last_match_date: new Date() }
+                    $set: { last_match_date: new Date() },
+                    $max: { highest_rating: (winnerStats?.rating || 0) + winnerRatingChange }
                 }
             ),
             UserStats.findOneAndUpdate(
@@ -539,10 +566,6 @@ export const submitChallengeResult = async (req:Request, res:Response) => {
 export const getChallengeById = async (req:Request, res:Response) => {
     try {
         const challenge = await UserChallenges.findById(req.params.id).populate({
-            path: "players",
-            model: "User",
-            select: "first_name last_name user_photo username role",
-        }).populate({
             path: "problem_id",
             model: "Question",
         });
@@ -553,7 +576,11 @@ export const getChallengeById = async (req:Request, res:Response) => {
         }
 
         const playerDetails = await UserStats.find({ user_id: { $in: challenge.players } })
-            .select("user_id matches_played rating wins draw loss");
+            .select("user_id matches_played rating wins draw loss")    
+            .populate({
+                path: 'user_id',
+                select: 'username email profileImage first_name last_name user_photo'
+            });
 
         res.status(200).json({
             ...challenge.toObject(),
@@ -683,5 +710,4 @@ export const runCodeWithTestCases = async (req: Request, res: Response) => {
 
     res.status(200).json(results);
 };
-
 

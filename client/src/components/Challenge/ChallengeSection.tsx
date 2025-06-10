@@ -1,4 +1,4 @@
-import { languages } from "../../utility/general-utility";
+import { languages, timeControls } from "../../utility/general-utility";
 import TimeControlTab from "./TimeControlTab";
 import { isAuth } from "../../utility/helper";
 import { useNavigate } from "react-router-dom";
@@ -125,11 +125,7 @@ const ChallengeSection = ({
                 {/* <div className="to_leaderboard glassmorphism-medium">Leaderboard</div> */}
               </div>
               <div className="times">
-                {[
-                  { name: "Bullet", time: 5 },
-                  { name: "Blitz", time: 10 },
-                  { name: "Rapid", time: 20 },
-                ].map((tcontrol) => (
+                {timeControls.map((tcontrol) => (
                   <TimeControlTab
                     key={tcontrol.name}
                     title={tcontrol.name}

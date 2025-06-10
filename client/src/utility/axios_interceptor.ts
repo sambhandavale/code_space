@@ -17,11 +17,10 @@ axiosInstance.interceptors.request.use((config) => {
     // Clean the token by removing any quotes or escape characters
     const cleanToken = token.replace(/^"(.*)"$/, '$1').replace(/\\"/g, '"');
     config.headers.Authorization = `Bearer ${cleanToken}`;
-    
-    // // Debugging
-    // console.log("Cleaned token:", cleanToken);
-    // console.log("Full header:", config.headers.Authorization);
   }
+
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  config.headers["X-User-Timezone"] = timezone;
 
   return config;
 }, (error) => {

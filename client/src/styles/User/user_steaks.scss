@@ -1,0 +1,40 @@
+.user-streak{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+    align-self: stretch;
+
+    .streak_tile__row{
+        display: flex;
+        align-items: flex-start;
+        gap: 1.5rem;
+        align-self: stretch;
+
+        .streak_tile{
+            display: flex;
+            padding: 1.25rem;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1.5rem;
+            flex: 1 0 0;
+            align-self: stretch;
+            justify-content: space-between;
+
+            border-radius: 1.25rem;
+            background: #232323;
+
+            .big__label{
+                font-size: 2.25rem;
+            }
+
+            .small__label{
+                font-size: 1.5rem;
+                color: rgba(255, 255, 255, 0.80);
+            }
+            .streak_tile__value{
+                font-size: 1.25rem;
+            }
+        }
+    }
+}

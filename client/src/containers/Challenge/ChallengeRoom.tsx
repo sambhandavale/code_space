@@ -151,7 +151,7 @@ const ChallengeRoom = () => {
                 if(res && res.data){
                     if (res.data.players) {
                         const userId = isAuth()._id;
-                        const isAllowed = res.data.players.some((player: any) => player._id === userId);
+                        const isAllowed = res.data.active ? res.data.players.some((player: any) => player === userId) : true;
                         setUserAllowed(isAllowed);
                         if(!isAllowed){
                             setLoading(false);
@@ -407,18 +407,18 @@ const ChallengeRoom = () => {
                     <div className="challenge-room__left panel" style={width > 840 ?{ width: `${dividerPosition}%` }:{}}>
                         <div className="players__details">
                             <div className="player">
-                                <DefaultProfile initals={getInitials(`${challengeDetails?.players[0].first_name} ${challengeDetails?.players[0].last_name}`)}/>
+                                <DefaultProfile initals={getInitials(`${challengeDetails?.playerDetails[0].user_id.full_name}`)}/>
                                 <div className="playername left">
-                                    {`${challengeDetails?.players[0].first_name} ${challengeDetails?.players[0].last_name}`}
-                                    <div className="playerrating">{challengeDetails?.playerDetails[0].rating}</div>
+                                    {`${challengeDetails?.playerDetails[0].user_id.username} ${!challengeDetails?.active ? challengeDetails?.winner ? challengeDetails?.winner === challengeDetails?.playerDetails[0].user_id._id ? '(Winner)' : '' :'(Draw)' :''}`}
+                                    <div className="playerrating">Rating {challengeDetails?.playerDetails[0].rating}</div>
                                 </div>
                             </div>
                             <div className="player">
                                 <div className="playername right">
-                                    {`${challengeDetails?.players[1].first_name} ${challengeDetails?.players[1].last_name}`}
-                                    <div className="playerrating">{challengeDetails?.playerDetails[1].rating}</div>
+                                    {`${challengeDetails?.playerDetails[1].user_id.username} ${!challengeDetails?.active ? challengeDetails?.winner ? challengeDetails?.winner === challengeDetails?.playerDetails[1].user_id._id ? '(Winner)' : '' :'(Draw)' :''}`}
+                                    <div className="playerrating">Rating {challengeDetails?.playerDetails[1].rating}</div>
                                 </div>
-                                <DefaultProfile initals={getInitials(`${challengeDetails?.players[1].first_name} ${challengeDetails?.players[1].last_name}`)}/>
+                                <DefaultProfile initals={getInitials(`${challengeDetails?.playerDetails[1].user_id.full_name}`)}/>
                             </div>
                         </div>
                         <Problem

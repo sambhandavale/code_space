@@ -3,6 +3,8 @@ import UserChallengesModel from "../../models/Challenges/User-Challenges";
 import Question from "../../models/Challenges/Question";
 import UserStats from "../../models/Users/UserStats";
 import moment from "moment";
+import { updateChallengeStreak } from "../../utility/Challenge/updateStreak";
+import { updateUserFavorites } from "../../utility/User/updateFavourites";
 
 function generateRoomCode(length = 6) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -15,6 +17,7 @@ function generateRoomCode(length = 6) {
 
 export const createPrivateChallenge = async (req: Request, res: Response) => {
     const {userId, language, timeControl } = req.body;
+    const timezone = req.headers['x-user-timezone'] as string;
 
     const roomCode = generateRoomCode();
 
@@ -50,6 +53,7 @@ export const createPrivateChallenge = async (req: Request, res: Response) => {
 
 export const joinPrivateChallenge = async (req: Request, res: Response) => {
   const { userId, roomCode } = req.body;
+  const timezone = req.headers['x-user-timezone'] as string;
 
   const challenge = await UserChallengesModel.findOne({ room_code: roomCode });
 
@@ -97,6 +101,12 @@ export const joinPrivateChallenge = async (req: Request, res: Response) => {
         },
         { upsert: true, new: true }
     ),
+
+    updateChallengeStreak(userId, timezone),
+    updateChallengeStreak(challenge.players[0].toString(), timezone),
+
+    updateUserFavorites(userId),
+    updateUserFavorites(challenge.players[0].toString()),
 ]);
 
   res.json({ challengeId: challenge._id });

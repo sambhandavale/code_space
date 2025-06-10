@@ -21,6 +21,13 @@
 @use "./styles/Challenge/challenge-room.scss" as *;
 @use "./styles/Challenge/popup.scss" as *;
 
+@use "./styles/User/user_profile.scss" as *;
+@use "./styles/User/profile_card.scss" as *;
+@use "./styles/User/user_favourite.scss" as *;
+@use "./styles/User/user_steaks.scss" as *;
+@use "./styles/User/user_activities.scss" as *;
+@use "./styles/User/user_matches.scss" as *;
+
 :root {
     --white: #ffffff;
     --black: #000000;

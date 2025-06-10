@@ -55,6 +55,12 @@ export const languages = [
   }
 ];
 
+export const timeControls = [
+  { name: "Bullet", time: 5 },
+  { name: "Blitz", time: 10 },
+  { name: "Rapid", time: 20 },
+]
+
 
 
 export function getInitials(name: string): string {

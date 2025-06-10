@@ -35,4 +35,25 @@ body {
 
 
 
+.disable-scrollbar{
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
 
+.scrollbar{
+  &::-webkit-scrollbar {
+    width: 8px;
+    overflow: hidden;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(34, 34, 34, 0.45);
+    border-radius: 24px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 24px;
+    background: #7a7a7a;
+  }
+}

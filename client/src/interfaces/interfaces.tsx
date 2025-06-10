@@ -2,9 +2,10 @@ interface IPlayer {
     _id: string;
     first_name: string;
     last_name: string;
+    full_name:string;
     user_photo: string;
     username: string;
-    role: string;
+    email: string;
 }
 
 interface IExample {
@@ -37,7 +38,7 @@ interface TestCase {
 
 interface IPlayerDetails {
     _id: string;
-    user_id: string;
+    user_id: IPlayer;
     matches_played: number;
     rating: number;
     wins: number;
@@ -47,7 +48,7 @@ interface IPlayerDetails {
 
 export interface IChallenge {
     _id: string;
-    players: IPlayer[];
+    players: string[];
     language: string;
     time: number;
     problem_id: IProblem;

@@ -1,7 +1,7 @@
 import { ObjectId } from "mongoose";
 import mongoose, {Model} from "mongoose";
 
-interface IUserChallenges {
+export interface IUserChallenges {
     players: mongoose.Types.ObjectId[];
     language: string;
     time: number;

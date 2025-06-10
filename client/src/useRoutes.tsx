@@ -4,6 +4,7 @@ import Home from "./containers/Home/Home";
 import Login from "./containers/Authentication/Login";
 import Register from "./containers/Authentication/Register";
 import ChallengeRoom from "./containers/Challenge/ChallengeRoom";
+import UserProfile from "./containers/User/UserProfile";
 
 interface PrivateRouteProps {
   element: React.ReactNode;
@@ -19,6 +20,7 @@ const routes = () => {
     { path: "/home", element: <Home /> },
     { path: "/login", element: <Login /> },
     { path: "/register", element: <Register /> },
+    { path:"/profile/:username", element:<UserProfile/> }
   ];
 
   const privateRoutes = [

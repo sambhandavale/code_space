@@ -1,60 +1,48 @@
 import UserStats from "../../models/Users/UserStats";
+import moment from "moment-timezone";
 
-export const updateStreak = async (userId: string) => {
+export const updateChallengeStreak = async (userId: string, timezone: string) => {
     try {
-        const userDetails = await UserStats.findOne({ user_id: userId });
+        const userStats = await UserStats.findOne({ user_id: userId });
+        const now = moment().tz(timezone);
+        const todayString = now.format("YYYY-MM-DD");
 
-        if (!userDetails) return;
+        if (userStats) {
+            const lastMatchDate = userStats.last_match_date ? moment(userStats.last_match_date).tz(timezone) : null;
+            let shouldIncrementStreak = false;
 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+            if (lastMatchDate) {
+                const lastMatchDay = lastMatchDate.format("YYYY-MM-DD");
+                const yesterday = now.clone().subtract(1, "day").format("YYYY-MM-DD");
 
-        const lastMatchDate = userDetails.last_match_date
-            ? new Date(userDetails.last_match_date)
-            : null;
-
-        let newStreak = 1;
-        let streakStartDate = today;
-
-        if (lastMatchDate) {
-            lastMatchDate.setHours(0, 0, 0, 0);
-
-            const diffInDays =
-                (today.getTime() - lastMatchDate.getTime()) / (1000 * 60 * 60 * 24);
-
-            if (diffInDays === 1) {
-                // User played yesterday, continue streak
-                newStreak = (userDetails.streak?.current || 0) + 1;
-                streakStartDate = userDetails.streak?.start_date || today;
-            } else if (diffInDays > 1) {
-                // User missed a day, reset streak
-                newStreak = 1;
-                streakStartDate = today;
+                if (lastMatchDay === yesterday) {
+                    shouldIncrementStreak = true;
+                } else if (lastMatchDay === todayString) {
+                    shouldIncrementStreak = false; // Already played today
+                } else {
+                    // Missed a day, reset streak
+                    userStats.streak.current = 0;
+                    userStats.streak.start_date = now.toDate();
+                }
             }
-        }
 
-        // Update longest streak if needed
-        let longestStreak = userDetails.streak?.longest || 0;
-        let longestStreakStartDate = userDetails.streak?.longest_start_date || today;
-
-        if (newStreak > longestStreak) {
-            longestStreak = newStreak;
-            longestStreakStartDate = streakStartDate;
-        }
-
-        await UserStats.findOneAndUpdate(
-            { user_id: userId },
-            {
-                $set: {
-                    "streak.current": newStreak,
-                    "streak.start_date": streakStartDate,
-                    "streak.longest": longestStreak,
-                    "streak.longest_start_date": longestStreakStartDate,
-                    last_match_date: today,
-                },
+            if (shouldIncrementStreak) {
+                userStats.streak.current = (userStats.streak.current || 0) + 1;
+            } else if (userStats.streak.current === undefined || userStats.streak.current === null || userStats.streak.current === 0) {
+                userStats.streak.current = 1;
+                userStats.streak.start_date = now.toDate();
             }
-        );
+
+            if (!userStats.streak.longest || userStats.streak.current > userStats.streak.longest) {
+                userStats.streak.longest = userStats.streak.current;
+                userStats.streak.longest_start_date = userStats.streak.start_date;
+            }
+
+            userStats.last_match_date = now.toDate();
+
+            await userStats.save();
+        }
     } catch (error) {
-        console.error("Error updating streak:", error);
+        console.error("Error updating challenge streak:", error);
     }
 };

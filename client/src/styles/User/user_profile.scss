@@ -1,0 +1,58 @@
+.profile_page{
+    margin-top: 6rem;
+    padding: 0 3rem 4rem 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.875rem;
+
+    .profile-r-s1{
+        display: flex;
+        align-items: flex-start;
+        gap: 1.875rem;
+        align-self: stretch;
+    }
+
+    .profile-r-s1-c-s1{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 1.875rem;
+    }
+
+    .profile-r-s1-c-s2{
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.625rem;
+        flex: 1 1 0; // allow it to shrink
+        min-width: 0; // this is CRUCIAL to allow overflow-x inside
+    }
+}
+
+@media (max-width: 1000px) {
+    .profile-r-s1{
+        flex-direction: column;
+
+        .profile-r-s1-c-s1{
+            align-self: stretch;
+        }
+
+        .profile-r-s1-c-s2{
+            width: 100%;
+        }
+    }
+}
+
+@media (max-width: 576px) {
+    .profile_page{
+        padding: 0 2rem 4rem 2rem;
+    }
+}
+
+@media (max-width: 450px) {
+    .profile_page{
+        padding: 0 1rem 2rem 1rem;
+    }
+}
