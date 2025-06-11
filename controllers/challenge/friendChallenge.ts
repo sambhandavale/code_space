@@ -5,6 +5,8 @@ import UserStats from "../../models/Users/UserStats";
 import moment from "moment";
 import { updateChallengeStreak } from "../../utility/Challenge/updateStreak";
 import { updateUserFavorites } from "../../utility/User/updateFavourites";
+import UserModel from "../../models/Users/Users";
+import mongoose from "mongoose";
 
 function generateRoomCode(length = 6) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -30,14 +32,27 @@ export const createPrivateChallenge = async (req: Request, res: Response) => {
     const difficulty = difficultyMap[timeControl]
 
     const problem = await Question.aggregate([
-        { $match: { difficulty } },
+        { $match: { difficulty,approved:true } },
         { $sample: { size: 1 } }
     ]);
     
     const problemId = problem[0]._id;
 
+    const player = await UserModel.findById(userId).select('email username first_name last_name');
+    if (!player){
+      res.status(404).json({ message: "User not found" })
+      return;
+    };
+
     const challenge = await UserChallengesModel.create({
-        players: [userId],
+        players: [
+            {
+                user_id: player._id,
+                email: player.email,
+                username: player.username,
+                full_name: `${player.first_name ?? ""} ${player.last_name ?? ""}`.trim()
+            }
+        ],
         language,
         time: timeControl,
         problem_id: problemId,
@@ -67,7 +82,18 @@ export const joinPrivateChallenge = async (req: Request, res: Response) => {
     return
   }
 
-  challenge.players.push(userId);
+  const player = await UserModel.findById(userId).select('email username first_name last_name');
+  if (!player){
+    res.status(404).json({ message: "User not found" });
+    return;
+  };
+
+  challenge.players.push({
+      user_id: new mongoose.Types.ObjectId(player._id.toString()),
+      email: player.email,
+      username: player.username,
+      full_name: `${player.first_name ?? ""} ${player.last_name ?? ""}`.trim()
+  });
   challenge.status = "active";
   challenge.start_time = new Date();
   await challenge.save();
@@ -103,10 +129,10 @@ export const joinPrivateChallenge = async (req: Request, res: Response) => {
     ),
 
     updateChallengeStreak(userId, timezone),
-    updateChallengeStreak(challenge.players[0].toString(), timezone),
+    updateChallengeStreak(challenge.players[0].user_id.toString(), timezone),
 
     updateUserFavorites(userId),
-    updateUserFavorites(challenge.players[0].toString()),
+    updateUserFavorites(challenge.players[0].user_id.toString()),
 ]);
 
   res.json({ challengeId: challenge._id });

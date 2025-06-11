@@ -109,6 +109,10 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
                     // Missed a day, reset streak
                     userStats.login_streak = 0;
                 }
+
+            }else {
+                userStats.login_streak = 1;
+                userStats.longest_login_streak = 1;
             }
 
             if (shouldIncrementStreak) {
@@ -132,6 +136,7 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
                 user_id: user._id,
                 last_login_date: now.toDate(),
                 login_streak: 1,
+                longest_login_streak: 1
             });
 
             await userStats.save();

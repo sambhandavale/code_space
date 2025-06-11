@@ -1,0 +1,30 @@
+version: "3.8"
+services:
+  backend:
+    build: .
+    container_name: codespace-backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./client
+    container_name: codespace-frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./client/.env
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+# remove volumes: section for both frontend and backend for production

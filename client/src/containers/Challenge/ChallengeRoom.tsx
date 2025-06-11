@@ -151,7 +151,7 @@ const ChallengeRoom = () => {
                 if(res && res.data){
                     if (res.data.players) {
                         const userId = isAuth()._id;
-                        const isAllowed = res.data.active ? res.data.players.some((player: any) => player === userId) : true;
+                        const isAllowed = res.data.active ? res.data.players.some((player: any) => player.user_id === userId) : true;
                         setUserAllowed(isAllowed);
                         if(!isAllowed){
                             setLoading(false);

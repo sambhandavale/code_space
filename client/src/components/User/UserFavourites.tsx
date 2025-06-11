@@ -78,6 +78,13 @@ const UserFavourites = ({
         return '';
     };
 
+    const allValuesAreEmpty = userFavourites.every(fav => fav.value.trim() === '' || fav.value.trim() === '...');
+
+    if (!itsMe && allValuesAreEmpty) {
+        return null;
+    }
+
+
     return (
         <div className="user-section">
             <header className="ff-google-n white flex justify-between items-center" style={{ position: "relative" }}>
@@ -97,6 +104,10 @@ const UserFavourites = ({
                         const isEditing = editIndex?.row === rowIndex && editIndex?.idx === idx;
 
                         const isEditable = label !== 'Language' && label !== 'Time Control';
+
+                        if(!itsMe && value === '...'){
+                            return null;
+                        }
 
                         return (
                             <div className="section_tile" key={idx}>

@@ -42,12 +42,12 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
             return;
         }
 
-        const challenges = await UserChallengesModel.find({ players: userInfo._id })
+        const challenges = await UserChallengesModel.find({ "players.user_id": userInfo._id })
             .populate('players', 'username full_name')
             .lean();
 
         const userMatches = challenges.map((challenge) => {
-            const opponent = (challenge.players as any[]).find(p => p._id.toString() !== userInfo._id.toString());
+            const opponent = (challenge.players as any[]).find(p => p.user_id.toString() !== userInfo._id.toString());
 
             let result = 'Draw';
             if (challenge.winner) {
@@ -56,7 +56,8 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
 
             return {
                 challengeId:challenge._id,
-                opponentName: opponent?.full_name || opponent?.username || 'Unknown',
+                opponentName: opponent?.username || opponent?.full_name  || 'Unknown',
+                opponentUsername:opponent?.username || 'Unknown',
                 language: challenge.language,
                 time: challenge.time,
                 result,

@@ -8,7 +8,7 @@ export const updateUserFavorites = async (userId: string) => {
             throw new Error("Invalid user ID");
         }
 
-        const challenges = await UserChallengesModel.find({ players: userId });
+        const challenges = await UserChallengesModel.find({ "players.user_id": userId });
 
         if (challenges.length === 0) {
             throw new Error("No challenges found for this user.");

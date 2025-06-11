@@ -13,6 +13,7 @@ import UserChallengesModel from "../../models/Challenges/User-Challenges";
 import { updateUserTitleByRating } from "../../utility/User/updateUserTitle";
 import { updateChallengeStreak } from "../../utility/Challenge/updateStreak";
 import { updateUserFavorites } from "../../utility/User/updateFavourites";
+import UserModel from "../../models/Users/Users";
 
 interface TestResult{
   actual: string;
@@ -39,7 +40,7 @@ export const joinMatchmaking = async (req:Request, res:Response) => {
         const timezone = req.headers['x-user-timezone'] as string;
 
         const existingChallenge = await UserChallengesModel.findOne({
-            players: userId,
+            "players.user_id": userId,
             active: true,
         });
 
@@ -86,22 +87,44 @@ const createChallenge = async (player1Id: mongoose.Schema.Types.ObjectId, player
         const difficulty = difficultyMap[timeControl]
 
         const problem = await Question.aggregate([
-            { $match: { difficulty } },
+            { $match: { difficulty, approved: true } },
             { $sample: { size: 1 } }
         ]);
+
         
         const problemId = problem[0]._id;
 
+        const [player1, player2] = await Promise.all([
+            UserModel.findById(player1Id).select('email username first_name last_name'),
+            UserModel.findById(player2Id).select('email username first_name last_name')
+        ]);
+
+        if (!player1 || !player2) throw new Error("One or both players not found.");
+
         const challenge = await UserChallenges.create({
-            players: [player1Id, player2Id],
+            players: [
+                {
+                    user_id: player1Id,
+                    email: player1.email,
+                    username: player1.username,
+                    full_name: `${player1.first_name ?? ""} ${player1.last_name ?? ""}`.trim()
+                },
+                {
+                    user_id: player2Id,
+                    email: player2.email,
+                    username: player2.username,
+                    full_name: `${player2.first_name ?? ""} ${player2.last_name ?? ""}`.trim()
+                }
+            ],
             language,
             time: timeControl,
             problem_id: problemId,
             winner: null,
             rating_change: {},
-            start_time:new Date(),
-            status:'active',
+            start_time: new Date(),
+            status: 'active',
         });
+
 
         // await UserStats.updateMany(
         //     { user_id: { $in: [player1Id, player2Id] } },
@@ -228,7 +251,7 @@ export const leaveChallenge = async (req:Request, res:Response) => {
 
         // determine the winner
         const [player1, player2] = challenge.players;
-        const winnerId = player1.toString() === userId ? player2 : player1;
+        const winnerId = player1.user_id.toString() === userId ? player2.user_id : player1.user_id;
 
         const ratingChange = problem.difficulty === "Easy" ? 6 
                            : problem.difficulty === "Medium" ? 8 
@@ -315,8 +338,8 @@ export const acceptDrawChallenge = async (req:Request, res:Response) => {
         }
 
         const [player1, player2] = challenge.players;
-        const player1Str = player1.toString();
-        const player2Str = player2.toString();
+        const player1Str = player1.user_id.toString();
+        const player2Str = player2.user_id.toString();
 
         const fullRating = problem.difficulty === "Easy" ? 6
                           : problem.difficulty === "Medium" ? 8
@@ -400,8 +423,8 @@ export const askDrawChallenge = async (req: Request, res: Response) => {
         }
 
         const [player1, player2] = challenge.players;
-        const player1Str = player1.toString();
-        const player2Str = player2.toString();
+        const player1Str = player1.user_id.toString();
+        const player2Str = player2.user_id.toString();
 
         const opponentId = userId === player1Str ? player2Str : player1Str;
         const opponentSocket = userSockets.get(opponentId);
@@ -441,8 +464,8 @@ export const rejectDrawChallenge = async (req: Request, res: Response) => {
         }
 
         const [player1, player2] = challenge.players;
-        const player1Str = player1.toString();
-        const player2Str = player2.toString();
+        const player1Str = player1.user_id.toString();
+        const player2Str = player2.user_id.toString();
 
         const opponentId = userId === player1Str ? player2Str : player1Str;
         const opponentSocket = userSockets.get(opponentId);
@@ -487,7 +510,7 @@ export const submitChallengeResult = async (req:Request, res:Response) => {
             return;
         }
 
-        const participants: string[] = challenge.players.map(player => player.toString());
+        const participants: string[] = challenge.players.map(player => player.user_id.toString());
 
         // Identify loser ID
         const loserId = participants.find((id) => id !== winnerId);
@@ -575,8 +598,10 @@ export const getChallengeById = async (req:Request, res:Response) => {
             return;
         }
 
-        const playerDetails = await UserStats.find({ user_id: { $in: challenge.players } })
-            .select("user_id matches_played rating wins draw loss")    
+        const playerIds = challenge.players.map(player => player.user_id);
+
+        const playerDetails = await UserStats.find({ user_id: { $in: playerIds } })
+            .select("user_id matches_played rating wins draw loss")
             .populate({
                 path: 'user_id',
                 select: 'username email profileImage first_name last_name user_photo'
@@ -686,7 +711,6 @@ export const runCodeWithTestCases = async (req: Request, res: Response) => {
                     status,
                 });
 
-                console.log(`output:${JSON.stringify(data)} --------${actualOutput}`);
                 success = true;
             } catch (err) {
                 console.warn(`Attempt ${attempt + 1}: Request failed, retrying...`);

@@ -1,6 +1,6 @@
 interface ITimeControlTab{
     title:string;
-    userrating:number;
+    userrating:string;
     onClick:() => void;
     isSelected:boolean;
 }
@@ -19,7 +19,7 @@ const TimeControlTab = ({
         <img src={`/assets/challenge/time-controls/${title.toLocaleLowerCase()}.svg`} alt="" />
         <div className="tcontroltab__about">
             <div className="tcontroltab__title">{title}</div>
-            {/* <div className="userrating">{userrating}</div> */}
+            <div className="userrating">{userrating}</div>
         </div>
     </div>
   )

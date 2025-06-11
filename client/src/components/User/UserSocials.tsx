@@ -20,6 +20,11 @@ const chunkArray = (array: ISocials[], size: number) => {
     return chunks;
 };
 
+export const getLastUrlSegment = (url: string) => {
+    const segments = url.split('/').filter(segment => segment !== '');
+    return segments.at(-1);
+};
+
 const UserSocials = ({ 
     tiles, 
     userInfo, 
@@ -71,10 +76,12 @@ const UserSocials = ({
         handleGlobalSave(userSocialLinks);
     };
 
-    const getLastUrlSegment = (url: string) => {
-        const segments = url.split('/').filter(segment => segment !== '');
-        return segments.at(-1);
-    };
+    const allLinksAreEmpty = userSocialLinks.every(link => getLastUrlSegment(link.url) === '...');
+
+    if (!itsMe && allLinksAreEmpty) {
+        return null;
+    }
+
 
     return (
         <div className="user-section">

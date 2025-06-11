@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, ObjectId, Schema } from "mongoose";
 
 interface IExample {
     input: string;
@@ -25,6 +25,8 @@ export interface IQuestion extends Document {
     createdAt?: Date;
     updatedAt?: Date;
     template:Record<string, string>;
+    approved:boolean;
+    suggestedBy:ObjectId;
 }
 
 const QuestionSchema: Schema = new Schema<IQuestion>(
@@ -54,6 +56,14 @@ const QuestionSchema: Schema = new Schema<IQuestion>(
             type: Object,
             required: true,
             default: {},
+        },
+        approved:{
+            type:Boolean,
+            default:false,   
+        },
+        suggestedBy: { 
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: "User",
         },
     },
     { timestamps: true }

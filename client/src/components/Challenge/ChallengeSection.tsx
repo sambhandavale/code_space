@@ -129,7 +129,7 @@ const ChallengeSection = ({
                   <TimeControlTab
                     key={tcontrol.name}
                     title={tcontrol.name}
-                    userrating={800}
+                    userrating={tcontrol.time === 5 ? 'Easy' : tcontrol.time === 10 ? 'Medium' : 'Hard'}
                     onClick={() => setTime(tcontrol.time)}
                     isSelected={controlsSelected.time === tcontrol.time}
                   />
