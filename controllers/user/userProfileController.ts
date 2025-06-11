@@ -69,7 +69,7 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
             currentLoginStreak: userStats.login_streak || 0,
             longestLoginStreak: userStats.longest_login_streak || 0,
             highestRating: userStats.highest_rating || 0,
-            totalMatches: userStats.matches_played || 0,
+            totalMatches: userStats['total_matches'] || 0,
         }
 
         const profileCardInfo = {

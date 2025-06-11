@@ -86,16 +86,23 @@ const UserStatsSchema = new mongoose.Schema<IUserStats>(
     }
 );
 
-// UserStatsSchema.virtual('total_matches').get(function (this: IUserStats) {
-//     if (!this.daily_matches) return 0;
+UserStatsSchema.virtual('total_matches').get(function (this: IUserStats & { daily_matches: Map<string, { count: number }> }) {
+    if (!this.daily_matches) return 0;
 
-//     let total = 0;
-//     for (const entry of Object.values(this.daily_matches)) {
-//         total += entry.count;
-//     }
-//     return total;
-// });
+    let total = 0;
 
+    // If using Mongoose's Map, use `this.daily_matches.forEach`
+    this.daily_matches.forEach((value) => {
+        total += value.count;
+    });
+
+    return total;
+});
+
+
+//Ensures that the virtual field appears in the responses when the document is converted to an object or JSON
+UserStatsSchema.set('toObject', { virtuals: true });
+UserStatsSchema.set('toJSON', { virtuals: true });
 
 UserStatsSchema.index({ user_id: 1 }, { unique: true });
 
