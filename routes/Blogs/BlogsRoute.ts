@@ -6,7 +6,8 @@ import {
   getBlogById,
   getBlogBySlug,
   updateBlog,
-  saveDraft
+  saveDraft,
+  getUserBlogs
 } from "../../controllers/Blogs/BlogsController"
 
 const router = Router();
@@ -17,15 +18,14 @@ router.post(
   createBlog,
 );
 
-// router.post(
-//   "/saveDraft",
-//   passport.authenticate("jwt", { session: false }),
-//   saveBlog,
-// );
-
 router.get(
   "/",
   getAllBlogs
+);
+
+router.get(
+  "/user",
+  getUserBlogs,
 );
 
 router.get(

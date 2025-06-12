@@ -40,6 +40,18 @@ export interface IUserMatch {
     startTime: string;
 }
 
+export interface IUserBlogSummary {
+    id: string;
+    title: string;
+    slug: string;
+    isPublished: boolean;
+    tags: string[];
+    views: number;
+    pings: number;
+    comments: number;
+    firstContent: string;
+    publishedAgo: string;
+}
 
 export interface IUserProfile {
     userStreaks: IUserStreaks;
@@ -48,4 +60,5 @@ export interface IUserProfile {
     userFavourites:IFavorites[];
     userSocials:ISocials[];
     userMatches: IUserMatch[];
+    userBlogs:IUserBlogSummary[];
 }

@@ -460,6 +460,7 @@ const WriteBlog: React.FC = () => {
                                     {item.type === "bullet" && (
                                         <div className="bullet__point">
                                             <div className="bullet__wrapper">
+                                                <span className="bullet__symbol">•</span>
                                                 <div
                                                     className="bullet__input"
                                                     contentEditable
@@ -468,22 +469,50 @@ const WriteBlog: React.FC = () => {
                                                         updateItem(
                                                             sectionIndex,
                                                             itemIndex,
-                                                            (e.target as HTMLDivElement).innerText.replace(/^•\s?|\u200B/g, '')
+                                                            (e.target as HTMLDivElement).innerText.trim()
                                                         )
                                                     }
                                                     onClick={() => setActiveSectionIndex(sectionIndex)}
                                                     onKeyDown={(e) => {
+                                                        const currentText = (e.target as HTMLDivElement).innerText.trim();
+
                                                         if (e.key === "Enter") {
                                                             e.preventDefault();
-                                                            addItem("content", sectionIndex, itemIndex);
+                                                            addItem("bullet", sectionIndex, itemIndex, (newItemIndex, targetSection) => {
+                                                                const refKey = `${targetSection}-${newItemIndex}`;
+                                                                const el = contentRefs.current[refKey];
+                                                                el?.focus();
+                                                                placeCaretAtEnd(el);
+                                                            });
+                                                        }
+
+                                                        if (e.key === "Backspace" && currentText === "") {
+                                                            e.preventDefault();
+
+                                                            if (sections[sectionIndex].items.length === 1) return;
+
+                                                            const updatedSections = [...sections];
+                                                            updatedSections[sectionIndex].items.splice(itemIndex, 1);
+                                                            setSections(updatedSections);
+
+                                                            const prevIndex = itemIndex - 1;
+                                                            if (prevIndex >= 0) {
+                                                                const refKey = `${sectionIndex}-${prevIndex}`;
+                                                                setTimeout(() => {
+                                                                    const el = contentRefs.current[refKey];
+                                                                    el?.focus();
+                                                                    placeCaretAtEnd(el);
+                                                                }, 0);
+                                                            }
                                                         }
                                                     }}
                                                     ref={(el) => {
                                                         contentRefs.current[`${sectionIndex}-${itemIndex}`] = el;
                                                     }}
                                                 >
-                                                    • {item.value ? item.value : '\u200B'}
+                                                    {item.value !== '' ? item.value : '\u200B'}
                                                 </div>
+
                                                 <FiTrash
                                                     className="delete__icon"
                                                     onClick={() => {
@@ -495,6 +524,7 @@ const WriteBlog: React.FC = () => {
                                             </div>
                                         </div>
                                     )}
+
 
                                     {item.type === "image" && (
                                         <div className="image__wrapper">

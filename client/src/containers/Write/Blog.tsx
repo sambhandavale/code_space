@@ -4,8 +4,10 @@ import { getAction } from "../../services/generalServices";
 import Layout from "../../components/Layout/Layout";
 import DefaultProfile from "../../components/Layout/DefaultProfile";
 import { getInitials } from "../../utility/general-utility";
+import { useParams } from "react-router";
 
 const Blog = () =>{
+    const { slug } = useParams<{ slug: string }>();
     const [loading, setLoading] = useState<boolean>()
     const [sections, setSections] = useState<Section[]>([]);
     const [blogTitle,setBlogTitle] = useState<string>('');
@@ -14,7 +16,7 @@ const Blog = () =>{
 
     const getBlog = async () =>{
         try{
-            const res = await getAction('/blogs/slug/codespace');
+            const res = await getAction(`/blogs/slug/${slug}`);
             if(res && res.status === 200){
                 setSections(res.data.sections);
                 setBlogTitle(res.data.title);

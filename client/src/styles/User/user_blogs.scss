@@ -1,0 +1,146 @@
+.user_blogs {
+    --scale-by: 1;
+
+    --user_blogs-padding: calc(1.625rem * var(--scale-by)) calc(2.125rem * var(--scale-by)) calc(1.625rem * var(--scale-by)) calc(2.125rem * var(--scale-by));
+    --user_blogs-gap: calc(2.375rem * var(--scale-by));
+    --user_blogs-border-radius: calc(1.375rem * var(--scale-by));
+    --user_blogs-bg: #232323;
+
+    --user_blogs-header_font_size: calc(2rem * var(--scale-by));
+
+    --search_blogs-padding: calc(0.5rem * var(--scale-by)) calc(1rem * var(--scale-by));
+    --search_blogs-font-size: calc(1rem * var(--scale-by));
+    --search_blogs-border-radius: calc(10px * var(--scale-by));
+
+    --blogs-gap: calc(2.375rem * var(--scale-by));
+
+    --blog-padding-bottom: calc(1.25rem * var(--scale-by));
+    --blog-gap: calc(1.5rem * var(--scale-by));
+    --blog-border: 1px solid rgba(255, 255, 255, 0.70);
+
+    --blog_content-gap: calc(0.5rem * var(--scale-by));
+    --blog_content-padding-right: calc(8rem * var(--scale-by));
+
+    --blog_header-font-size: calc(1.75rem * var(--scale-by));
+
+    --blog_text-font-size: calc(1rem * var(--scale-by));
+    --blog_text-letter-spacing: calc(0.75px * var(--scale-by));
+
+    --blog_interaction-gap: calc(1rem * var(--scale-by));
+
+    --blog_time-font-size: calc(1rem * var(--scale-by));
+    --blog_activity-gap: calc(0.5rem * var(--scale-by));
+    --blog_activity-img-size: calc(1.5rem * var(--scale-by));
+}
+
+
+.user_blogs {
+    display: flex;
+    padding: var(--user_blogs-padding);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--user_blogs-gap);
+    align-self: stretch;
+
+    border-radius: var(--user_blogs-border-radius);
+    background: var(--user_blogs-bg);
+
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        align-self: stretch;
+
+        .header_text {
+            font-size: var(--user_blogs-header_font_size);
+        }
+    }
+
+    .search_blogs {
+        display: flex;
+        padding: var(--search_blogs-padding);
+        flex: 1 0 0;
+        align-self: stretch;
+
+        font-size: var(--search_blogs-font-size);
+        border-radius: var(--search_blogs-border-radius);
+
+        &::placeholder {
+            font-family: 'GoogleSansRegular';
+            color: white;
+            font-size: var(--search_blogs-font-size);
+        }
+    }
+
+    .blogs {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--blogs-gap);
+        align-self: stretch;
+
+        .blog {
+            display: flex;
+            padding-bottom: var(--blog-padding-bottom);
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--blog-gap);
+            align-self: stretch;
+            border-bottom: var(--blog-border);
+
+            .blog_content {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--blog_content-gap);
+                align-self: stretch;
+                padding: 0 var(--blog_content-padding-right) 0 0;
+
+                .blog_header {
+                    font-size: var(--blog_header-font-size);
+                }
+
+                .blog_content {
+                    font-size: var(--blog_text-font-size);
+                    letter-spacing: var(--blog_text-letter-spacing);
+                }
+            }
+
+            .blog_interaction {
+                display: flex;
+                align-items: center;
+                gap: var(--blog_interaction-gap);
+
+                .time {
+                    font-size: var(--blog_time-font-size);
+                }
+
+                .activity {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--blog_activity-gap);
+                    font-size: var(--blog_time-font-size);
+
+                    img {
+                        width: var(--blog_activity-img-size);
+                        height: var(--blog_activity-img-size);
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 650px) {
+    .user_blogs{
+        --scale-by:0.8;
+        --blog_content-padding-right: calc(1rem * var(--scale-by));
+    }
+}
+
+@media screen and (max-width: 450px) {
+    .user_blogs{
+        --scale-by:0.7;
+    }
+}
+

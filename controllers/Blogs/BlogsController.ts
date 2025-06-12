@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Blog from '../../models/Blog/Blog';
+import moment from "moment-timezone";
 
 export const createBlog = async (req: Request, res: Response) => {
   try {
@@ -70,8 +71,127 @@ export const saveDraft = async (req: Request, res: Response) => {
 
 export const getAllBlogs = async (req: Request, res: Response) => {
   try {
-    const blogs = await Blog.find().sort({ createdAt: -1 });
-    res.status(200).json(blogs);
+    const userTimezone = req.headers['x-user-timezone'] as string || 'UTC';
+
+    const blogs = await Blog.find().sort({ createdAt: -1 })
+      .select('title slug isPublished tags views pings comments publishedAt sections createdAt');
+
+    const formattedBlogs = blogs.map((blog) => {
+      // Extract first content item
+      let firstContent = '';
+      for (const section of blog.sections) {
+        const contentItem = section.items.find(item => item.type === 'content');
+        if (contentItem) {
+          firstContent = contentItem.value;
+          break;
+        }
+      }
+
+      // Calculate published duration
+      let publishedAgo = '';
+      if (blog.isPublished && blog.publishedAt) {
+        const now = moment().tz(userTimezone);
+        const publishedAt = moment(blog.publishedAt).tz(userTimezone);
+        const diffMinutes = now.diff(publishedAt, 'minutes');
+        const diffHours = now.diff(publishedAt, 'hours');
+        const diffDays = now.diff(publishedAt, 'days');
+
+        if (diffMinutes < 1) {
+          publishedAgo = 'Just now';
+        } else if (diffMinutes < 60) {
+          publishedAgo = `${diffMinutes}min`;
+        } else if (diffHours < 24) {
+          publishedAgo = `${diffHours}hr`;
+        } else if (diffDays < 7) {
+          publishedAgo = `${diffDays}d`;
+        } else if (diffDays < 14) {
+          publishedAgo = '1w';
+        } else if (diffDays < 21) {
+          publishedAgo = '2w';
+        } else {
+          publishedAgo = publishedAt.format('MMM D');
+        }
+      }
+
+      return {
+        id: blog._id,
+        title: blog.title,
+        slug: blog.slug,
+        isPublished: blog.isPublished,
+        tags: blog.tags,
+        views: blog.views,
+        pings: blog.pings.length,
+        comments: blog.comments.length,
+        firstContent,
+        publishedAgo: blog.isPublished ? publishedAgo : 'Draft',
+      };
+    });
+
+    res.status(200).json(formattedBlogs);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error.' });
+  }
+};
+
+export const getUserBlogs = async (req: Request, res: Response) => {
+  try {
+    const userId = req.query.userId;
+    const userTimezone = req.headers['x-user-timezone'] as string || 'UTC';
+
+    const blogs = await Blog.find({ authorId: userId })
+      .sort({ createdAt: -1 })
+      .select('title slug isPublished tags views pings comments publishedAt sections createdAt');
+
+    const formattedBlogs = blogs.map((blog) => {
+      let firstContent = '';
+      for (const section of blog.sections) {
+        const contentItem = section.items.find(item => item.type === 'content');
+        if (contentItem) {
+          firstContent = contentItem.value;
+          break;
+        }
+      }
+
+      let publishedAgo = '';
+      if (blog.isPublished && blog.publishedAt) {
+        const now = moment().tz(userTimezone);
+        const publishedAt = moment(blog.publishedAt).tz(userTimezone);
+        const diffMinutes = now.diff(publishedAt, 'minutes');
+        const diffHours = now.diff(publishedAt, 'hours');
+        const diffDays = now.diff(publishedAt, 'days');
+
+        if (diffMinutes < 1) {
+          publishedAgo = 'Just now';
+        } else if (diffMinutes < 60) {
+          publishedAgo = `${diffMinutes}min`;
+        } else if (diffHours < 24) {
+          publishedAgo = `${diffHours}hr`;
+        } else if (diffDays < 7) {
+          publishedAgo = `${diffDays}d`;
+        } else if (diffDays < 14) {
+          publishedAgo = '1w';
+        } else if (diffDays < 21) {
+          publishedAgo = '2w';
+        } else {
+          publishedAgo = publishedAt.format('MMM D');
+        }
+      }
+
+      return {
+        id: blog._id,
+        title: blog.title,
+        slug: blog.slug,
+        isPublished: blog.isPublished,
+        tags: blog.tags,
+        views: blog.views,
+        pings: blog.pings.length,
+        comments: blog.comments.length,
+        firstContent,
+        publishedAgo: blog.isPublished ? publishedAgo : 'Draft',
+      };
+    });
+
+    res.status(200).json(formattedBlogs);
   } catch (error) {
     res.status(500).json({ error: 'Server error.' });
   }

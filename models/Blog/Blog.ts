@@ -10,6 +10,13 @@ interface Section {
   items: Item[];
 }
 
+interface Comment {
+  userId: mongoose.Types.ObjectId;
+  username: string;
+  text: string;
+  createdAt: Date;
+}
+
 export interface IBlog extends Document {
   title: string;
   slug: string;
@@ -20,6 +27,9 @@ export interface IBlog extends Document {
   coverImage?: string;
   isPublished: boolean;
   publishedAt?: Date;
+  pings: mongoose.Types.ObjectId[]; // Users who "pinged" the blog
+  views: number;
+  comments: Comment[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,6 +44,13 @@ const SectionSchema = new Schema<Section>({
   items: { type: [ItemSchema], required: true },
 });
 
+const CommentSchema = new Schema<Comment>({
+  userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
+  username: { type: String, required: true },
+  text: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
 const BlogSchema = new Schema<IBlog>(
   {
     title: { type: String, required: true },
@@ -45,6 +62,9 @@ const BlogSchema = new Schema<IBlog>(
     coverImage: { type: String },
     isPublished: { type: Boolean, default: false },
     publishedAt: { type: Date },
+    pings: { type: [mongoose.Schema.Types.ObjectId], default: [], ref: 'User' },
+    views: { type: Number, default: 0 },
+    comments: { type: [CommentSchema], default: [] }
   },
   { timestamps: true }
 );
