@@ -3,7 +3,7 @@ import Layout from "../../components/Layout/Layout";
 import ProfileCard from "../../components/User/ProfileCard";
 import UserActivities from "../../components/User/UserActivities";
 import UserStreaks from "../../components/User/UserStreaks";
-import { IFavorites, IProfileCardInfo, ISocials, IUserProfile } from "../../interfaces/UserInterfaces";
+import { IFavorites, IProfileCardInfo, ISocials, IUserBlogSummary, IUserProfile } from "../../interfaces/UserInterfaces";
 import { getAction, postAction } from "../../services/generalServices";
 import { useParams } from "react-router";
 import UserFavourites from "../../components/User/UserFavourites";
@@ -11,6 +11,7 @@ import UserSocials from "../../components/User/UserSocials";
 import UserMatches from "../../components/User/UserMatches";
 import { isAuth } from "../../utility/helper";
 import { toast } from "sonner";
+import UserBlogs from "../../components/User/UserBlogs";
 
 const UserProfile = () =>{
     const { username } = useParams<{ username: string }>();
@@ -20,6 +21,7 @@ const UserProfile = () =>{
     const [userProfileCard, setUserProfileCard] = useState<IProfileCardInfo>();
     const [userSocialLinks, setUserSocialLinks] = useState<ISocials[]>([]);
     const [userFavourites, setUserFavourites] = useState<IFavorites[]>([]);
+    const [userBlogs, setUserBlogs] = useState<IUserBlogSummary[]>([]);
 
     const getUserInfo = async () =>{
         try{
@@ -46,6 +48,9 @@ const UserProfile = () =>{
         }
         if (userProfileInfo?.profileCardInfo) {
             setUserProfileCard(userProfileInfo.profileCardInfo);
+        }
+        if(userProfileInfo?.userBlogs){
+            setUserBlogs(userProfileInfo.userBlogs);
         }
     }, [userProfileInfo]);
 
@@ -102,7 +107,10 @@ const UserProfile = () =>{
                             <UserStreaks userstreak_info={userProfileInfo.userStreaks}/>
                         </div>
                         <div className="profile-r-s1-c-s2">
-                            <UserActivities data={convertMatchesToActivityData(userProfileInfo.dailyMatches)} username={userProfileCard?.username}/>
+                            <UserActivities 
+                                data={convertMatchesToActivityData(userProfileInfo.dailyMatches)}
+                                userInfo={userProfileInfo?.profileCardInfo}
+                            />
 
                             <div className="user_extras">
                                 <UserFavourites
@@ -122,6 +130,10 @@ const UserProfile = () =>{
                             </div>
                             <UserMatches 
                                 matches={userProfileInfo.userMatches} 
+                                userInfo={userProfileInfo?.profileCardInfo}
+                            />
+                            <UserBlogs
+                                userBlogs={userBlogs}
                                 userInfo={userProfileInfo?.profileCardInfo}
                             />
                         </div>

@@ -1,3 +1,6 @@
+import { IProfileCardInfo } from "../../interfaces/UserInterfaces";
+import { isAuth } from "../../utility/helper";
+
 interface ContributionDay {
   date: string; // "YYYY-MM-DD"
   count: number;
@@ -5,6 +8,7 @@ interface ContributionDay {
 
 interface IUserActivities {
   data: ContributionDay[];
+  userInfo: IProfileCardInfo;
 }
 
 const getColor = (count: number) => {
@@ -15,9 +19,10 @@ const getColor = (count: number) => {
   return "level-4";
 };
 
-const UserActivities = ({ data, username }: IUserActivities & { username: string | undefined }) => {
+const UserActivities = ({ data, userInfo }: IUserActivities) => {
     const daysMap = new Map<string, number>();
     data.forEach(({ date, count }) => daysMap.set(date, count));
+    const itsMe = isAuth() ? userInfo.username === isAuth().username : false;
 
     const formatDate = (date: Date) => date.toLocaleDateString('en-CA');
 
@@ -72,7 +77,7 @@ const UserActivities = ({ data, username }: IUserActivities & { username: string
     return (
         <div className="wrapper_user_activities">
             <div className="user_activities">
-                <div className="username ff-google-n white">{username}'s Activity</div>
+                <div className="username ff-google-n white">{itsMe ? 'Your' : `${userInfo.username}'s`} Activity</div>
                 <div className="grid-container__wrapper scrollbar">
                     <div className="grid-container">
                         <div className="month-labels">

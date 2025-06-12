@@ -5,6 +5,8 @@ import Login from "./containers/Authentication/Login";
 import Register from "./containers/Authentication/Register";
 import ChallengeRoom from "./containers/Challenge/ChallengeRoom";
 import UserProfile from "./containers/User/UserProfile";
+import WriteBlog from "./containers/Write/WriteBlog";
+import Blog from "./containers/Write/Blog";
 
 interface PrivateRouteProps {
   element: React.ReactNode;
@@ -20,11 +22,13 @@ const routes = () => {
     { path: "/home", element: <Home /> },
     { path: "/login", element: <Login /> },
     { path: "/register", element: <Register /> },
-    { path:"/profile/:username", element:<UserProfile/> }
+    { path:"/profile/:username", element:<UserProfile/> },
+    { path:"/blog/:slug", element:<Blog/> }
   ];
 
   const privateRoutes = [
-    { path: "/challenge/live/:challengeId", element:<ChallengeRoom/> }
+    { path: "/challenge/live/:challengeId", element:<ChallengeRoom/> },
+    { path:"/blog/write", element:<WriteBlog/> },
   ];
 
   const protectedRoutes = privateRoutes.map((route) => ({

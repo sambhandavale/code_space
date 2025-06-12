@@ -5,15 +5,17 @@ import UserProfile, { IUserProfile } from "../../models/Users/UserProfile";
 import { formatDate } from "../../utility/utils";
 import UserChallengesModel, { IUserChallenges } from "../../models/Challenges/User-Challenges";
 import Users from "../../models/Users/Users";
+import Blog from "../../models/Blog/Blog";
+import moment from "moment-timezone";
 
 export const getUserProfileDetails = async (req: Request, res: Response) => {
     try {
         const username = req.query.username;
         const userId = req.query.userId;
         const timezone = req.headers['x-user-timezone'] as string || 'UTC';
-        let userInfo:IUser;
-        let userStats:IUserStats;
-        let userProfile:IUserProfile;
+        let userInfo: IUser;
+        let userStats: IUserStats;
+        let userProfile: IUserProfile;
 
         if (userId) {
             userInfo = await UserModel.findById(userId);
@@ -55,9 +57,9 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
             }
 
             return {
-                challengeId:challenge._id,
-                opponentName: opponent?.username || opponent?.full_name  || 'Unknown',
-                opponentUsername:opponent?.username || 'Unknown',
+                challengeId: challenge._id,
+                opponentName: opponent?.username || opponent?.full_name || 'Unknown',
+                opponentUsername: opponent?.username || 'Unknown',
                 language: challenge.language,
                 time: challenge.time,
                 result,
@@ -76,16 +78,69 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
             userBio: userProfile.bio || "",
             userEmail: userInfo.email,
             joinedOn: formatDate(userInfo['createdAt'], timezone),
-            userRating:userStats.rating,
-            userTitle:userProfile.title,
-            fullName:userInfo['full_name'],
-            username:userInfo.username,
+            userRating: userStats.rating,
+            userTitle: userProfile.title,
+            fullName: userInfo['full_name'],
+            username: userInfo.username,
         }
 
         const dailyMatches = userStats.daily_matches;
-
         const userFavourites = userProfile.favorites;
         const userSocials = userProfile.socials;
+
+        // Get user blogs
+        const userBlogsData = await Blog.find({ authorId: userInfo._id })
+            .sort({ createdAt: -1 })
+            .select('title slug isPublished tags views pings comments publishedAt sections createdAt');
+
+        const userBlogs = userBlogsData.map((blog) => {
+            let firstContent = '';
+            for (const section of blog.sections) {
+                const contentItem = section.items.find(item => item.type === 'content');
+                if (contentItem) {
+                    firstContent = contentItem.value;
+                    break;
+                }
+            }
+
+            let publishedAgo = '';
+            if (blog.isPublished && blog.publishedAt) {
+                const now = moment().tz(timezone);
+                const publishedAt = moment(blog.publishedAt).tz(timezone);
+                const diffMinutes = now.diff(publishedAt, 'minutes');
+                const diffHours = now.diff(publishedAt, 'hours');
+                const diffDays = now.diff(publishedAt, 'days');
+
+                if (diffMinutes < 1) {
+                    publishedAgo = 'Just now';
+                } else if (diffMinutes < 60) {
+                    publishedAgo = `${diffMinutes}min`;
+                } else if (diffHours < 24) {
+                    publishedAgo = `${diffHours}hr`;
+                } else if (diffDays < 7) {
+                    publishedAgo = `${diffDays}d`;
+                } else if (diffDays < 14) {
+                    publishedAgo = '1w';
+                } else if (diffDays < 21) {
+                    publishedAgo = '2w';
+                } else {
+                    publishedAgo = publishedAt.format('MMM D');
+                }
+            }
+
+            return {
+                id: blog._id,
+                title: blog.title,
+                slug: blog.slug,
+                isPublished: blog.isPublished,
+                tags: blog.tags,
+                views: blog.views,
+                pings: blog.pings.length,
+                comments: blog.comments.length,
+                firstContent,
+                publishedAgo: blog.isPublished ? publishedAgo : 'Draft',
+            };
+        });
 
         res.status(200).json({
             message: "User profile details fetched successfully",
@@ -96,10 +151,9 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
                 userFavourites,
                 userSocials,
                 userMatches,
+                userBlogs,
             }
         });
-
-        return;
 
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
