@@ -1,20 +1,13 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { isAuth } from "../../utility/helper";
-import { logout } from "../../services/auth";
+import { isAuth } from "../../../utility/helper";
 import { FiMenu, FiX } from "react-icons/fi";
-import DefaultProfile from "./DefaultProfile";
-import { getInitials } from "../../utility/general-utility";
+import DefaultProfile from "../DefaultProfile";
+import { getInitials } from "../../../utility/general-utility";
 import { FiChevronDown } from 'react-icons/fi';
 
 const Navbar = ({ scrollToChallenge, isMobileMenuOpen, setMobileMenuOpen, userRating }: any) => {
     const navigate = useNavigate();
     const location = useLocation();
-
-    const handleLogoutClick = () => {
-        logout(() => {
-            window.location.href = "/";
-        });
-    };
 
     const handleChallengeClick = () => {
         if (location.pathname !== "") {
@@ -43,7 +36,7 @@ const Navbar = ({ scrollToChallenge, isMobileMenuOpen, setMobileMenuOpen, userRa
                 <ul className={`navbar__links ${isMobileMenuOpen ? "open" : ""}`}>
                     <li className="navbar__link pointer" onClick={() => handleNavigate("/")}>Home</li>
                     <li className="navbar__link pointer" onClick={handleChallengeClick}>Challenge</li>
-                    <li className="navbar__link pointer locked">Write</li>
+                    <li className="navbar__link pointer" onClick={()=> navigate('/blog/write')}>Write</li>
                     <li className="navbar__link pointer locked">Learn</li>
                 </ul>
             </div>

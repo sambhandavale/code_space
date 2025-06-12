@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import MobileSidebar from "./Sidebar";
 import { getAction } from "../../services/generalServices";
 import { isAuth } from "../../utility/helper";

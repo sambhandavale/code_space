@@ -6,7 +6,7 @@ interface ProfileProps {
 const DefaultProfile = ({ initals, scale = 1 }:ProfileProps) => {
 
   return (
-    <div className="profile-circle ff-google-n" style={{scale:scale}}>
+    <div className="profile-circle ff-google-n">
       {initals}
     </div>
   );
