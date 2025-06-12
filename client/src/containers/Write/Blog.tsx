@@ -177,7 +177,7 @@ const Blog = () =>{
                                 onClick={hasPinged ? unpingBlog : pingBlog}
                             >
                                 <img 
-                                    src={"/icons/user/ping.svg"} 
+                                    src={hasPinged ? '/icons/user/pinged.svg' : "/icons/user/ping.svg"} 
                                     alt="ping" 
                                 />
                                 <span style={{ opacity: hasPinged ? '1' : '0.7' }}>{blogPingsNo}</span>
