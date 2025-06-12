@@ -15,7 +15,7 @@ const getColor = (count: number) => {
   return "level-4";
 };
 
-const UserActivities = ({ data }: IUserActivities) => {
+const UserActivities = ({ data, username }: IUserActivities & { username: string | undefined }) => {
     const daysMap = new Map<string, number>();
     data.forEach(({ date, count }) => daysMap.set(date, count));
 
@@ -72,7 +72,7 @@ const UserActivities = ({ data }: IUserActivities) => {
     return (
         <div className="wrapper_user_activities">
             <div className="user_activities">
-                <div className="username ff-google-n white">Nowucme Activity</div>
+                <div className="username ff-google-n white">{username}'s Activity</div>
                 <div className="grid-container__wrapper scrollbar">
                     <div className="grid-container">
                         <div className="month-labels">

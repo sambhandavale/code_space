@@ -102,7 +102,7 @@ const UserProfile = () =>{
                             <UserStreaks userstreak_info={userProfileInfo.userStreaks}/>
                         </div>
                         <div className="profile-r-s1-c-s2">
-                            <UserActivities data={convertMatchesToActivityData(userProfileInfo.dailyMatches)}/>
+                            <UserActivities data={convertMatchesToActivityData(userProfileInfo.dailyMatches)} username={userProfileCard?.username}/>
 
                             <div className="user_extras">
                                 <UserFavourites
