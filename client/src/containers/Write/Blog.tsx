@@ -17,8 +17,9 @@ const Blog = () =>{
     const [sections, setSections] = useState<Section[]>([]);
     const [blogTitle,setBlogTitle] = useState<string>('');
     const [blogDate, setBlogDate] = useState<string>('');
+    const [blogAuthorDetails, setBlogAuthorDetails] = useState<{id:string,full_name:string,username:string}>();
     const [blogAuthor, setBlogAuthor] = useState<string>('');
-    const [blogAuthorId, setBlogAuthorId] = useState<string>('');
+
 
     const [showPingText, setShowPingText] = useState(false);
     const [blogPings, setBlogPings] = useState<string[]>([]);
@@ -33,8 +34,8 @@ const Blog = () =>{
             if(res && res.status === 200){
                 setSections(res.data.sections);
                 setBlogTitle(res.data.title);
+                setBlogAuthorDetails(res.data.authorId);
                 setBlogAuthor(res.data.author);
-                setBlogAuthorId(res.data.authorId);
                 setBlogPings(res.data.pings);
                 setBlogPingsNo(res.data.pings.length);
 
@@ -149,7 +150,7 @@ const Blog = () =>{
             {!loading && (
                 <div className="write__blog">
                     {isAuth() && (
-                        isAuth()._id === blogAuthorId &&
+                        isAuth()._id === blogAuthorDetails?.id &&
                         <div className="actions">
                             <div className="save__draft glassmorphism-medium gls-box pointer" onClick={()=>navigate(`/blog/write?editid=${slug}`)}>Edit Blog</div>
                         </div>  
@@ -164,7 +165,7 @@ const Blog = () =>{
                     </div>
 
                     <div className="blog__actions">
-                        <div className="blog__author">
+                        <div className="blog__author pointer" onClick={()=>navigate(`/profile/${blogAuthorDetails?.username}`)}>
                             <DefaultProfile initals={getInitials(`${blogAuthor}`)}/>
                             <div className="blog__details">
                                 <div className="author__name">{blogAuthor}</div>

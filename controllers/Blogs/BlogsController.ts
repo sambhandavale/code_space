@@ -199,7 +199,7 @@ export const getUserBlogs = async (req: Request, res: Response) => {
 
 export const getBlogById = async (req: Request, res: Response) => {
   try {
-    const blog = await Blog.findById(req.params.id);
+    const blog = await Blog.findById(req.params.id).populate('authorId', 'username full_name');
 
     if (!blog) {
       res.status(404).json({ error: 'Blog not found.' });
@@ -214,7 +214,7 @@ export const getBlogById = async (req: Request, res: Response) => {
 
 export const getBlogBySlug = async (req: Request, res: Response) => {
   try {
-    const blog = await Blog.findOne({ slug: req.params.slug });
+    const blog = await Blog.findOne({ slug: req.params.slug }).populate('authorId', 'username full_name');
 
     if (!blog) {
       res.status(404).json({ error: 'Blog not found.' });

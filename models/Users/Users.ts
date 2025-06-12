@@ -50,7 +50,10 @@ UserSchema.virtual("password")
 UserSchema.virtual("full_name")
     .get(function (this: IUser) {
         return `${this.first_name || ""} ${this.last_name || ""}`.trim();
-    });
+    }); 
+
+UserSchema.set('toObject', { virtuals: true });
+UserSchema.set('toJSON', { virtuals: true });
 
 
 UserSchema.methods = {
