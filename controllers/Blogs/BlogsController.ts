@@ -231,7 +231,7 @@ export const updateBlog = async (req: Request, res: Response) => {
   try {
     const { title, author, sections, tags, coverImage, isPublished } = req.body;
 
-    const blog = await Blog.findById(req.params.id);
+    const blog = await Blog.findOne({ slug: req.params.slug });
 
     if (!blog) {
       res.status(404).json({ error: 'Blog not found.' });

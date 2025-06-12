@@ -47,3 +47,14 @@ export const deleteAction = async (route: string, callback?: any) => {
     return err.response;
   }
 };
+
+export const putAction = async (route: string, data: Object, callback?: any) => {
+  try {
+    const res = await axiosInstance.put(route, data);
+    if (callback) callback(res);
+    return res;
+  } catch (err: any) {
+    if (callback) callback(err);
+    return err.response;
+  }
+};

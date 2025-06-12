@@ -61,7 +61,7 @@ const UserBlogs = ({ userBlogs, userInfo }: IUserBlogs) => {
                         <div
                             key={blog.id}
                             className="blog pointer"
-                            onClick={() => navigate(`/blog/${blog.slug}`)}
+                            onClick={() => navigate(`/blog/${blog.id}/${blog.slug}`)}
                             style={index + 1 === paginatedBlogs.length ? { border: "none" } : {}}
                         >
                             <div className="blog_content">

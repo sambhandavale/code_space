@@ -4,51 +4,69 @@ import Blog from '../../models/Blog/Blog';
 export const pingBlog = async (req: Request, res: Response) => {
   try {
     const blog = await Blog.findById(req.params.id);
-    if (!blog) return res.status(404).json({ error: 'Blog not found.' });
+    if (!blog) {
+      res.status(404).json({ error: 'Blog not found.' });
+      return;
+    }
 
     const userId = req.user['_id'];
 
     if (blog.pings.includes(userId)) {
-      return res.status(400).json({ error: 'You have already pinged this blog.' });
+      res.status(400).json({ error: 'You have already pinged this blog.' });
+      return;
     }
 
     blog.pings.push(userId);
     await blog.save();
 
     res.status(200).json({ message: 'Pinged successfully.', pings: blog.pings.length });
+    return;
   } catch (error) {
     res.status(500).json({ error: 'Server error.' });
+    return;
   }
 };
 
 export const unpingBlog = async (req: Request, res: Response) => {
   try {
     const blog = await Blog.findById(req.params.id);
-    if (!blog) return res.status(404).json({ error: 'Blog not found.' });
+    if (!blog) {
+      res.status(404).json({ error: 'Blog not found.' });
+      return;
+    }
 
     const userId = req.user['_id'];
 
     if (!blog.pings.includes(userId)) {
-      return res.status(400).json({ error: 'You have not pinged this blog.' });
+      res.status(400).json({ error: 'You have not pinged this blog.' });
+      return;
     }
 
     blog.pings = blog.pings.filter((id) => id.toString() !== userId.toString());
     await blog.save();
 
     res.status(200).json({ message: 'Unpinged successfully.', pings: blog.pings.length });
+    return;
   } catch (error) {
     res.status(500).json({ error: 'Server error.' });
+    return;
   }
 };
 
 export const addComment = async (req: Request, res: Response) => {
   try {
     const blog = await Blog.findById(req.params.id);
-    if (!blog) return res.status(404).json({ error: 'Blog not found.' });
+    if (!blog) {
+      res.status(404).json({ error: 'Blog not found.' });
+      return;
+    }
 
     const { text } = req.body;
 
-    if (!text) return res.status(400).json({ error: 'Comment text is required.' });
+    if (!text) {
+      res.status(400).json({ error: 'Comment text is required.' });
+      return;
+    }
 
     const newComment = {
       userId: req.user['_id'],
@@ -61,15 +79,20 @@ export const addComment = async (req: Request, res: Response) => {
     await blog.save();
 
     res.status(201).json({ message: 'Comment added successfully.', comments: blog.comments });
+    return;
   } catch (error) {
     res.status(500).json({ error: 'Server error.' });
+    return;
   }
 };
 
 export const deleteComment = async (req: Request, res: Response) => {
   try {
     const blog = await Blog.findById(req.params.id);
-    if (!blog) return res.status(404).json({ error: 'Blog not found.' });
+    if (!blog) {
+      res.status(404).json({ error: 'Blog not found.' });
+      return;
+    }
 
     const commentId = req.params.commentId;
 
@@ -78,15 +101,18 @@ export const deleteComment = async (req: Request, res: Response) => {
     );
 
     if (commentIndex === -1) {
-      return res.status(403).json({ error: 'Comment not found or you are not authorized to delete this comment.' });
+      res.status(403).json({ error: 'Comment not found or you are not authorized to delete this comment.' });
+      return;
     }
 
     blog.comments.splice(commentIndex, 1);
     await blog.save();
 
     res.status(200).json({ message: 'Comment deleted successfully.', comments: blog.comments });
+    return;
   } catch (error) {
     res.status(500).json({ error: 'Server error.' });
+    return;
   }
 };
 
@@ -98,10 +124,15 @@ export const incrementView = async (req: Request, res: Response) => {
       { new: true }
     );
 
-    if (!blog) return res.status(404).json({ error: 'Blog not found.' });
+    if (!blog) {
+      res.status(404).json({ error: 'Blog not found.' });
+      return;
+    }
 
     res.status(200).json({ message: 'View incremented.', views: blog.views });
+    return;
   } catch (error) {
     res.status(500).json({ error: 'Server error.' });
+    return;
   }
 };

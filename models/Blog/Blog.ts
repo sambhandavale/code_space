@@ -69,15 +69,30 @@ const BlogSchema = new Schema<IBlog>(
   { timestamps: true }
 );
 
-// Slug generator function
+// Improved slug generator
 const generateSlug = (title: string): string => {
-  return title.trim().toLowerCase().replace(/\s+/g, '-');
+    return title.trim().toLowerCase()
+        .replace(/[^\w\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-')     // Replace spaces with hyphens
+        .replace(/--+/g, '-')     // Remove duplicate hyphens
+        .substring(0, 75);        // Optional: limit slug length
 };
 
-// Pre-save hook to set the slug
-BlogSchema.pre<IBlog>('save', function (next) {
-  this.slug = generateSlug(this.title);
-  next();
+// Pre-save hook with uniqueness check
+BlogSchema.pre<IBlog>('save', async function (next) {
+    if (this.isModified('title') || !this.slug) {
+        let baseSlug = generateSlug(this.title);
+        let slug = baseSlug;
+        let counter = 1;
+
+        // Check if slug already exists
+        while (await mongoose.models.Blog.findOne({ slug })) {
+            slug = `${baseSlug}-${counter++}`;
+        }
+
+        this.slug = slug;
+    }
+    next();
 });
 
 export default mongoose.model<IBlog>('Blog', BlogSchema);

@@ -6,7 +6,8 @@ import DefaultProfile from "../../components/Layout/DefaultProfile";
 import { getInitials } from "../../utility/general-utility";
 import { isAuth } from "../../utility/helper";
 import { toast } from "sonner";
-import { postAction } from "../../services/generalServices";
+import { getAction, postAction, putAction } from "../../services/generalServices";
+import { useLocation } from "react-router";
 
 type ItemType = "content" | "bullet" | "image";
 
@@ -43,13 +44,42 @@ export const calculateReadingTime = (sections: Section[]): number => {
 };
 
 const WriteBlog: React.FC = () => {
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const slug = queryParams.get('editid');
+
+    const [loading, setloading] = useState<boolean>(true);
     const [sections, setSections] = useState<Section[]>([
         { items: [] }
     ]);
     const [activeSectionIndex, setActiveSectionIndex] = useState<number | null>(0);
     const [blogHeader, setBlogHeader] = useState<string>('');
+    const [tempBlogHeader, setTempBlogHeader] = useState<string>('');
     const contentRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
     const [currentDateTime, setCurrentDateTime] = useState<string>("");
+
+    
+    useEffect(()=>{
+        const getBlogDetails = async () =>{
+            try{
+                const res = await getAction(`/blogs/slug/${slug}`);
+                setSections(res.data.sections);
+                setTempBlogHeader(res.data.title);
+                setBlogHeader(res.data.title);
+                setloading(false);
+            }catch(err){
+                console.log(err);
+            }finally{
+                setloading(false);
+            }
+        }
+
+        if(slug){
+            getBlogDetails();
+        } else{
+            setloading(false);
+        }
+    },[])
 
     useEffect(() => {
         const now = new Date();
@@ -164,7 +194,6 @@ const WriteBlog: React.FC = () => {
         }
     };
 
-
     const updateHeader = (index: number, html: string) => {
         const updatedSections = [...sections];
         updatedSections[index].header = html;
@@ -199,7 +228,6 @@ const WriteBlog: React.FC = () => {
         }
     }, []);
 
-
     const saveDraft = () => {
         const draft = {
             blogHeader,
@@ -210,275 +238,284 @@ const WriteBlog: React.FC = () => {
         toast.message('Draft saved successfully!');
     };
 
-    const publishBlog = async () =>{
-        try{
-            const data ={
-                title:blogHeader, 
-                author:isAuth().full_name, 
-                authorId:isAuth()._id, 
-                sections:sections,  
-                isPublished:true,
+    const publishBlog = async () => {
+        try {
+            if (!blogHeader.trim()) {
+                toast.error('Title cannot be empty.');
+                return;
+            }
+
+            if (blogHeader.length < 5) {
+                toast.error('Title should be at least 5 characters long.');
+                return;
+            }
+
+            if (/[\/\\]/.test(blogHeader)) { // Checks for slashes
+                toast.error('Title cannot contain slashes or backslashes.');
+                return;
+            }
+
+            if (blogHeader.length > 100) { // Optional: Limit title length
+                toast.error('Title should be less than 100 characters.');
+                return;
+            }
+
+            if (sections.length === 0 || sections.every(section => section.items.length === 0)) {
+                toast.error('Blog content cannot be empty.');
+                return;
+            }
+
+            const data = {
+                title: blogHeader,
+                author: isAuth().full_name,
+                authorId: isAuth()._id,
+                sections: sections,
+                isPublished: true,
                 tags: [],
                 coverImage: "",
-            }
-            console.log(data);
-            const res = await postAction('/blogs/create',data);
-            if(res.status===201){
+            };
+
+            const res = await postAction('/blogs/create', data);
+            if (res.status === 201) {
                 localStorage.removeItem('blogDraft');
-                toast.success('Published!!!')
-            } else if(res.status === 400){
-                console.log(res)
-                toast.error(res.data.error)
+                toast.success('Published!!!');
+            } else if (res.status === 400) {
+                console.log(res);
+                toast.error(res.data.error);
             }
-        }catch(err){
+        } catch (err) {
             console.log(err);
         }
-    }
+    };
 
+    const updateBlog = async () => {
+        try {
+            if (!blogHeader.trim()) {
+                toast.error('Title cannot be empty.');
+                return;
+            }
+
+            if (blogHeader.length < 5) {
+                toast.error('Title should be at least 5 characters long.');
+                return;
+            }
+
+            if (/[\/\\]/.test(blogHeader)) { // Checks for slashes
+                toast.error('Title cannot contain slashes or backslashes.');
+                return;
+            }
+
+            if (blogHeader.length > 100) { // Optional: Limit title length
+                toast.error('Title should be less than 100 characters.');
+                return;
+            }
+
+            if (sections.length === 0 || sections.every(section => section.items.length === 0)) {
+                toast.error('Blog content cannot be empty.');
+                return;
+            }
+
+            const data = {
+                title: blogHeader,
+                author: isAuth().full_name,
+                sections: sections,
+                isPublished: true,
+                tags: [],
+                coverImage: "",
+            };
+
+            const res = await putAction(`/blogs/update/${slug}`, data);
+            if (res.status === 200) {
+                localStorage.removeItem('blogDraft');
+                toast.success('Updated!!!');
+            } else if (res.status === 400) {
+                console.log(res);
+                toast.error(res.data.error);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
 
     return (
         <Layout>
-            <div className="write__blog">
-                <div className="actions">
-                    <div className="save__draft glassmorphism-medium gls-box pointer" onClick={saveDraft}>Save Draft</div>
-                    <div className="publish__blog glassmorphism-medium gls-box pointer" onClick={publishBlog}>Publish</div>
-                </div>
-                <div className="blog__header">
-                    <div className="blog__date">{currentDateTime}</div>
-                    <div
-                        className="blog__main__header"
-                        contentEditable
-                        suppressContentEditableWarning={true}
-                        onInput={(e) => setBlogHeader((e.target as HTMLDivElement).innerText)}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                                e.preventDefault();
-                                addItem("content");
-                            }
-                        }}
-                    >
-                        Enter your blog header here...
+            {!loading && (
+                <div className="write__blog"> 
+                    <div className="actions">
+                        <div className="save__draft glassmorphism-medium gls-box pointer" onClick={saveDraft}>Save Draft</div>
+                        <div className="publish__blog glassmorphism-medium gls-box pointer" onClick={slug ? updateBlog : publishBlog}>{slug ? "Update" : 'Publish'}</div>
                     </div>
-                </div>
-
-                <div className="blog__actions">
-                    <div className="blog__author">
-                        <DefaultProfile initals={getInitials(`${isAuth().full_name}`)}/>
-                        <div className="blog__details">
-                            <div className="author__name">{isAuth().full_name}</div>
-                            <div className="blog__read__time">{calculateReadingTime(sections)} min read</div>
+                    <div className="blog__header">
+                        <div className="blog__date">{currentDateTime}</div>
+                        <div
+                            className="blog__main__header"
+                            contentEditable
+                            suppressContentEditableWarning={true}
+                            onInput={(e) => setBlogHeader((e.target as HTMLDivElement).innerText)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    addItem("content");
+                                }
+                            }}
+                        >
+                            {tempBlogHeader === '' ? 'Enter your blog header here...' : tempBlogHeader}
                         </div>
                     </div>
-                </div>
 
-
-
-                <div className="blog__content">
-                    {sections.length === 0 && (
-                        <div className="blog__builder sticky-builder">
-                            <FiPlusCircle className="plus" />
-                            <div className="blog__builder__options">
-                                <div
-                                    className="blog__builder__option glassmorphism-medium header pointer"
-                                    onClick={addHeader}
-                                >
-                                    <strong>H</strong>eader
-                                </div>
-                                <div
-                                    className="blog__builder__option glassmorphism-medium pointer"
-                                    onClick={addHeader}
-                                >
-                                    <strong>N</strong>ew Section
-                                </div>
-                                <div
-                                    className="blog__builder__option glassmorphism-medium pointer"
-                                    onClick={() => addItem("content", 0)}
-                                >
-                                    New Line(Content)
-                                </div>
-                                <div
-                                    className="blog__builder__option glassmorphism-medium pointer"
-                                    onClick={() => addItem("bullet", 0)}
-                                >
-                                    • Bullet Point
-                                </div>
+                    <div className="blog__actions">
+                        <div className="blog__author">
+                            <DefaultProfile initals={getInitials(`${isAuth().full_name}`)}/>
+                            <div className="blog__details">
+                                <div className="author__name">{isAuth().full_name}</div>
+                                <div className="blog__read__time">{calculateReadingTime(sections)} min read</div>
                             </div>
                         </div>
-                    )}
-                    {sections.map((section, sectionIndex) => (
-                        <div
-                            key={sectionIndex}
-                            className="section"
-                            onClick={() => setActiveSectionIndex(sectionIndex)}
-                        >
-                            {activeSectionIndex === sectionIndex && (
-                                <div className="blog__builder sticky-builder">
-                                    <FiPlusCircle className="plus" />
-                                    <div className="blog__builder__options">
-                                        <div
-                                            className="blog__builder__option glassmorphism-medium header pointer"
-                                            onClick={addHeader}
-                                        >
-                                            <strong>H</strong>eader
-                                        </div>
-                                        <div
-                                            className="blog__builder__option glassmorphism-medium pointer"
-                                            onClick={addHeader}
-                                        >
-                                            <strong>N</strong>ew Section
-                                        </div>
-                                        <div
-                                            className="blog__builder__option glassmorphism-medium pointer"
-                                            onClick={() => addItem("content", sectionIndex)}
-                                        >
-                                            New Line(Content)
-                                        </div>
-                                        <div
-                                            className="blog__builder__option glassmorphism-medium pointer"
-                                            onClick={() => addItem("bullet", sectionIndex)}
-                                        >
-                                            • Bullet Point
-                                        </div>
-                                    </div>
-                                    {/* <div className="blog__builder__option glassmorphism-medium pointer">
-                                        <label htmlFor={`image-upload-${sectionIndex}`} style={{cursor: "pointer"}}>
-                                            Image
-                                        </label>
-                                        <input
-                                            id={`image-upload-${sectionIndex}`}
-                                            type="file"
-                                            accept="image/*"
-                                            style={{display: "none"}}
-                                            onChange={(e) => {
-                                                if (e.target.files && e.target.files[0]) {
-                                                    handleImageUpload(sectionIndex, e.target.files[0]);
-                                                }
-                                            }}
-                                        />
-                                    </div> */}
-                                </div>
-                            )}
+                    </div>
 
-                            {section.header !== undefined && (
-                                <div className="section__header__wrapper">
+
+
+                    <div className="blog__content">
+                        {sections.length === 0 && (
+                            <div className="blog__builder sticky-builder">
+                                <FiPlusCircle className="plus" />
+                                <div className="blog__builder__options">
                                     <div
-                                        className="section__header"
-                                        contentEditable
-                                        suppressContentEditableWarning={true}
-                                        onBlur={(e) => updateHeader(sectionIndex, (e.target as HTMLDivElement).innerText)}
-                                        onClick={() => setActiveSectionIndex(sectionIndex)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter") {
-                                                e.preventDefault();
-                                                addItem("content", sectionIndex, -1);
-                                                setTimeout(() => {
-                                                    const refKey = `${sectionIndex}-${0}`;
-                                                    const el = contentRefs.current[refKey];
-                                                    el?.focus();
-                                                    placeCaretAtEnd(el);
-                                                }, 0);
-                                            }
-                                        }}
+                                        className="blog__builder__option glassmorphism-medium header pointer"
+                                        onClick={addHeader}
                                     >
-                                        {section.header || "Enter your section header here..."}
+                                        <strong>H</strong>eader
                                     </div>
-                                    <FiTrash
-                                        className="delete__icon"
-                                        onClick={() => {
-                                            const updatedSections = [...sections];
-                                            updatedSections.splice(sectionIndex, 1);
-                                            setSections(updatedSections);
-                                        }}
-                                    />
+                                    <div
+                                        className="blog__builder__option glassmorphism-medium pointer"
+                                        onClick={addHeader}
+                                    >
+                                        <strong>N</strong>ew Section
+                                    </div>
+                                    <div
+                                        className="blog__builder__option glassmorphism-medium pointer"
+                                        onClick={() => addItem("content", 0)}
+                                    >
+                                        New Line(Content)
+                                    </div>
+                                    <div
+                                        className="blog__builder__option glassmorphism-medium pointer"
+                                        onClick={() => addItem("bullet", 0)}
+                                    >
+                                        • Bullet Point
+                                    </div>
                                 </div>
-                            )}
-
-                            {section.items.map((item, itemIndex) => (
-                                <div key={itemIndex} className="content">
-                                    {item.type === "content" && (
-                                        <div className="content__wrapper">
+                            </div>
+                        )}
+                        {sections.map((section, sectionIndex) => (
+                            <div
+                                key={sectionIndex}
+                                className="section"
+                                onClick={() => setActiveSectionIndex(sectionIndex)}
+                            >
+                                {activeSectionIndex === sectionIndex && (
+                                    <div className="blog__builder sticky-builder">
+                                        <FiPlusCircle className="plus" />
+                                        <div className="blog__builder__options">
                                             <div
-                                                className="content__input"
-                                                contentEditable
-                                                suppressContentEditableWarning={true}
-                                                data-placeholder="Enter your content here..."
-                                                onBlur={(e) =>
-                                                    updateItem(
-                                                        sectionIndex,
-                                                        itemIndex,
-                                                        (e.target as HTMLDivElement).innerText.replace(/\u200B/g, '')
-                                                    )
-                                                }
-                                                onClick={() => setActiveSectionIndex(sectionIndex)}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === "Enter") {
-                                                        e.preventDefault();
-                                                        addItem("content", sectionIndex, itemIndex, (newItemIndex, targetSection) => {
-                                                            const refKey = `${targetSection}-${newItemIndex}`;
-                                                            const el = contentRefs.current[refKey];
-                                                            el?.focus();
-                                                            placeCaretAtEnd(el);
-                                                        });
-                                                    }
-
-                                                    if (e.key === "Backspace" && (e.target as HTMLDivElement).innerText.trim() === "") {
-                                                        e.preventDefault();
-                                                        if (sections[sectionIndex].items.length === 1) return;
-
-                                                        const updatedSections = [...sections];
-                                                        updatedSections[sectionIndex].items.splice(itemIndex, 1);
-                                                        setSections(updatedSections);
-
-                                                        const prevIndex = itemIndex - 1;
-                                                        if (prevIndex >= 0) {
-                                                            const refKey = `${sectionIndex}-${prevIndex}`;
-                                                            setTimeout(() => {
-                                                                const el = contentRefs.current[refKey];
-                                                                el?.focus();
-                                                                placeCaretAtEnd(el);
-                                                            }, 0);
-                                                        }
-                                                    }
-                                                }}
-                                                ref={(el) => {
-                                                    contentRefs.current[`${sectionIndex}-${itemIndex}`] = el;
-                                                }}
+                                                className="blog__builder__option glassmorphism-medium header pointer"
+                                                onClick={addHeader}
                                             >
-                                                {item.value !== '' ? item.value : <br/>}
+                                                <strong>H</strong>eader
                                             </div>
-                                            <FiTrash
-                                                className="delete__icon"
-                                                onClick={() => {
-                                                    const updatedSections = [...sections];
-                                                    updatedSections[sectionIndex].items.splice(itemIndex, 1);
-                                                    setSections(updatedSections);
+                                            <div
+                                                className="blog__builder__option glassmorphism-medium pointer"
+                                                onClick={addHeader}
+                                            >
+                                                <strong>N</strong>ew Section
+                                            </div>
+                                            <div
+                                                className="blog__builder__option glassmorphism-medium pointer"
+                                                onClick={() => addItem("content", sectionIndex)}
+                                            >
+                                                New Line(Content)
+                                            </div>
+                                            <div
+                                                className="blog__builder__option glassmorphism-medium pointer"
+                                                onClick={() => addItem("bullet", sectionIndex)}
+                                            >
+                                                • Bullet Point
+                                            </div>
+                                        </div>
+                                        {/* <div className="blog__builder__option glassmorphism-medium pointer">
+                                            <label htmlFor={`image-upload-${sectionIndex}`} style={{cursor: "pointer"}}>
+                                                Image
+                                            </label>
+                                            <input
+                                                id={`image-upload-${sectionIndex}`}
+                                                type="file"
+                                                accept="image/*"
+                                                style={{display: "none"}}
+                                                onChange={(e) => {
+                                                    if (e.target.files && e.target.files[0]) {
+                                                        handleImageUpload(sectionIndex, e.target.files[0]);
+                                                    }
                                                 }}
                                             />
-                                        </div>
-                                    )}
+                                        </div> */}
+                                    </div>
+                                )}
 
-                                    {item.type === "bullet" && (
-                                        <div className="bullet__point">
-                                            <div className="bullet__wrapper">
-                                                <span className="bullet__symbol">•</span>
+                                {section.header !== undefined && (
+                                    <div className="section__header__wrapper">
+                                        <div
+                                            className="section__header"
+                                            contentEditable
+                                            suppressContentEditableWarning={true}
+                                            onBlur={(e) => updateHeader(sectionIndex, (e.target as HTMLDivElement).innerText)}
+                                            onClick={() => setActiveSectionIndex(sectionIndex)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    e.preventDefault();
+                                                    addItem("content", sectionIndex, -1);
+                                                    setTimeout(() => {
+                                                        const refKey = `${sectionIndex}-${0}`;
+                                                        const el = contentRefs.current[refKey];
+                                                        el?.focus();
+                                                        placeCaretAtEnd(el);
+                                                    }, 0);
+                                                }
+                                            }}
+                                        >
+                                            {section.header || "Enter your section header here..."}
+                                        </div>
+                                        <FiTrash
+                                            className="delete__icon"
+                                            onClick={() => {
+                                                const updatedSections = [...sections];
+                                                updatedSections.splice(sectionIndex, 1);
+                                                setSections(updatedSections);
+                                            }}
+                                        />
+                                    </div>
+                                )}
+
+                                {section.items.map((item, itemIndex) => (
+                                    <div key={itemIndex} className="content">
+                                        {item.type === "content" && (
+                                            <div className="content__wrapper">
                                                 <div
-                                                    className="bullet__input"
+                                                    className="content__input"
                                                     contentEditable
                                                     suppressContentEditableWarning={true}
+                                                    data-placeholder="Enter your content here..."
                                                     onBlur={(e) =>
                                                         updateItem(
                                                             sectionIndex,
                                                             itemIndex,
-                                                            (e.target as HTMLDivElement).innerText.trim()
+                                                            (e.target as HTMLDivElement).innerText.replace(/\u200B/g, '')
                                                         )
                                                     }
                                                     onClick={() => setActiveSectionIndex(sectionIndex)}
                                                     onKeyDown={(e) => {
-                                                        const currentText = (e.target as HTMLDivElement).innerText.trim();
-
                                                         if (e.key === "Enter") {
                                                             e.preventDefault();
-                                                            addItem("bullet", sectionIndex, itemIndex, (newItemIndex, targetSection) => {
+                                                            addItem("content", sectionIndex, itemIndex, (newItemIndex, targetSection) => {
                                                                 const refKey = `${targetSection}-${newItemIndex}`;
                                                                 const el = contentRefs.current[refKey];
                                                                 el?.focus();
@@ -486,9 +523,8 @@ const WriteBlog: React.FC = () => {
                                                             });
                                                         }
 
-                                                        if (e.key === "Backspace" && currentText === "") {
+                                                        if (e.key === "Backspace" && (e.target as HTMLDivElement).innerText.trim() === "") {
                                                             e.preventDefault();
-
                                                             if (sections[sectionIndex].items.length === 1) return;
 
                                                             const updatedSections = [...sections];
@@ -510,9 +546,8 @@ const WriteBlog: React.FC = () => {
                                                         contentRefs.current[`${sectionIndex}-${itemIndex}`] = el;
                                                     }}
                                                 >
-                                                    {item.value !== '' ? item.value : '\u200B'}
+                                                    {item.value !== '' ? item.value : <br/>}
                                                 </div>
-
                                                 <FiTrash
                                                     className="delete__icon"
                                                     onClick={() => {
@@ -522,47 +557,115 @@ const WriteBlog: React.FC = () => {
                                                     }}
                                                 />
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
+
+                                        {item.type === "bullet" && (
+                                            <div className="bullet__point">
+                                                <div className="bullet__wrapper">
+                                                    <span className="bullet__symbol">•</span>
+                                                    <div
+                                                        className="bullet__input"
+                                                        contentEditable
+                                                        suppressContentEditableWarning={true}
+                                                        onBlur={(e) =>
+                                                            updateItem(
+                                                                sectionIndex,
+                                                                itemIndex,
+                                                                (e.target as HTMLDivElement).innerText.trim()
+                                                            )
+                                                        }
+                                                        onClick={() => setActiveSectionIndex(sectionIndex)}
+                                                        onKeyDown={(e) => {
+                                                            const currentText = (e.target as HTMLDivElement).innerText.trim();
+
+                                                            if (e.key === "Enter") {
+                                                                e.preventDefault();
+                                                                addItem("bullet", sectionIndex, itemIndex, (newItemIndex, targetSection) => {
+                                                                    const refKey = `${targetSection}-${newItemIndex}`;
+                                                                    const el = contentRefs.current[refKey];
+                                                                    el?.focus();
+                                                                    placeCaretAtEnd(el);
+                                                                });
+                                                            }
+
+                                                            if (e.key === "Backspace" && currentText === "") {
+                                                                e.preventDefault();
+
+                                                                if (sections[sectionIndex].items.length === 1) return;
+
+                                                                const updatedSections = [...sections];
+                                                                updatedSections[sectionIndex].items.splice(itemIndex, 1);
+                                                                setSections(updatedSections);
+
+                                                                const prevIndex = itemIndex - 1;
+                                                                if (prevIndex >= 0) {
+                                                                    const refKey = `${sectionIndex}-${prevIndex}`;
+                                                                    setTimeout(() => {
+                                                                        const el = contentRefs.current[refKey];
+                                                                        el?.focus();
+                                                                        placeCaretAtEnd(el);
+                                                                    }, 0);
+                                                                }
+                                                            }
+                                                        }}
+                                                        ref={(el) => {
+                                                            contentRefs.current[`${sectionIndex}-${itemIndex}`] = el;
+                                                        }}
+                                                    >
+                                                        {item.value !== '' ? item.value : '\u200B'}
+                                                    </div>
+
+                                                    <FiTrash
+                                                        className="delete__icon"
+                                                        onClick={() => {
+                                                            const updatedSections = [...sections];
+                                                            updatedSections[sectionIndex].items.splice(itemIndex, 1);
+                                                            setSections(updatedSections);
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
 
 
-                                    {item.type === "image" && (
-                                        <div className="image__wrapper">
-                                            <img 
-                                                src={item.imageUrl} 
-                                                alt={item.imageAlt} 
-                                                style={{maxWidth: "100%", maxHeight: "400px"}}
-                                            />
-                                            {/* <div
-                                                className="image__caption"
-                                                contentEditable
-                                                suppressContentEditableWarning={true}
-                                                onBlur={(e) => {
-                                                    const updatedSections = [...sections];
-                                                    updatedSections[sectionIndex].items[itemIndex].imageAlt = 
-                                                        (e.target as HTMLDivElement).innerText;
-                                                    setSections(updatedSections);
-                                                }}
-                                            >
-                                                {item.imageAlt || "Enter image description..."}
-                                            </div> */}
-                                            <FiTrash
-                                                className="delete__icon pointer"
-                                                onClick={() => {
-                                                    const updatedSections = [...sections];
-                                                    updatedSections[sectionIndex].items.splice(itemIndex, 1);
-                                                    setSections(updatedSections);
-                                                }}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    ))}
+                                        {item.type === "image" && (
+                                            <div className="image__wrapper">
+                                                <img 
+                                                    src={item.imageUrl} 
+                                                    alt={item.imageAlt} 
+                                                    style={{maxWidth: "100%", maxHeight: "400px"}}
+                                                />
+                                                {/* <div
+                                                    className="image__caption"
+                                                    contentEditable
+                                                    suppressContentEditableWarning={true}
+                                                    onBlur={(e) => {
+                                                        const updatedSections = [...sections];
+                                                        updatedSections[sectionIndex].items[itemIndex].imageAlt = 
+                                                            (e.target as HTMLDivElement).innerText;
+                                                        setSections(updatedSections);
+                                                    }}
+                                                >
+                                                    {item.imageAlt || "Enter image description..."}
+                                                </div> */}
+                                                <FiTrash
+                                                    className="delete__icon pointer"
+                                                    onClick={() => {
+                                                        const updatedSections = [...sections];
+                                                        updatedSections[sectionIndex].items.splice(itemIndex, 1);
+                                                        setSections(updatedSections);
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+
                 </div>
-
-            </div>
+            )}
         </Layout>
     );
 };

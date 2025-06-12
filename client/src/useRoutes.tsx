@@ -23,7 +23,7 @@ const routes = () => {
     { path: "/login", element: <Login /> },
     { path: "/register", element: <Register /> },
     { path:"/profile/:username", element:<UserProfile/> },
-    { path:"/blog/:slug", element:<Blog/> }
+    { path:"/blog/:id/:slug", element:<Blog/> }
   ];
 
   const privateRoutes = [

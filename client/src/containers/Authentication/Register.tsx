@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { postAction } from "../../services/generalServices";
 import GenericFormContainer from "../../components/Authentication/AuthContainer";
 import { authenticate, setLocalStorage } from "../../utility/helper";
+import { validateUserInputs } from "../../utility/sign-up-validation";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -36,6 +37,12 @@ const Register = () => {
             toast.error('Please fill in all fields');
             return;
           }
+          const validation = validateUserInputs(name, username);
+          if (!validation.valid) {
+            toast.error(validation.message);
+            return;
+          }
+
           const res = await postAction('/auth/signup',data);
           if (res.data.error) {
               console.error(res.data.error);
