@@ -7,7 +7,7 @@ import { getInitials } from "../../utility/general-utility";
 import { isAuth } from "../../utility/helper";
 import { toast } from "sonner";
 import { getAction, postAction, putAction } from "../../services/generalServices";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 type ItemType = "content" | "bullet" | "image";
 
@@ -47,6 +47,7 @@ const WriteBlog: React.FC = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const slug = queryParams.get('editid');
+    const navigate = useNavigate();
 
     const [loading, setloading] = useState<boolean>(true);
     const [sections, setSections] = useState<Section[]>([
@@ -119,10 +120,6 @@ const WriteBlog: React.FC = () => {
         
         setSections(updatedSections);
     };
-
-    useEffect(()=>{
-        console.log(sections)
-    },[sections])
 
     const getDaySuffix = (day: number) => {
         if (day > 3 && day < 21) return "th"; // covers 11th, 12th, 13th
@@ -278,7 +275,8 @@ const WriteBlog: React.FC = () => {
             const res = await postAction('/blogs/create', data);
             if (res.status === 201) {
                 localStorage.removeItem('blogDraft');
-                toast.success('Published!!!');
+                navigate(`/blog/${res.data._id}/${res.data.slug}`)
+                toast.success('Published!!!'); 
             } else if (res.status === 400) {
                 console.log(res);
                 toast.error(res.data.error);
@@ -338,7 +336,7 @@ const WriteBlog: React.FC = () => {
     };
 
     return (
-        <Layout>
+        <Layout wantFooter={false}>
             {!loading && (
                 <div className="write__blog"> 
                     <div className="actions">

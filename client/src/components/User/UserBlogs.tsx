@@ -71,7 +71,8 @@ const UserBlogs = ({ userBlogs, userInfo }: IUserBlogs) => {
                                 </div>
                             </div>
                             <div className="blog_interaction">
-                                <div className="time ff-google-n white" style={{ opacity: "0.7" }}>{blog.publishedAgo}</div>
+                                <div className="time ff-google-n white" style={{ opacity: "0.7" }}>{blog.publishedAgo} Ago</div>
+                                <div className="time ff-google-n white">{blog.views} <span style={{ opacity: "0.7" }}>view<span style={blog.views > 10 ? {opacity:"1"} : {opacity:"0"}}>s</span></span></div>
                                 <div className="activity ff-google-n white">
                                     <img src="/icons/user/ping.svg" alt="" />
                                     <span style={{ opacity: "0.7" }}>{blog.pings}</span>

@@ -134,7 +134,7 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
                 slug: blog.slug,
                 isPublished: blog.isPublished,
                 tags: blog.tags,
-                views: blog.views,
+                views: blog.views.length,
                 pings: blog.pings.length,
                 comments: blog.comments.length,
                 firstContent,

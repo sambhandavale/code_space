@@ -3,8 +3,9 @@ import Navbar from "./Navbar/Navbar";
 import MobileSidebar from "./Sidebar";
 import { getAction } from "../../services/generalServices";
 import { isAuth } from "../../utility/helper";
+import Footer from "./Footer";
 
-const Layout = ({ children, scrollToChallenge }: any) => {
+const Layout = ({ children, scrollToChallenge, wantFooter = true }: any) => {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userRating,setUserRating] = useState<number>(0);
 
@@ -40,6 +41,7 @@ const Layout = ({ children, scrollToChallenge }: any) => {
         userRating={userRating}
       />
       {children}
+      {wantFooter && <Footer/>}
     </Fragment>
   );
 };

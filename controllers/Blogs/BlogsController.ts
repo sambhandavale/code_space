@@ -183,8 +183,8 @@ export const getUserBlogs = async (req: Request, res: Response) => {
         slug: blog.slug,
         isPublished: blog.isPublished,
         tags: blog.tags,
-        views: blog.views,
         pings: blog.pings.length,
+        views:blog.views.length,
         comments: blog.comments.length,
         firstContent,
         publishedAgo: blog.isPublished ? publishedAgo : 'Draft',
@@ -199,15 +199,38 @@ export const getUserBlogs = async (req: Request, res: Response) => {
 
 export const getBlogById = async (req: Request, res: Response) => {
   try {
-    const blog = await Blog.findById(req.params.id).populate('authorId', 'username full_name');
+    const blogDoc = await Blog.findById(req.params.id).populate('authorId', 'username full_name');
 
-    if (!blog) {
+    if (!blogDoc) {
       res.status(404).json({ error: 'Blog not found.' });
       return;
     }
 
-    res.status(200).json(blog);
+    const blog = blogDoc.toObject();
+    const viewsCount = blog.views.length;
+    const pingCount = blog.pings.length;
+
+    let hasViewed = false;
+    let hasPinged = false;
+
+    if (req.user['_id']) {
+      const userId = req.user['_id'];
+      hasViewed = blog.views.some(viewId => viewId.toString() === userId.toString());
+      hasPinged = blog.pings.some(viewId => viewId.toString() === userId.toString())
+    }
+
+    delete blog.views;
+    delete blog.pings;
+
+    res.status(200).json({
+      blog,
+      viewsCount,
+      hasViewed,
+      pingCount,
+      hasPinged,
+    });
   } catch (error) {
+    console.error('Error fetching blog:', error);
     res.status(500).json({ error: 'Server error.' });
   }
 };

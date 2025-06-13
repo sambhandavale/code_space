@@ -34,7 +34,11 @@ router.get("/", getAllBlogs);
 router.get("/user", getUserBlogs);
 
 // Get Blog by ID
-router.get("/:id", getBlogById);
+router.get(
+  "/:id",
+  passport.authenticate("jwt", { session: false }), 
+  getBlogById
+);
 
 // Get Blog by Slug
 router.get("/slug/:slug", getBlogBySlug);
@@ -77,6 +81,7 @@ router.delete(
 // Increment View
 router.post(
   "/view/:id",
+  passport.authenticate("jwt", { session: false }),
   incrementView
 );
 

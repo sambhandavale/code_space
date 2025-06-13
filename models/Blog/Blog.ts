@@ -28,7 +28,7 @@ export interface IBlog extends Document {
   isPublished: boolean;
   publishedAt?: Date;
   pings: mongoose.Types.ObjectId[]; // Users who "pinged" the blog
-  views: number;
+  views: mongoose.Types.ObjectId[];
   comments: Comment[];
   createdAt: Date;
   updatedAt: Date;
@@ -63,7 +63,7 @@ const BlogSchema = new Schema<IBlog>(
     isPublished: { type: Boolean, default: false },
     publishedAt: { type: Date },
     pings: { type: [mongoose.Schema.Types.ObjectId], default: [], ref: 'User' },
-    views: { type: Number, default: 0 },
+    views: { type: [mongoose.Schema.Types.ObjectId], default: [], ref: 'User' },
     comments: { type: [CommentSchema], default: [] }
   },
   { timestamps: true }

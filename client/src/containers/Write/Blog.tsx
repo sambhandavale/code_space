@@ -22,24 +22,24 @@ const Blog = () =>{
 
 
     const [showPingText, setShowPingText] = useState(false);
-    const [blogPings, setBlogPings] = useState<string[]>([]);
+    const [hasPinged, setHasPinged] = useState<boolean>(false);
     const [blogPingsNo, setBlogPingsNo] = useState<number>(0);
-    const userId = isAuth()?._id;
-    const hasPinged = blogPings.includes(userId);
+    const [blogViews, setBlogViews] = useState<number>(0);
 
 
     const getBlog = async () =>{
         try{
             const res = await getAction(`/blogs/${id}`);
             if(res && res.status === 200){
-                setSections(res.data.sections);
-                setBlogTitle(res.data.title);
-                setBlogAuthorDetails(res.data.authorId);
-                setBlogAuthor(res.data.author);
-                setBlogPings(res.data.pings);
-                setBlogPingsNo(res.data.pings.length);
+                setSections(res.data.blog.sections);
+                setBlogTitle(res.data.blog.title);
+                setBlogAuthorDetails(res.data.blog.authorId);
+                setBlogAuthor(res.data.blog.author);
+                setHasPinged(res.data.hasPinged);
+                setBlogPingsNo(res.data.pingCount);
+                setBlogViews(res.data.viewsCount);
 
-                const date = new Date(res.data.createdAt);
+                const date = new Date(res.data.blog.createdAt);
 
                 const options: Intl.DateTimeFormatOptions = {
                     month: 'long',
@@ -53,6 +53,10 @@ const Blog = () =>{
                 const formattedDate = date.toLocaleString('en-US', options);
                 setBlogDate(formattedDate);
 
+                if(!res.data.hasViewed){
+                    addView();
+                }
+
                 setLoading(false);
             }
         }catch(err){
@@ -64,13 +68,21 @@ const Blog = () =>{
         try {
             const res = await postAction(`/blogs/ping/${id}`, {});
             if (res && res.status === 200) {
-
-                setBlogPings((prev) => [...prev, isAuth()._id]);
+                setHasPinged(true);
                 setBlogPingsNo((prev) => prev + 1);
                 triggerPingAnimation();
             } else {
                 toast.error(res.data.error || 'Failed to ping the blog.');
             }
+        } catch (err) {
+            console.log(err);
+            toast.error('An error occurred while pinging the blog.');
+        }
+    };
+
+    const addView = async () => {
+        try {
+            const res = await postAction(`/blogs/view/${id}`, {});
         } catch (err) {
             console.log(err);
             toast.error('An error occurred while pinging the blog.');
@@ -142,7 +154,9 @@ const Blog = () =>{
     
 
     useEffect(()=>{
-        getBlog();
+        if(blogTitle === ''){
+            getBlog();
+        }
     },[])
 
     return(
@@ -174,8 +188,14 @@ const Blog = () =>{
                         </div>
                         <div className="blog_interaction">
                             <div 
+                                className="activity ff-google-n white" 
+                            >
+                                {blogViews} views
+                            </div>
+                            <div 
                                 className="activity ff-google-n white pointer" 
                                 onClick={hasPinged ? unpingBlog : pingBlog}
+                                style={isAuth() ? {} : {pointerEvents:"none"}}
                             >
                                 <img 
                                     src={hasPinged ? '/icons/user/pinged.svg' : "/icons/user/ping.svg"} 

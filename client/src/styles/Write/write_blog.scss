@@ -105,6 +105,7 @@
         align-items: center;
         gap: var(--blog_activity-gap);
         font-size: var(--blog_time-font-size);
+        white-space: nowrap;
 
         img {
             width: var(--blog_activity-img-size);

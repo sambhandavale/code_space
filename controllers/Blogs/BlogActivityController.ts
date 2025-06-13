@@ -118,11 +118,22 @@ export const deleteComment = async (req: Request, res: Response) => {
 
 export const incrementView = async (req: Request, res: Response) => {
   try {
-    const blog = await Blog.findByIdAndUpdate(
-      req.params.id,
-      { $inc: { views: 1 } },
-      { new: true }
-    );
+    console.log(req.params.id);
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) {
+      res.status(404).json({ error: 'Blog not found.' });
+      return;
+    }
+
+    const userId = req.user['_id'];
+
+    if (blog.views.includes(userId)) {
+      res.status(400).json({ error: 'User view already added' });
+      return;
+    }
+
+    blog.views.push(userId);
+    await blog.save();
 
     if (!blog) {
       res.status(404).json({ error: 'Blog not found.' });

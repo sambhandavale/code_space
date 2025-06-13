@@ -1,0 +1,107 @@
+.footer{
+    --footer-color:#fff;
+
+    --footer-scale-by: 1;
+
+    --footer-padding: calc(3.125rem * var(--footer-scale-by));
+    --footer-web-text-font-size: calc(2rem * var(--footer-scale-by));
+    --footer-contactus-text-font-size: calc(2rem * var(--footer-scale-by));
+    --footer-email-font-size: calc(1.5rem * var(--footer-scale-by));
+}
+
+.footer{
+    margin-top: 3rem;
+    display: flex;
+    padding: var(--footer-padding);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 3rem;
+    align-self: stretch;
+    color: var(--footer-color);
+
+    background: #0D0D10;
+
+    .top__section {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        align-self: stretch;
+
+        .web__text {
+            font-size: var(--footer-web-text-font-size);
+            width: 70%;
+            text-align: end;
+        }
+    }
+
+    .bottom__section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        align-self: stretch;
+
+        img {
+            height: 4rem;
+        }
+
+        .contactus{
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .contactus_text {
+            font-size: var(--footer-contactus-text-font-size);
+        }
+
+        .email {
+            font-size: var(--footer-email-font-size);
+        }
+    }
+}
+
+@media screen and (max-width: 950px) {
+  .footer {
+    --footer-scale-by: 0.8;
+  }
+}
+
+@media screen and (max-width: 770px) {
+  .footer {
+    --footer-scale-by: 0.7;
+
+    .top__section{
+        justify-content: flex-start;
+
+        .web__text{
+            text-align: start;
+        }
+    }
+
+    .bottom__section{
+        flex-direction: column;
+        align-items: flex-start;
+        gap:1rem;
+    }
+
+    .contactus{
+        align-items: flex-start !important;
+        gap:0.25rem;
+    }
+  }
+}
+
+@media screen and (max-width: 550px) {
+  .footer {
+    --footer-scale-by: 0.7;
+
+    .web__text{
+        width: 100% !important;
+    }
+
+    img{
+        height: 2rem !important;
+    }
+  }
+}

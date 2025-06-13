@@ -395,7 +395,7 @@ const ChallengeRoom = () => {
     }
 
     return (
-        <Layout>
+        <Layout wantFooter={false}>
             {userAllowed ? (
                 <div 
                     className="challenge-room"

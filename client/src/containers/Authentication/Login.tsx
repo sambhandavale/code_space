@@ -49,7 +49,7 @@ const Login = () => {
     }
   };
   return (
-    <Layout>
+    <Layout wantFooter={false}>
       <div className="login">
           <GenericFormContainer
             title={

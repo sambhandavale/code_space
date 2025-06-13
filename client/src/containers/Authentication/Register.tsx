@@ -78,7 +78,7 @@ const Register = () => {
     
 
   return (
-    <Layout>
+    <Layout wantFooter={false}>
         <div className="register">
           <GenericFormContainer
             title={
