@@ -138,7 +138,7 @@ const WriteBlog: React.FC = () => {
         let sectionIndex = activeSectionIndex;
 
         if (sectionIndex === null || sections.length === 0) {
-            const newSection: Section = { header: "Enter your section header here...", items: [] };
+            const newSection: Section = { header: "", items: [] };
             setSections(prev => [...prev, newSection]);
             setActiveSectionIndex(sections.length);
             return;
@@ -148,12 +148,12 @@ const WriteBlog: React.FC = () => {
 
         if (!currentSection.header && currentSection.items.length === 0) {
             const updatedSections = [...sections];
-            updatedSections[sectionIndex].header = "Enter your section header here...";
+            updatedSections[sectionIndex].header = "";
             setSections(updatedSections);
             return;
         }
 
-        const newSection: Section = { header: "Enter your section header here...", items: [] };
+        const newSection: Section = { header: "", items: [] };
         setSections(prev => [...prev, newSection]);
         setActiveSectionIndex(sections.length);
     };
@@ -164,7 +164,7 @@ const WriteBlog: React.FC = () => {
         insertAfterIndex?: number,
         onAddFocus?: (newItemIndex: number, sectionIndex: number) => void
     ) => {
-        const defaultText = type === "content" ? "Enter your content here..." : "Enter your bullet point here...";
+        const defaultText = type === "content" ? "" : "";
         let updatedSections = [...sections];
 
         if (activeSectionIndex === null || sections.length === 0) {
@@ -358,8 +358,9 @@ const WriteBlog: React.FC = () => {
                                     addItem("content");
                                 }
                             }}
+                            data-placeholder="Enter your blog header here..."
                         >
-                            {tempBlogHeader === '' ? 'Enter your blog header here...' : tempBlogHeader}
+                            {tempBlogHeader}
                         </div>
                     </div>
 
@@ -481,8 +482,9 @@ const WriteBlog: React.FC = () => {
                                                     }, 0);
                                                 }
                                             }}
+                                            data-placeholder="Enter your section header here..."
                                         >
-                                            {section.header || "Enter your section header here..."}
+                                            {section.header || ""}
                                         </div>
                                         <FiTrash
                                             className="delete__icon"
@@ -546,7 +548,7 @@ const WriteBlog: React.FC = () => {
                                                         contentRefs.current[`${sectionIndex}-${itemIndex}`] = el;
                                                     }}
                                                 >
-                                                    {item.value !== '' ? item.value : <br/>}
+                                                    {item.value || ''}
                                                 </div>
                                                 <FiTrash
                                                     className="delete__icon"
@@ -611,8 +613,9 @@ const WriteBlog: React.FC = () => {
                                                         ref={(el) => {
                                                             contentRefs.current[`${sectionIndex}-${itemIndex}`] = el;
                                                         }}
+                                                        data-placeholder="Enter your bullet point here..."
                                                     >
-                                                        {item.value !== '' ? item.value : '\u200B'}
+                                                        {item.value || ''}
                                                     </div>
 
                                                     <FiTrash

@@ -11,7 +11,7 @@ interface IUserBlogs {
 const UserBlogs = ({ userBlogs, userInfo }: IUserBlogs) => {
     const navigate = useNavigate();
 
-    const blogsPerPage = 4;
+    const blogsPerPage = 3;
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
     const itsMe = isAuth() ? userInfo.username === isAuth().username : false;

@@ -75,6 +75,16 @@
     }
 }
 
+.blog__main__header:empty:before, 
+.section__header:empty:before,
+.content__input:empty:before,
+.bullet__input:empty:before {
+    content: attr(data-placeholder);
+    color: grey;
+    pointer-events: none;
+}
+
+
 .blog__actions{
     display: flex;
     align-self: stretch;
