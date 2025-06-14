@@ -59,7 +59,6 @@ const WriteBlog: React.FC = () => {
     const contentRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
     const [currentDateTime, setCurrentDateTime] = useState<string>("");
 
-    
     useEffect(()=>{
         const getBlogDetails = async () =>{
             try{

@@ -64,7 +64,7 @@ const ProfileCard = ({
                     { label: "Name", field: "fullName" },
                     { label: "Username", field: "username" },
                     ...(itsMe || userProfileCard?.userBio ? [{ label: "I am ", field: "userBio" }] : []),
-                    { label: "Email", field: "userEmail" },
+                    // { label: "Email", field: "userEmail" },
                 ].map(({ label, field }) => (
                     <div className="detail" key={field}>
                         <div className="detail_label ff-google-n white flex items-center gap-2">

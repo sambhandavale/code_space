@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Blog from '../../models/Blog/Blog';
+import mongoose from 'mongoose';
 
 export const pingBlog = async (req: Request, res: Response) => {
   try {
@@ -118,32 +119,34 @@ export const deleteComment = async (req: Request, res: Response) => {
 
 export const incrementView = async (req: Request, res: Response) => {
   try {
-    console.log(req.params.id);
+    const userId = req.query.userId;
+
+    if (!userId || typeof userId !== 'string') {
+      res.status(400).json({ error: 'Invalid userId.' });
+      return;
+    }
+
     const blog = await Blog.findById(req.params.id);
     if (!blog) {
       res.status(404).json({ error: 'Blog not found.' });
       return;
     }
 
-    const userId = req.user['_id'];
-
-    if (blog.views.includes(userId)) {
+    if (blog.views.some(viewId => viewId.equals(userId))) {
       res.status(400).json({ error: 'User view already added' });
       return;
     }
 
-    blog.views.push(userId);
+    // Add userId to views
+    blog.views.push(new mongoose.Types.ObjectId(userId));
     await blog.save();
-
-    if (!blog) {
-      res.status(404).json({ error: 'Blog not found.' });
-      return;
-    }
 
     res.status(200).json({ message: 'View incremented.', views: blog.views });
     return;
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Server error.' });
     return;
   }
 };
+

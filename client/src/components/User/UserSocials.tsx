@@ -86,7 +86,7 @@ const UserSocials = ({
     return (
         <div className="user-section">
             <header className="ff-google-n white flex justify-between items-center" style={{position:"relative"}}>
-                Your Socials
+                {itsMe ? 'Your' : `${userInfo.username}'s`} Socials
                 {itsMe && hasChanges && (
                     <div className="global-save-btn gls-box glassmorphism-medium" onClick={handleGlobalSaveClick}>
                         <FaSave/>
@@ -99,6 +99,10 @@ const UserSocials = ({
                         const label = tile.platform ?? '...';
                         const imageSrc = getImageSrc(label);
                         const isEditing = editIndex?.row === rowIndex && editIndex?.idx === idx;
+
+                        if(!itsMe && getLastUrlSegment(tile.url) === '...'){
+                            return
+                        }
 
                         return (
                             <div className={`section_tile ${tile.url.split('/').at(-1) !== '...' ? 'pointer' : ''}`} key={idx} onClick={() => tile.url.split('/').at(-1) !== '...' && !isEditing && window.open(tile.url, '_blank')}>

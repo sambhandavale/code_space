@@ -36,7 +36,7 @@ router.get("/user", getUserBlogs);
 // Get Blog by ID
 router.get(
   "/:id",
-  passport.authenticate("jwt", { session: false }), 
+  // passport.authenticate("jwt", { session: false }), 
   getBlogById
 );
 
@@ -46,7 +46,7 @@ router.get("/slug/:slug", getBlogBySlug);
 // Update Blog
 router.put(
   "/update/:slug",
-  passport.authenticate("jwt", { session: false }),
+  // passport.authenticate("jwt", { session: false }),
   updateBlog
 );
 
@@ -81,7 +81,7 @@ router.delete(
 // Increment View
 router.post(
   "/view/:id",
-  passport.authenticate("jwt", { session: false }),
+  // passport.authenticate("jwt", { session: false }),
   incrementView
 );
 

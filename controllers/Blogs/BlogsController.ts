@@ -199,6 +199,7 @@ export const getUserBlogs = async (req: Request, res: Response) => {
 
 export const getBlogById = async (req: Request, res: Response) => {
   try {
+    const userId = req.query.userId;
     const blogDoc = await Blog.findById(req.params.id).populate('authorId', 'username full_name');
 
     if (!blogDoc) {
@@ -213,8 +214,7 @@ export const getBlogById = async (req: Request, res: Response) => {
     let hasViewed = false;
     let hasPinged = false;
 
-    if (req.user['_id']) {
-      const userId = req.user['_id'];
+    if (userId) {
       hasViewed = blog.views.some(viewId => viewId.toString() === userId.toString());
       hasPinged = blog.pings.some(viewId => viewId.toString() === userId.toString())
     }

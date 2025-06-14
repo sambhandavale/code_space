@@ -29,7 +29,12 @@ const Blog = () =>{
 
     const getBlog = async () =>{
         try{
-            const res = await getAction(`/blogs/${id}`);
+            let res;
+            if(isAuth()){
+                res = await getAction(`/blogs/${id}?userId=${isAuth()._id}`);
+            } else{
+                res = await getAction(`/blogs/${id}`);
+            }
             if(res && res.status === 200){
                 setSections(res.data.blog.sections);
                 setBlogTitle(res.data.blog.title);
@@ -53,7 +58,7 @@ const Blog = () =>{
                 const formattedDate = date.toLocaleString('en-US', options);
                 setBlogDate(formattedDate);
 
-                if(!res.data.hasViewed){
+                if(isAuth() && !res.data.hasViewed){
                     addView();
                 }
 
@@ -82,7 +87,7 @@ const Blog = () =>{
 
     const addView = async () => {
         try {
-            const res = await postAction(`/blogs/view/${id}`, {});
+            const res = await postAction(`/blogs/view/${id}?userId=${isAuth()._id}`, {});
         } catch (err) {
             console.log(err);
             toast.error('An error occurred while pinging the blog.');
