@@ -1,0 +1,167 @@
+.explore__blogs {
+    --scale-by: 1;
+
+    --explore-blogs-gap: calc(2.8125rem * var(--scale-by));
+    --explore-blogs-header-font-size: calc(4rem * var(--scale-by));
+
+    /* Blogs Section */
+    --blogs-gap: calc(4.875rem * var(--scale-by));
+
+    /* Individual Blog */
+    --blog-gap: calc(1.25rem * var(--scale-by));
+
+    /* Blog Content */
+    --blog-content-gap: calc(0.5rem * var(--scale-by));
+    --blog-header-font-size: calc(2rem * var(--scale-by));
+    --blog-content-font-size: calc(1.25rem * var(--scale-by));
+
+    --search_blogs-padding: calc(0.5rem * var(--scale-by)) calc(1rem * var(--scale-by));
+    --search_blogs-font-size: calc(1.5rem * var(--scale-by));
+    --search_blogs-border-radius: calc(10px * var(--scale-by));
+
+    /* Author */
+    --author-gap: calc(0.75rem * var(--scale-by));
+    --authorname-font-size: calc(1.5rem * var(--scale-by));
+
+    /* Blog Interaction */
+    --blog-interaction-gap: calc(0.5rem * var(--scale-by));
+    --time-font-size: calc(1.25rem * var(--scale-by));
+    --activity-gap: calc(0.375rem * var(--scale-by));
+    --activity-font-size: calc(1.25rem * var(--scale-by));
+    --activity-icon-width: calc(1.25rem * var(--scale-by));
+    --activity-icon-height: calc(1.25rem * var(--scale-by));
+}
+
+
+.explore__blogs {
+    display: flex;
+    padding: 8rem 5rem 3.125rem 5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--explore-blogs-gap);
+    align-self: stretch;
+
+    header {
+        font-size: var(--explore-blogs-header-font-size);
+    }
+
+    .search_blogs {
+        display: flex;
+        padding: var(--search_blogs-padding);
+        flex: 1 0 0;
+        align-self: stretch;
+
+        font-size: var(--search_blogs-font-size);
+        border-radius: var(--search_blogs-border-radius);
+
+        &::placeholder {
+            font-family: 'GoogleSansRegular';
+            color: white;
+            font-size: var(--search_blogs-font-size);
+        }
+    }
+
+    .blogs {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--blogs-gap);
+        align-self: stretch;
+        width: 70%;
+
+        .blog {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--blog-gap);
+
+            .blog_content {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--blog-content-gap);
+
+                .blog_header {
+                    font-size: var(--blog-header-font-size);
+                }
+
+                .blog_content {
+                    font-size: var(--blog-content-font-size);
+                }
+            }
+
+            .author {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: var(--author-gap);
+
+                .authorname {
+                    font-size: var(--authorname-font-size);
+                }
+            }
+
+            .blog_interaction {
+                display: flex;
+                align-items: center;
+                gap: var(--blog-interaction-gap);
+
+                .time {
+                    font-size: var(--time-font-size);
+                }
+
+                .activity {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--activity-gap);
+                    font-size: var(--activity-font-size);
+                    white-space: nowrap;
+
+                    img {
+                        width: var(--activity-icon-width);
+                        height: var(--activity-icon-height);
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 1000px) {
+    .explore__blogs {
+        --scale-by: 0.8;
+    }
+}
+
+@media (max-width: 800px) {
+    .explore__blogs {
+        --scale-by: 0.7;
+        padding: 8rem 3rem 3.125rem 3rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .explore__blogs {
+        --scale-by: 0.6;
+        // padding: 8rem 3rem 3.125rem 3rem;
+
+        .blogs{
+            width: 100%;
+        }
+    }
+
+    .profile-circle{
+        scale:0.8;
+    }
+}
+
+@media (max-width: 450px) {
+    .explore__blogs {
+        --scale-by: 0.6;
+        padding: 8rem 2rem 3.125rem 2rem;
+
+        .blogs{
+            width: 100%;
+        }
+    }
+}

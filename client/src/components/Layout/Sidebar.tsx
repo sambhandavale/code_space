@@ -59,7 +59,7 @@ const MobileSidebar = ({ isOpen, onClose, scrollToChallenge, userRating }: any) 
                     <div className="sidebar-item ff-google-n" onClick={() => handleNavigate("/")}><FaHome /> Home</div>
                     <div className="sidebar-item ff-google-n" onClick={handleChallengeClick}><FaRocket /> Challenge</div>
                     <div className="sidebar-item ff-google-n" onClick={()=> navigate('/blog/write')}><FaPenNib /> Write</div>
-                    {/* <div className="sidebar-item locked ff-google-n"><FaBookOpen /> Learn</div> */}
+                    <div className="sidebar-item ff-google-n" onClick={()=> navigate('/blogs')}><FaBookOpen /> Blogs</div>
                     <hr />
                 </>
             )}

@@ -204,6 +204,7 @@
             flex:1 0 0;
             word-break: break-word;
             word-wrap: break-word;
+            line-height: normal !important;
         }
 
         .content__input:empty:before {

@@ -51,6 +51,11 @@ export interface IUserBlogSummary {
     comments: number;
     firstContent: string;
     publishedAgo: string;
+    author?:string;
+    authorId?:{
+        username:string;
+        id:string;
+    }
 }
 
 export interface IUserProfile {

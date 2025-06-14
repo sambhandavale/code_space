@@ -9,7 +9,7 @@
     --challenge-section-header-font-size:calc(3rem * var(--challenge-section-controls-scaleby));
     --challenge-section-header-img-size:calc(2rem * var(--challenge-section-controls-scaleby));
 
-    --challenge-section-img-size:calc(37.5rem * var(--challenge-section-controls-scaleby));
+    --challenge-section-img-size:calc(35rem * var(--challenge-section-controls-scaleby));
 
     --challenge-section-controls-gap: calc(5rem * var(--challenge-section-controls-scaleby));
     --challenge-section-controls-title-font-size: calc(1.625rem * var(--challenge-section-controls-scaleby));
@@ -328,5 +328,11 @@
 @media (max-width: 450px) {
   .challenge-section {
     --challenge-section-controls-scaleby: 0.6;
+  }
+}
+
+@media (max-width: 400px) {
+  .challenge-section {
+    --challenge-section-controls-scaleby: 0.55;
   }
 }

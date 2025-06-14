@@ -7,6 +7,7 @@ import ChallengeRoom from "./containers/Challenge/ChallengeRoom";
 import UserProfile from "./containers/User/UserProfile";
 import WriteBlog from "./containers/Write/WriteBlog";
 import Blog from "./containers/Write/Blog";
+import AllBlogs from "./containers/Write/AllBlogs";
 
 interface PrivateRouteProps {
   element: React.ReactNode;
@@ -23,7 +24,8 @@ const routes = () => {
     { path: "/login", element: <Login /> },
     { path: "/register", element: <Register /> },
     { path:"/profile/:username", element:<UserProfile/> },
-    { path:"/blog/:id/:slug", element:<Blog/> }
+    { path:"/blog/:id/:slug", element:<Blog/> },
+    { path:"/blogs", element:<AllBlogs/> },
   ];
 
   const privateRoutes = [

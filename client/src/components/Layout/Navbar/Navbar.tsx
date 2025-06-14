@@ -37,7 +37,7 @@ const Navbar = ({ scrollToChallenge, isMobileMenuOpen, setMobileMenuOpen, userRa
                     <li className="navbar__link pointer" onClick={() => handleNavigate("/")}>Home</li>
                     <li className="navbar__link pointer" onClick={handleChallengeClick}>Challenge</li>
                     <li className="navbar__link pointer" onClick={()=> navigate('/blog/write')}>Write</li>
-                    {/* <li className="navbar__link pointer">Editor</li> */}
+                    <li className="navbar__link pointer" onClick={()=> navigate('/blogs')}>Blogs</li>
                 </ul>
             </div>
 

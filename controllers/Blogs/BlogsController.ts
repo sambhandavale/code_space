@@ -73,8 +73,11 @@ export const getAllBlogs = async (req: Request, res: Response) => {
   try {
     const userTimezone = req.headers['x-user-timezone'] as string || 'UTC';
 
-    const blogs = await Blog.find().sort({ createdAt: -1 })
-      .select('title slug isPublished tags views pings comments publishedAt sections createdAt');
+    const blogs = await Blog.find({ isActive: true })
+        .sort({ createdAt: -1 })
+        .select('title slug isPublished tags views pings comments publishedAt sections createdAt author authorId')
+        .populate('authorId', 'username full_name');
+
 
     const formattedBlogs = blogs.map((blog) => {
       // Extract first content item
@@ -115,11 +118,13 @@ export const getAllBlogs = async (req: Request, res: Response) => {
 
       return {
         id: blog._id,
+        author:blog.author,
+        authorId:blog.authorId,
         title: blog.title,
         slug: blog.slug,
         isPublished: blog.isPublished,
         tags: blog.tags,
-        views: blog.views,
+        views: blog.views.length,
         pings: blog.pings.length,
         comments: blog.comments.length,
         firstContent,
