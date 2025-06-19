@@ -127,6 +127,35 @@
     }
 }
 
+.skeleton-box {
+    background: linear-gradient(90deg, #333 25%, #444 37%, #333 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+    border-radius: 4px;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -400px 0;
+    }
+    100% {
+        background-position: 400px 0;
+    }
+}
+
+.skeleton .author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.skeleton .blog_interaction {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+
 @media (max-width: 1000px) {
     .explore__blogs {
         --scale-by: 0.8;

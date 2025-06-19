@@ -5,11 +5,12 @@ import { isAuth } from "../../utility/helper";
 import { FaSave } from 'react-icons/fa';
 
 interface UserSocialsProps {
-    tiles: ISocials[];
-    userInfo: IProfileCardInfo;
+    tiles: ISocials[] | undefined;
+    userInfo: IProfileCardInfo | undefined;
     userSocialLinks: ISocials[];
     setUserSocialLinks: React.Dispatch<React.SetStateAction<ISocials[]>>;
     handleGlobalSave: (updatedLinks: ISocials[]) => void;
+    loading: boolean;
 }
 
 const chunkArray = (array: ISocials[], size: number) => {
@@ -25,17 +26,18 @@ export const getLastUrlSegment = (url: string) => {
     return segments.at(-1);
 };
 
-const UserSocials = ({ 
-    tiles, 
-    userInfo, 
-    userSocialLinks, 
-    setUserSocialLinks, 
-    handleGlobalSave 
+const UserSocials = ({
+    tiles,
+    userInfo,
+    userSocialLinks,
+    setUserSocialLinks,
+    handleGlobalSave,
+    loading
 }: UserSocialsProps) => {
     const [editIndex, setEditIndex] = useState<{ row: number; idx: number } | null>(null);
     const [editedValue, setEditedValue] = useState<string>("");
 
-    const itsMe = isAuth() ? userInfo.username === isAuth().username : false;
+    const itsMe = isAuth() ? userInfo?.username === isAuth().username : false;
 
     const chunkedTiles = chunkArray(userSocialLinks, 2);
 
@@ -82,65 +84,97 @@ const UserSocials = ({
         return null;
     }
 
+    return (
+        <>
+            {!loading ? (
+                <div className="user-section">
+                    <header className="ff-google-n white flex justify-between items-center" style={{ position: "relative" }}>
+                        {itsMe ? 'Your' : `${userInfo?.username}'s`} Socials
+                        {itsMe && hasChanges && (
+                            <div className="global-save-btn gls-box glassmorphism-medium" onClick={handleGlobalSaveClick}>
+                                <FaSave />
+                            </div>
+                        )}
+                    </header>
+                    {chunkedTiles.map((row, rowIndex) => (
+                        <div className="section_tile__row" key={rowIndex}>
+                            {row.map((tile, idx) => {
+                                const label = tile.platform ?? '...';
+                                const imageSrc = getImageSrc(label);
+                                const isEditing = editIndex?.row === rowIndex && editIndex?.idx === idx;
 
+                                if (!itsMe && getLastUrlSegment(tile.url) === '...') {
+                                    return null;
+                                }
+
+                                return (
+                                    <div
+                                        className={`section_tile ${tile.url.split('/').at(-1) !== '...' ? 'pointer' : ''}`}
+                                        key={idx}
+                                        onClick={() => tile.url.split('/').at(-1) !== '...' && !isEditing && window.open(tile.url, '_blank')}
+                                    >
+                                        <div className="section_tile__label ff-google-n white flex items-center gap-2">
+                                            {imageSrc && tile.platform !== 'Portfolio' && (
+                                                <img src={imageSrc} alt={label} />
+                                            )}
+                                            {label}
+                                            {!isEditing && itsMe && (
+                                                <div
+                                                    className="edit-btn"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleEditClick(rowIndex, idx, tile.url || "");
+                                                    }}
+                                                >
+                                                    <BsPencil size={12} />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="section_tile__value ff-google-n white flex items-center gap-1">
+                                            {isEditing ? (
+                                                <>
+                                                    <input
+                                                        type="text"
+                                                        value={editedValue}
+                                                        onChange={handleInputChange}
+                                                        className="edit-input ff-google-n"
+                                                    />
+                                                    <div className="save-btn" onClick={handleSave}><BsCheck size={24} /></div>
+                                                </>
+                                            ) : (
+                                                getLastUrlSegment(tile.url)
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <UserSocialsSkeleton />
+            )}
+        </>
+    );
+};
+
+const UserSocialsSkeleton = () => {
     return (
         <div className="user-section">
-            <header className="ff-google-n white flex justify-between items-center" style={{position:"relative"}}>
-                {itsMe ? 'Your' : `${userInfo.username}'s`} Socials
-                {itsMe && hasChanges && (
-                    <div className="global-save-btn gls-box glassmorphism-medium" onClick={handleGlobalSaveClick}>
-                        <FaSave/>
-                    </div>
-                )}
-            </header>
-            {chunkedTiles.map((row, rowIndex) => (
+            <div className="skeleton-box" style={{ width: "150px", height: "20px", marginBottom: "20px" }}></div>
+            {Array.from({ length: 2 }).map((_, rowIndex) => (
                 <div className="section_tile__row" key={rowIndex}>
-                    {row.map((tile, idx) => {
-                        const label = tile.platform ?? '...';
-                        const imageSrc = getImageSrc(label);
-                        const isEditing = editIndex?.row === rowIndex && editIndex?.idx === idx;
-
-                        if(!itsMe && getLastUrlSegment(tile.url) === '...'){
-                            return
-                        }
-
-                        return (
-                            <div className={`section_tile ${tile.url.split('/').at(-1) !== '...' ? 'pointer' : ''}`} key={idx} onClick={() => tile.url.split('/').at(-1) !== '...' && !isEditing && window.open(tile.url, '_blank')}>
-                                <div className={`section_tile__label ff-google-n white flex items-center gap-2`}>
-                                    {imageSrc && tile.platform !== 'Portfolio' && (
-                                        <img src={imageSrc} alt={label} />
-                                    )}
-                                    {label}
-                                    {!isEditing && itsMe && (
-                                        <div
-                                            className="edit-btn"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleEditClick(rowIndex, idx, tile.url || "");
-                                            }}
-                                        >
-                                            <BsPencil size={12} />
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="section_tile__value ff-google-n white flex items-center gap-1">
-                                    {isEditing ? (
-                                        <>
-                                            <input
-                                                type="text"
-                                                value={editedValue}
-                                                onChange={handleInputChange}
-                                                className="edit-input ff-google-n"
-                                            />
-                                            <div className="save-btn" onClick={handleSave}><BsCheck size={24} /></div>
-                                        </>
-                                    ) : (
-                                        getLastUrlSegment(tile.url)
-                                    )}
-                                </div>
+                    {Array.from({ length: 2 }).map((_, idx) => (
+                        <div className="section_tile" key={idx}>
+                            <div className="section_tile__label ff-google-n white flex items-center gap-2">
+                                <div className="skeleton-box" style={{ width: "20px", height: "20px", borderRadius: "50%" }}></div>
+                                <div className="skeleton-box" style={{ width: "100px", height: "15px" }}></div>
                             </div>
-                        );
-                    })}
+                            <div className="section_tile__value ff-google-n white flex items-center gap-1">
+                                <div className="skeleton-box" style={{ width: "120px", height: "15px" }}></div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             ))}
         </div>

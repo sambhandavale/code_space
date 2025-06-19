@@ -6,22 +6,22 @@ import { useWindowWidth } from "../../utility/screen-utility";
 import { useNavigate } from "react-router";
 
 interface IUserMatchesProps {
-    matches: IUserMatch[];
-    userInfo: IProfileCardInfo;
+    matches: IUserMatch[] | undefined;
+    userInfo: IProfileCardInfo | undefined;
+    loading: boolean;
 }
 
-const UserMatches = ({ matches, userInfo }: IUserMatchesProps) => {
+const UserMatches = ({ matches, userInfo, loading }: IUserMatchesProps) => {
     const width = useWindowWidth();
     const navigate = useNavigate();
-    const itsMe = isAuth() ? userInfo.username === isAuth().username : false;
+    const itsMe = isAuth() ? userInfo?.username === isAuth().username : false;
 
     const matchesPerPage = 4;
     const [currentPage, setCurrentPage] = useState(1);
 
-    const totalPages = Math.ceil(matches.length / matchesPerPage);
+    const totalPages = matches ? Math.ceil(matches.length / matchesPerPage) : 1;
 
-    const paginatedMatches = matches
-        .slice()
+    const paginatedMatches = matches?.slice()
         .reverse()
         .slice((currentPage - 1) * matchesPerPage, currentPage * matchesPerPage);
 
@@ -36,17 +36,19 @@ const UserMatches = ({ matches, userInfo }: IUserMatchesProps) => {
     return (
         <div className="matches">
             <header>
-                <div className="header_text ff-google-n white">{itsMe ? 'Your' : `${userInfo.username}'s`} Matches</div>
+                <div className="header_text ff-google-n white">{itsMe ? 'Your' : `${userInfo?.username}'s`} Matches</div>
             </header>
 
-            {matches.length === 0 ? (
+            {loading ? (
+                <UserMatchesSkeleton />
+            ) : matches?.length === 0 ? (
                 <div className="ff-google-n white" style={{ opacity: "0.7", textAlign: "center", marginTop: "1rem" }}>
                     No Matches Found.
                 </div>
             ) : (
                 <>
                     <div className="all_matches scrollbar">
-                        {paginatedMatches.map((match, index) => (
+                        {paginatedMatches?.map((match, index) => (
                             <div className="match pointer" key={index} onClick={() => navigate(`/challenge/live/${match.challengeId}`)}>
                                 <div className={`index ff-google-n white ${timeControls.find((tc) => tc.time === match.time)?.name.toLowerCase()}`}>
                                     {width > 600 ? (
@@ -64,7 +66,7 @@ const UserMatches = ({ matches, userInfo }: IUserMatchesProps) => {
                                 <div className="match_details">
                                     <div className="match__users">
                                         <div className="match__user ff-google-n white">
-                                            {isAuth() ? (isAuth().username === userInfo.username ? "You" : userInfo.username) : userInfo.username}
+                                            {isAuth() ? (isAuth().username === userInfo?.username ? "You" : userInfo?.username) : userInfo?.username}
                                         </div>
                                         {((width > 1100) || (width > 720 && width < 900)) && <div className="vs ff-google-n white">vs</div>}
                                         <div className="match__user ff-google-n white">{isAuth() ? isAuth().username === match.opponentName ? 'You' : match.opponentName : match.opponentName}</div>
@@ -115,6 +117,27 @@ const UserMatches = ({ matches, userInfo }: IUserMatchesProps) => {
                     </div>
                 </>
             )}
+        </div>
+    );
+};
+
+const UserMatchesSkeleton = () => {
+    return (
+        <div className="all_matches scrollbar">
+            {Array.from({ length: 4 }).map((_, index) => (
+                <div className="match" key={index}>
+                    <div className="index ff-google-n white">
+                        <div className="skeleton-box" style={{ width: "40px", height: "40px", borderRadius: "5px" }}></div>
+                    </div>
+                    <div className="match_details">
+                        <div className="match__users">
+                            <div className="skeleton-box" style={{ width: "80px", height: "15px", marginBottom: "8px" }}></div>
+                            <div className="skeleton-box" style={{ width: "80px", height: "15px" }}></div>
+                        </div>
+                        <div className="skeleton-box" style={{ width: "40px", height: "40px", borderRadius: "5px" }}></div>
+                    </div>
+                </div>
+            ))}
         </div>
     );
 };
