@@ -39,7 +39,7 @@ const UserBlogs = ({ userBlogs, userInfo, loading }: IUserBlogs) => {
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
-        setCurrentPage(1); // Reset to first page on new search
+        setCurrentPage(1);
     };
 
     return (
@@ -117,18 +117,17 @@ const UserBlogs = ({ userBlogs, userInfo, loading }: IUserBlogs) => {
                 )}
             </div>
         ):(
-            <UserBlogsSkeleton itsMe={itsMe} userInfo={userInfo}/>
+            <UserBlogsSkeleton/>
         )}
         </>
     );
 };
 
-const UserBlogsSkeleton = ({itsMe, userInfo}:any) => {
+const UserBlogsSkeleton = () => {
     return (
         <div className="user_blogs">
-            <header className="ff-google-n white">
-                <div className="header_text">{itsMe ? 'Your' : `${userInfo?.username}'s`} Blogs</div>
-            </header>
+            {/* Header Skeleton */}
+            <div className="skeleton-box" style={{ width: "200px", height: "25px", marginBottom: "20px" }}></div>
 
             {/* Search Bar Skeleton */}
             <div className="skeleton-box" style={{ width: "100%", height: "40px", marginBottom: "20px", borderRadius: "8px" }}></div>

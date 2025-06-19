@@ -110,22 +110,20 @@ const UserActivities = ({ data, userInfo,loading }: IUserActivities) => {
                 </div>
             </div>
         ):(
-            <UserActivitiesSkeleton itsMe={itsMe} userInfo={userInfo}/>
+            <UserActivitiesSkeleton/>
         )}
         </>
     );
 };
 
-const UserActivitiesSkeleton = ({itsMe, userInfo}:any) => {
-    // Simulate 12 weeks (approx. 3 months) and 7 days per week
-    const weeks = Array.from({ length: 12 });
-    const days = Array.from({ length: 7 });
+const UserActivitiesSkeleton = () => {
     const months = Array.from({ length: 12 });
 
     return (
         <div className="wrapper_user_activities">
             <div className="user_activities">
-                <div className="username ff-google-n white">{itsMe ? 'Your' : `${userInfo?.username}'s`} Activity</div>
+                <div className="skeleton-box" style={{ width: "150px", height: "20px", marginBottom: "20px" }}></div>
+
                 <div className="grid-container__wrapper scrollbar">
                     <div className="grid-container">
                         <div className="month-labels">
