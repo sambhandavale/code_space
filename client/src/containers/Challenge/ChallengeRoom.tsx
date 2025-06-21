@@ -107,7 +107,7 @@ const ChallengeRoom = () => {
     useEffect(() => {
         if (timeLeft <= 0) {
             console.log('timeup!');
-            acceptDrawChallenge();
+            acceptDrawChallenge(true);
             return;
         }
 
@@ -167,11 +167,35 @@ const ChallengeRoom = () => {
                     setLanguage(lang?.monacoLang);
                     setLangIcon(`/icons/languages/${lang?.icon}.svg`);
                     setLangExtension(lang?.extension);
-                    if (lang?.monacoLang && res.data.problem_id.template[lang.monacoLang]) {
-                        setCode(res.data.problem_id.template[lang.monacoLang]);
+                    if (res.data.status !== 'completed' || res.data.winner === null) {
+                        if (lang?.monacoLang && res.data.problem_id.template[lang.monacoLang]) {
+                            setCode(res.data.problem_id.template[lang.monacoLang]);
+                        } else {
+                            setCode("");
+                        }
                     } else {
-                        setCode("");
+                        // Challenge is completed and has a winner
+                        if (res.data.codes.length > 0) {
+                            const winnerCode = res.data.codes.find((code:any) => code.user_id === res.data.winner)?.code;
+                            if (winnerCode) {
+                                setCode(winnerCode);
+                            } else if (lang?.monacoLang && res.data.problem_id.template[lang.monacoLang]) {
+                                // Fallback if winner's code not found
+                                setCode(res.data.problem_id.template[lang.monacoLang]);
+                            } else {
+                                setCode("");
+                            }
+                        } else {
+                            // No codes submitted, fallback to problem template
+                            if (lang?.monacoLang && res.data.problem_id.template[lang.monacoLang]) {
+                                setCode(res.data.problem_id.template[lang.monacoLang]);
+                            } else {
+                                setCode("");
+                            }
+                        }
                     }
+
+
 
                     setLangVersion(lang?.version);
                     setLoading(false);
@@ -196,16 +220,19 @@ const ChallengeRoom = () => {
         }
     }
 
-    const acceptDrawChallenge = async () =>{
-        try{
+    const acceptDrawChallenge = async (timeup = false) => {
+        try {
             setDrawPopup(false);
-            let data = {challengeId:challengeId, userId:isAuth()._id};
-            const res = await postAction('/challenge/acceptDrawChallenge', data);
+            let data = { challengeId: challengeId, userId: isAuth()._id };
+            const url = timeup ? '/challenge/acceptDrawChallenge?timeup=true' : '/challenge/acceptDrawChallenge';
+
+            const res = await postAction(url, data);
             toast.success(res.data.message);
-        }catch(err){
+        } catch (err) {
             console.error(err);
         }
-    }
+    };
+
 
     const rejectDrawChallenge = async () =>{
         try{
@@ -228,10 +255,16 @@ const ChallengeRoom = () => {
         }
     }
 
-    const endChallenge = async () =>{
+    const endChallenge = async (testcases:number) =>{
         try{
             const rating = challengeDetails?.problem_id.difficulty === 'Easy' ? 6 : challengeDetails?.problem_id.difficulty === 'Medium' ? 8 : 10;
-            let data = {challengeId:challengeId, winnerId:isAuth()._id, ratingChanges : {"user1": rating, "user2": -rating}};
+            let data = {
+                challengeId:challengeId, 
+                winnerId:isAuth()._id, 
+                ratingChanges : {"user1": rating, "user2": -rating},
+                winnerCode : code,
+                testcases: testcases,
+            };
             const res = await postAction('/challenge/endChallenge', data);
             toast.message(res.data.message);
         }catch(err){
@@ -353,7 +386,7 @@ const ChallengeRoom = () => {
                 setSubmitLoading(false);
                 const allPassed = results.every((testCase:ITestResult) => testCase.status === "PASSED");
                 if(allPassed){
-                    endChallenge();
+                    endChallenge(results.length);
                 }
                 if(res.data.results[0].status === 'ERROR'){
                     toast.error(res.data.results[0].error);
@@ -450,7 +483,7 @@ const ChallengeRoom = () => {
                             <div className="code_editor__controls glassmorphism-dark">
                                 <div className="code_editor__controls_left">
                                     <img src={langIcon} alt="" />
-                                    <div className="editor_text ff-google-n white">Editor</div>
+                                    <div className="editor_text ff-google-n white">Editor {challengeDetails?.codes && challengeDetails?.codes.length > 0 && challengeDetails?.winner !== null ? `(Winners Code)` :''}</div>
                                 </div>
                                 <div className="code_editor__controls_right">
                                     <div className="editor_run pointer" onClick={handleRun} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>

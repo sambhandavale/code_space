@@ -467,7 +467,8 @@
                 border-radius: var(--test-case-border-radius);
 
                 .test_case_text {
-                font-size: var(--test-case-text-font-size);
+                    font-size: var(--test-case-text-font-size);
+                    max-width: 20rem;
                 }
             }
             }

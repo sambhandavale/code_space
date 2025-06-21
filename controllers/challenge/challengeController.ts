@@ -32,6 +32,16 @@ Note: Message code meaning -
 40: Draw
 */
 
+const emitToUser = (userId: string, event: string, data: any) => {
+    const socketIds = userSockets.get(userId);
+    if (socketIds && socketIds.size > 0) {
+        socketIds.forEach(socketId => {
+            io.to(socketId).emit(event, data);
+        });
+    }
+};
+
+
 export const getAllChallenges = getAll(UserChallenges); 
 
 export const joinMatchmaking = async (req:Request, res:Response) => {
@@ -171,12 +181,8 @@ const createChallenge = async (player1Id: mongoose.Schema.Types.ObjectId, player
         const player1SocketId = userSockets.get(player1Id.toString());
         const player2SocketId = userSockets.get(player2Id.toString());
         
-        if (player1SocketId) {
-            io.to(player1SocketId).emit("match_found", { challengeId: challenge._id, opponentId: player2Id });
-        }
-        if (player2SocketId) {
-            io.to(player2SocketId).emit("match_found", { challengeId: challenge._id, opponentId: player1Id });
-        }
+        emitToUser(player1Id.toString(), "match_found", { challengeId: challenge._id, opponentId: player2Id });
+        emitToUser(player2Id.toString(), "match_found", { challengeId: challenge._id, opponentId: player1Id });
 
     } catch (error) {
         console.error("Error creating challenge:", error);
@@ -286,23 +292,17 @@ export const leaveChallenge = async (req:Request, res:Response) => {
             )
         ]);
 
-        const winnerSocketId = userSockets.get(winnerIdStr);
-        const loserSocketId = userSockets.get(userIdStr);
+        emitToUser(winnerIdStr, "match_result", {
+            code: 30,
+            message: "Your opponent left the match! You win! 🎉",
+            ratingChange
+        });
 
-        if (winnerSocketId) {
-            io.to(winnerSocketId).emit("match_result", {
-                code:30,
-                message: "Your opponent left the match! You win! 🎉",
-                ratingChange
-            });
-        }
-        if (loserSocketId) {
-            io.to(loserSocketId).emit("match_result", {
-                code:31,
-                message: "You left the match. Your opponent wins by default. ❌",
-                ratingChange: -ratingChange
-            });
-        }
+        emitToUser(userIdStr, "match_result", {
+            code: 31,
+            message: "You left the match. Your opponent wins by default. ❌",
+            ratingChange: -ratingChange
+        });
 
         await updateUserTitleByRating(winnerIdStr);
         await updateUserTitleByRating(userIdStr);
@@ -315,9 +315,10 @@ export const leaveChallenge = async (req:Request, res:Response) => {
     }
 };
 
-export const acceptDrawChallenge = async (req:Request, res:Response) => {
+export const acceptDrawChallenge = async (req: Request, res: Response) => {
     try {
         const { challengeId } = req.body;
+        const { timeup } = req.query;  // Capture timeup from query
 
         const challenge = await UserChallenges.findById(challengeId);
 
@@ -342,69 +343,70 @@ export const acceptDrawChallenge = async (req:Request, res:Response) => {
         const player2Str = player2.user_id.toString();
 
         const fullRating = problem.difficulty === "Easy" ? 6
-                          : problem.difficulty === "Medium" ? 8
-                          : 10;
+            : problem.difficulty === "Medium" ? 8
+            : 10;
 
         const drawRating = Math.floor(fullRating / 2); // 3, 4, or 5
 
+        // If timeup, rating change is zero
+        const finalDrawRating = timeup ? 0 : drawRating;
+
         await UserChallenges.findByIdAndUpdate(challengeId, {
             winner: null,
-            rating_change: { [player1Str]: drawRating, [player2Str]: drawRating },
+            rating_change: { [player1Str]: finalDrawRating, [player2Str]: finalDrawRating },
             active: false,
             draw: true,
         });
 
-        const [player1Stats, player2Stats] = await Promise.all([
-            UserStats.findOne({ user_id: player1Str }),
-            UserStats.findOne({ user_id: player2Str })
-        ]);
+        if (!timeup) {
+            const [player1Stats, player2Stats] = await Promise.all([
+                UserStats.findOne({ user_id: player1Str }),
+                UserStats.findOne({ user_id: player2Str })
+            ]);
 
-        await Promise.all([
-            UserStats.findOneAndUpdate(
-                { user_id: player1Str },
-                {
-                    $inc: { rating: drawRating, draws: 1 },
-                    $max: { highest_rating: (player1Stats?.rating || 0) + drawRating }
-                }
-            ),
-            UserStats.findOneAndUpdate(
-                { user_id: player2Str },
-                {
-                    $inc: { rating: drawRating, draws: 1 },
-                    $max: { highest_rating: (player2Stats?.rating || 0) + drawRating }
-                }
-            )
-        ]);
+            await Promise.all([
+                UserStats.findOneAndUpdate(
+                    { user_id: player1Str },
+                    {
+                        $inc: { rating: drawRating, draws: 1 },
+                        $max: { highest_rating: (player1Stats?.rating || 0) + drawRating }
+                    }
+                ),
+                UserStats.findOneAndUpdate(
+                    { user_id: player2Str },
+                    {
+                        $inc: { rating: drawRating, draws: 1 },
+                        $max: { highest_rating: (player2Stats?.rating || 0) + drawRating }
+                    }
+                )
+            ]);
 
-        const socket1 = userSockets.get(player1Str);
-        const socket2 = userSockets.get(player2Str);
-
-        if (socket1) {
-            io.to(socket1).emit("match_result", {
-                code:40,
-                message: "The match ended in a draw! 🤝",
-                ratingChange: drawRating
-            });
+            await updateUserTitleByRating(player1Str);
+            await updateUserTitleByRating(player2Str);
         }
 
-        if (socket2) {
-            io.to(socket2).emit("match_result", {
-                code:40,
-                message: "The match ended in a draw! 🤝",
-                ratingChange: drawRating
-            });
-        }
+        emitToUser(player1Str, "match_result", {
+            code: 40,
+            message: timeup ? "The match ended in a draw due to time up! ⏱️" : "The match ended in a draw! 🤝",
+            ratingChange: finalDrawRating
+        });
 
-        await updateUserTitleByRating(player1Str);
-        await updateUserTitleByRating(player2Str);
+        emitToUser(player2Str, "match_result", {
+            code: 40,
+            message: timeup ? "The match ended in a draw due to time up! ⏱️" : "The match ended in a draw! 🤝",
+            ratingChange: finalDrawRating
+        });
 
-        res.status(200).json({ message: "Match ended in a draw. Ratings updated." });
+        res.status(200).json({
+            message: timeup ? "Match ended in a draw due to time up. No ratings updated." : "Match ended in a draw. Ratings updated."
+        });
 
     } catch (error) {
         console.error("Error handling draw:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 };
+
 
 export const askDrawChallenge = async (req: Request, res: Response) => {
     try {
@@ -429,12 +431,10 @@ export const askDrawChallenge = async (req: Request, res: Response) => {
         const opponentId = userId === player1Str ? player2Str : player1Str;
         const opponentSocket = userSockets.get(opponentId);
 
-        if (opponentSocket) {
-            io.to(opponentSocket).emit("ask_draw", {
-                code: 41,
-                message: "Opponent is asking for a draw",
-            });
-        }
+        emitToUser(opponentId, "ask_draw", {
+            code: 41,
+            message: "Opponent is asking for a draw"
+        });
 
         res.status(200).json({ message: "Draw request sent to opponent." });
         return
@@ -470,12 +470,10 @@ export const rejectDrawChallenge = async (req: Request, res: Response) => {
         const opponentId = userId === player1Str ? player2Str : player1Str;
         const opponentSocket = userSockets.get(opponentId);
 
-        if (opponentSocket) {
-            io.to(opponentSocket).emit("reject_draw", {
-                code: 41,
-                message: "Opponent has rejected draw",
-            });
-        }
+        emitToUser(opponentId, "reject_draw", {
+            code: 41,
+            message: "Opponent has rejected the draw request",
+        });
 
         res.status(200).json({ message: "Draw rejected" });
         return
@@ -490,7 +488,7 @@ export const rejectDrawChallenge = async (req: Request, res: Response) => {
 
 export const submitChallengeResult = async (req:Request, res:Response) => {
     try {
-        const { challengeId, winnerId, ratingChanges } = req.body;
+        const { challengeId, winnerId, ratingChanges, winnerCode, testcases } = req.body;
 
         // Convert ratingChanges to an array to get [winnerRating, loserRating]
         const ratingValues = Object.values(ratingChanges);
@@ -527,7 +525,14 @@ export const submitChallengeResult = async (req:Request, res:Response) => {
                 [loserId]: loserRatingChange,
             },
             active: false,
-            status:'completed'
+            status:'completed',
+            $push: {
+                codes: {
+                    user_id: winnerId,
+                    code: winnerCode,
+                    passed_test_cases: testcases
+                }
+            }
         });
 
         const winnerStats = await UserStats.findOne({ user_id: winnerId }).select('rating');
@@ -559,19 +564,16 @@ export const submitChallengeResult = async (req:Request, res:Response) => {
             )
         ]);
 
-        // Notify both users via socket
         const notifyUser = (userId: string, isWinner: boolean, ratingChange: number) => {
-            const socketId = userSockets.get(userId);
-            if (socketId) {
-                io.to(socketId).emit("match_result", {
-                    code: isWinner ? 10 : 11,
-                    message: isWinner
-                        ? "You won the match! 🎉"
-                        : "You lost the match. Better luck next time! 💪",
-                    ratingChange
-                });
-            }
+            emitToUser(userId, "match_result", {
+                code: isWinner ? 10 : 11,
+                message: isWinner
+                    ? "You won the match! 🎉"
+                    : "You lost the match. Better luck next time! 💪",
+                ratingChange
+            });
         };
+
 
         notifyUser(winnerId, true, winnerRatingChange);
         notifyUser(loserId, false, loserRatingChange);

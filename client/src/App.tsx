@@ -15,20 +15,6 @@ const App = (props: { notification?: any; error?: any }) => {
     }
   }, [user]);
 
-  // temp solution for cold starts
-  // useEffect(()=>{
-  //   const wakeupServer = async () =>{
-  //     try{
-  //       const res = await getAction('/extra/wakeup');
-  //       console.log(res.data.message);
-  //     }catch(err){
-  //       console.error(err);
-  //     }
-  //   }
-
-  //   wakeupServer();
-  // },[])
-
   if (error) console.log("App error:", error);
 
   const routing = useRoutes(Routes());

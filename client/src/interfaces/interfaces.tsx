@@ -52,15 +52,20 @@ export interface IChallenge {
     language: string;
     time: number;
     problem_id: IProblem;
-    player1_code: string;
-    player2_code: string;
-    player1_test_cases: number;
-    player2_test_cases: number;
     winner: string;
     rating_change: Record<string, number>;
     active: boolean;
     createdAt: string;
     updatedAt: string;
     playerDetails: IPlayerDetails[];
+    status: string;
+    is_private: boolean;
+    room_code: string;
+    codes: {
+        user_id: string;
+        code: string;
+        passed_test_cases: number;
+    }[];
 }
+
   

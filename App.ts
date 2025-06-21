@@ -50,21 +50,27 @@ passportInit(passport);
 
 routes(app);
 
-export const userSockets = new Map<string, string>();
+export const userSockets = new Map<string, Set<string>>();
 
 io.on("connection", (socket) => {
   console.log(`🔌 New connection: ${socket.id}`);
 
   socket.on("register", (userId) => {
-      userSockets.set(userId, socket.id);
-      console.log(`✅ User ${userId} registered with Socket ID: ${socket.id}`);
+      if (!userSockets.has(userId)) {
+          userSockets.set(userId, new Set());
+      }
+      userSockets.get(userId).add(socket.id);
   });
 
   socket.on("disconnect", () => {
-      userSockets.forEach((socketId, userId) => {
-          if (socketId === socket.id) {
-              console.log(`❌ User ${userId} disconnected`);
-              userSockets.delete(userId);
+      userSockets.forEach((socketIds, userId) => {
+          if (socketIds.has(socket.id)) {
+              socketIds.delete(socket.id);
+              console.log(`❌ User ${userId} disconnected from socket ${socket.id}`);
+
+              if (socketIds.size === 0) {
+                  userSockets.delete(userId);
+              }
           }
       });
   });

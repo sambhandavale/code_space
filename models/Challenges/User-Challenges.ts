@@ -1,4 +1,4 @@
-import mongoose, { Model } from "mongoose";
+import mongoose from "mongoose";
 
 export interface PlayerDetails {
     user_id: mongoose.Types.ObjectId;
@@ -7,15 +7,18 @@ export interface PlayerDetails {
     full_name: string;
 }
 
+export interface PlayerCodeDetails {
+    user_id: mongoose.Types.ObjectId;
+    code: string;
+    passed_test_cases: number;
+}
+
 export interface IUserChallenges {
     players: PlayerDetails[];
     language: string;
     time: number;
     problem_id: mongoose.Types.ObjectId;
-    player1_code: string;
-    player2_code: string;
-    player1_test_cases: number;
-    player2_test_cases: number;
+    codes: PlayerCodeDetails[]; // New: Array to store each user's code
     winner: mongoose.Types.ObjectId;
     rating_change: Record<string, number>;
     active: boolean;
@@ -32,74 +35,28 @@ const PlayerSchema = new mongoose.Schema<PlayerDetails>({
     full_name: { type: String, required: true },
 });
 
+const PlayerCodeSchema = new mongoose.Schema<PlayerCodeDetails>({
+    user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    code: { type: String, default: '' },
+    passed_test_cases: { type: Number, default: 0 },
+}, { _id: false });
+
 const UserChallengesSchema = new mongoose.Schema<IUserChallenges>(
     {
         players: [PlayerSchema],
-        language: {
-            type: String,
-            required: true,
-        },
-        time: {
-            type: Number,
-            required: true,
-        },
-        problem_id: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Question",
-            required: true,
-        },
-        player1_code: {
-            type: String,
-            default: '',
-        },
-        player2_code: {
-            type: String,
-            default: '',
-        },
-        player1_test_cases: {
-            type: Number,
-            default: 0,
-        },
-        player2_test_cases: {
-            type: Number,
-            default: 0,
-        },
-        winner: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-        },
-        rating_change: {
-            type: Map,
-            of: Number,
-            default: {},
-        },
-        active: {
-            type: Boolean,
-            default: true,
-        },
-        start_time: {
-            type: Date,
-        },
-        room_code: {
-            type: String,
-            unique: true,
-            sparse: true,
-            index: true,
-        },
-        status: {
-            type: String,
-            enum: ["waiting", "active", "completed", 'stale'],
-            default: "waiting",
-        },
-        is_private: {
-            type: Boolean,
-            default: false,
-        },
-
+        language: { type: String, required: true },
+        time: { type: Number, required: true },
+        problem_id: { type: mongoose.Schema.Types.ObjectId, ref: "Question", required: true },
+        codes: [PlayerCodeSchema],
+        winner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        rating_change: { type: Map, of: Number, default: {} },
+        active: { type: Boolean, default: true },
+        start_time: { type: Date },
+        room_code: { type: String, unique: true, sparse: true, index: true },
+        status: { type: String, enum: ["waiting", "active", "completed", 'stale'], default: "waiting" },
+        is_private: { type: Boolean, default: false },
     },
-    {
-        timestamps: true,
-    }
+    { timestamps: true }
 );
 
 const UserChallengesModel = mongoose.model<IUserChallenges>("UserChallenges", UserChallengesSchema);

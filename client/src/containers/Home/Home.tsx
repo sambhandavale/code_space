@@ -35,19 +35,21 @@ const Home = () => {
     }, [location.state, location.pathname, navigate]);
 
     useEffect(() => {
-        if (user) {
-            const newSocket = getSocket();
-            setSocket(newSocket);
+        if (!user) return;
 
-            newSocket.on("connect", () => {
-                setSocketId(newSocket.id);
-            });
+        const existingSocket = getSocket();
+        setSocket(existingSocket);
 
-            if (!newSocket.connected) {
-                newSocket.connect();
-            }
-        }
+        existingSocket.on("connect", () => {
+            setSocketId(existingSocket.id);
+        });
+
+        return () => {
+            existingSocket.off("connect");
+        };
     }, [user]);
+
+
 
     const joinMatchmaking = async () => {
         if (!socket) return;
@@ -157,7 +159,7 @@ const Home = () => {
         });
     
         return () => {
-          socket.off("matchFound");
+          socket.off("match_found");
         };
     }, [socket, navigate]);
 
