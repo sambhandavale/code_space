@@ -71,19 +71,29 @@ const Blog = () =>{
 
     const pingBlog = async () => {
         try {
+            // Optimistic update
+            setHasPinged(true);
+            setBlogPingsNo((prev) => prev + 1);
+            triggerPingAnimation();
+
             const res = await postAction(`/blogs/ping/${id}`, {});
-            if (res && res.status === 200) {
-                setHasPinged(true);
-                setBlogPingsNo((prev) => prev + 1);
-                triggerPingAnimation();
-            } else {
+
+            if (!(res && res.status === 200)) {
+                // Revert if API fails
+                setHasPinged(false);
+                setBlogPingsNo((prev) => prev - 1);
                 toast.error(res.data.error || 'Failed to ping the blog.');
             }
+
         } catch (err) {
             console.log(err);
+            // Revert if API fails
+            setHasPinged(false);
+            setBlogPingsNo((prev) => prev - 1);
             toast.error('An error occurred while pinging the blog.');
         }
     };
+
 
     const addView = async () => {
         try {
@@ -104,18 +114,28 @@ const Blog = () =>{
 
     const unpingBlog = async () => {
         try {
+            // Optimistic update
+            setHasPinged(false);
+            setBlogPingsNo((prev) => prev - 1);
+
             const res = await postAction(`/blogs/unping/${id}`, {});
 
-            if (res && res.status === 200) {
-                getBlog();
-            } else {
+            if (!(res && res.status === 200)) {
+                // Revert if API fails
+                setHasPinged(true);
+                setBlogPingsNo((prev) => prev + 1);
                 toast.error(res.data.error || 'Failed to unping the blog.');
             }
+
         } catch (err) {
             console.log(err);
+            // Revert if API fails
+            setHasPinged(true);
+            setBlogPingsNo((prev) => prev + 1);
             toast.error('An error occurred while unpinging the blog.');
         }
     };
+
 
     const addComment = async (commentText: string) => {
         if (!commentText.trim()) {
