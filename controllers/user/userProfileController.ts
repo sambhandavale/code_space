@@ -160,6 +160,32 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
     }
 }
 
+export const updateLoginStreak = async (userId: string, timezone: string = 'UTC') => {
+    const userStats = await UserStats.findOne({ user_id: userId });
+    if (!userStats) return;
+
+    const now = moment().tz(timezone).startOf('day');
+    const lastActive = userStats.last_login_date ? moment(userStats.last_login_date).tz(timezone).startOf('day') : null;
+
+    if (lastActive && now.diff(lastActive, 'days') === 0) {
+        // Already active today, no update needed
+        return;
+    } else if (lastActive && now.diff(lastActive, 'days') === 1) {
+        // Streak continues
+        userStats.login_streak = (userStats.login_streak || 0) + 1;
+
+        if ((userStats.login_streak || 0) > (userStats.longest_login_streak || 0)) {
+            userStats.longest_login_streak = userStats.login_streak;
+        }
+    } else {
+        // Missed a day → reset streak
+        userStats.login_streak = 1;
+    }
+
+    userStats.last_login_date = now.toDate();
+    await userStats.save();
+};
+
 export const updateUserProfile = async (req: Request, res: Response) => {
     try {
         const { userId, socials, favorites, profileCardInfo } = req.body;

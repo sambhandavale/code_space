@@ -4,6 +4,7 @@ import { getAll } from "../../utility/handlerFactory";
 import UserModel from "../../models/Users/Users";
 import mongoose from "mongoose";
 import { Request, Response } from "express";
+import { updateLoginStreak } from "./userProfileController";
 
 export const getAllUsers = getAll(User);
 
@@ -48,10 +49,12 @@ export const getUserStats = async (req, res) => {
 export const getUserRating = async (req, res) => {
     try {
         const userRating = await UserStats.findOne({ user_id: req.params.id }).select('rating');
+        const timezone = req.headers['x-user-timezone'] as string;
         if (!userRating) {
             return res.status(404).json({ message: "User details not found" });
         }
-        res.status(200).json(userRating);
+        updateLoginStreak(req.params.id)
+        res.status(200).json(userRating,timezone);
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
     }
