@@ -1,4 +1,6 @@
-// components/GenericFormContainer.tsx
+import React, { useState } from 'react';
+import { MdVisibility, MdVisibilityOff } from 'react-icons/md';
+
 interface FormField {
   label?: string;
   name: string;
@@ -33,6 +35,16 @@ const GenericFormContainer = ({
   inputRows,
   className = '',
 }: GenericFormContainerProps) => {
+  // Track visibility of each password input by index
+  const [visiblePasswords, setVisiblePasswords] = useState<{ [key: string]: boolean }>({});
+
+  const togglePasswordVisibility = (fieldName: string) => {
+    setVisiblePasswords(prev => ({
+      ...prev,
+      [fieldName]: !prev[fieldName],
+    }));
+  };
+
   return (
     <div className={`auth_container ${className}`}>
       <div className="form_container">
@@ -44,17 +56,37 @@ const GenericFormContainer = ({
         <form onSubmit={onSubmit}>
           {inputRows.map((row, rowIndex) => (
             <div key={rowIndex} className="ly">
-              {row.fields.map((field, index) => (
-                <input
-                  key={index}
-                  type={field.type}
-                  placeholder={field.placeholder}
-                  value={field.value}
-                  onChange={field.onChange}
-                  className={field.className || 'glassmorphism-light'}
-                  aria-label={field.ariaLabel || field.placeholder || field.name}
-                />
-              ))}
+              {row.fields.map((field, index) => {
+                const isPassword = field.type === 'password';
+                const fieldType = isPassword && visiblePasswords[field.name] ? 'text' : field.type;
+
+                return (
+                  <div key={index} className="input-wrapper">
+                    <input
+                      type={fieldType}
+                      placeholder={field.placeholder}
+                      value={field.value}
+                      onChange={field.onChange}
+                      className={field.className || 'glassmorphism-light'}
+                      aria-label={field.ariaLabel || field.placeholder || field.name}
+                    />
+                    {isPassword && (
+                      <span
+                        onClick={() => togglePasswordVisibility(field.name)}
+                        style={{
+                          position: 'absolute',
+                          right: '10px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {visiblePasswords[field.name] ? <MdVisibility size={20} color='white'/> : <MdVisibilityOff size={20} color='white'/>}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           ))}
           <button type="submit" aria-live="assertive" className="pointer">

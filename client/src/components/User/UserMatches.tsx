@@ -35,9 +35,11 @@ const UserMatches = ({ matches, userInfo, loading }: IUserMatchesProps) => {
 
     return (
         <div className="matches">
-            <header>
-                <div className="header_text ff-google-n white">{itsMe ? 'Your' : `${userInfo?.username}'s`} Matches</div>
-            </header>
+            {!loading && (
+                <header>
+                    <div className="header_text ff-google-n white">{itsMe ? 'Your' : `${userInfo?.username}'s`} Matches</div>
+                </header>
+            )}
 
             {loading ? (
                 <UserMatchesSkeleton />

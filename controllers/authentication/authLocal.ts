@@ -85,7 +85,7 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
         }
 
         const jwtToken = sign({ _id: user._id }, process.env.JWT_SECRET ?? "", {
-            expiresIn: "7h",
+            expiresIn: "7d",
         });
 
         let userStats = await UserStats.findOne({ user_id: user._id });

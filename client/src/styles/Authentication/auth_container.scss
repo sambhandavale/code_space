@@ -73,6 +73,13 @@
                 gap: var(--auth-input-gap);
                 align-self: stretch;
 
+                .input-wrapper{
+                  position: relative;
+                  display: flex;
+                  align-self: stretch;
+                  flex: 1 0 0;
+                }
+
                 input {
                     display: flex;
                     padding: var(--auth-input-padding);
