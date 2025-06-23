@@ -4,7 +4,8 @@
   "description": "A gamified coding platform where learning to code feels like playing a chess match.",
   "main": "App.ts",
   "scripts": {
-    "start": "nodemon App.ts",
+    "start": "node build/App.js",
+    "dev": "nodemon App.ts",
     "build": "tsc --build"
   },
   "keywords": [
