@@ -8,6 +8,7 @@ import UserProfile from "./containers/User/UserProfile";
 import WriteBlog from "./containers/Write/WriteBlog";
 import Blog from "./containers/Write/Blog";
 import AllBlogs from "./containers/Write/AllBlogs";
+import SolveProblem from "./containers/Solve/SolveProblem";
 
 interface PrivateRouteProps {
   element: React.ReactNode;
@@ -26,6 +27,7 @@ const routes = () => {
     { path:"/profile/:username", element:<UserProfile/> },
     { path:"/blog/:id/:slug", element:<Blog/> },
     { path:"/blogs", element:<AllBlogs/> },
+    { path:"/solve/:problemId", element:<SolveProblem/> },
   ];
 
   const privateRoutes = [

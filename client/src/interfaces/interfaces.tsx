@@ -15,7 +15,7 @@ interface IExample {
     explanation: string;
 }
 
-interface IProblem {
+export interface IProblem {
     _id: string;
     title: string;
     description: string;
@@ -27,6 +27,7 @@ interface IProblem {
     time: number;
     examples: IExample[];
     test_cases:TestCase[];
+    template: Record<string, string>;
 }
 
 interface TestCase {

@@ -12,8 +12,8 @@
     /* Panel */
     --panel-overflow-x: hidden;
 
-    --scaleleft: 1;
-    --scaleright: 1;
+    --scaleleft: 0.9;
+    --scaleright: 0.9;
 
     /* Players Details */
     --players-details-padding-x: calc(1.25rem * var(--scaleleft));
@@ -29,7 +29,7 @@
 
     /* Problem Title & Level */
     --problem-title-font-size: calc(2.25rem * var(--scaleleft));
-    --problem-level-padding: calc(0.375rem * var(--scaleleft)) calc(0.625rem * var(--scaleleft));
+    --problem-level-padding: calc(0.375rem * var(--scaleleft)) calc(0.375rem * var(--scaleleft));
     --problem-level-font-size: calc(1.25rem * var(--scaleleft));
     --problem-level-border-radius: calc(0.25rem * var(--scaleleft));
 
@@ -83,7 +83,7 @@
     --main-editor-bg: var(--glassfil, rgba(255, 255, 255, 0.10));
     --main-editor-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25), 0px -4px 4px rgba(0, 0, 0, 0.25);
 
-    --test-cases-section-margin-bottom: calc(5rem * var(--scaleright));
+    --test-cases-section-margin-bottom: calc(2rem * var(--scaleright));
     --test-cases-border-radius: 0 0 calc(1.25rem * var(--scaleright)) calc(1.25rem * var(--scaleright));
     --test-cases-controls-padding-x: calc(3rem * var(--scaleright));
     --test-cases-controls-gap: calc(1.5rem * var(--scaleright));
@@ -111,9 +111,10 @@
     height: var(--challenge-room-height);
     position: relative;
     user-select: none;
-    margin: var(--challenge-room-margin-top) 0 0 0;
+    // margin: var(--challenge-room-margin-top) 0 0 0;
     gap: var(--challenge-room-gap);
-    top: var(--challenge-room-top);
+    // top: var(--challenge-room-top);
+    line-height: normal !important;
 
     .panel {
         display: flex;
@@ -128,6 +129,7 @@
         align-items: center;
         justify-content: flex-start;
         gap: var(--challenge-room-gap);
+        margin-top: 6rem;
 
         .players__details {
             display: flex;
@@ -162,137 +164,137 @@
                 }
             }
         }
+    }
 
-        .problem__about {
+    .problem__about {
+        display: flex;
+        padding: var(--problem-about-padding);
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--problem-about-gap);
+        align-self: stretch;
+
+        // border-radius: var(--problem-about-border-radius);
+        background: #E5F4FF;
+
+        .problem__title__level {
             display: flex;
-            padding: var(--problem-about-padding);
-            flex-direction: column;
+            justify-content: space-between;
             align-items: flex-start;
-            gap: var(--problem-about-gap);
             align-self: stretch;
+            gap:2rem;
 
-            border-radius: var(--problem-about-border-radius);
-            background: #E5F4FF;
-
-            .problem__title__level {
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-                align-self: stretch;
-
-                .problem__title {
-                    color: var(--challenge-room-dark-color);
-                    font-size: var(--problem-title-font-size);
-                    line-height: 1;
-                }
-
-                .problem__level {
-                    display: flex;
-                    padding: var(--problem-level-padding);
-                    justify-content: center;
-                    align-items: center;
-                    gap: 0.375rem;
-
-                    color: var(--challenge-room-light-color);
-                    font-size: var(--problem-level-font-size);
-                    line-height: 1;
-                    border-radius: var(--problem-level-border-radius);
-                    background: var(--challenge-room-dark-color);
-                }
-            }
-
-            .problem_desc_text {
+            .problem__title {
                 color: var(--challenge-room-dark-color);
-                font-size: var(--problem-desc-font-size);
+                font-size: var(--problem-title-font-size);
                 line-height: 1;
             }
 
-            .problem_info {
+            .problem__level {
                 display: flex;
-                padding: var(--problem-info-padding);
+                padding: var(--problem-level-padding);
+                justify-content: center;
+                align-items: center;
+                gap: 0.125rem;
+
+                color: var(--challenge-room-light-color);
+                font-size: var(--problem-level-font-size);
+                line-height: 1;
+                border-radius: var(--problem-level-border-radius);
+                background: var(--challenge-room-dark-color);
+            }
+        }
+
+        .problem_desc_text {
+            color: var(--challenge-room-dark-color);
+            font-size: var(--problem-desc-font-size);
+            line-height: 1;
+        }
+
+        .problem_info {
+            display: flex;
+            padding: var(--problem-info-padding);
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--problem-info-gap);
+            align-self: stretch;
+
+            border-radius: var(--problem-info-border-radius);
+            background: var(--challenge-room-dark-color);
+
+            .problem_description {
+                display: flex;
                 flex-direction: column;
                 align-items: flex-start;
-                gap: var(--problem-info-gap);
+                gap: 1rem;
                 align-self: stretch;
 
-                border-radius: var(--problem-info-border-radius);
-                background: var(--challenge-room-dark-color);
+                .problem_description_text {
+                    color: var(--challenge-room-light-color);
+                    font-size: var(--problem-description-text-font-size);
+                    line-height: normal;
+                }
+            }
 
-                .problem_description {
+            .problem_in_out {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--problem-in-out-gap);
+                align-self: stretch;
+
+                .problem_in,
+                .problem_out {
                     display: flex;
                     flex-direction: column;
+                    justify-content: center;
                     align-items: flex-start;
                     gap: 1rem;
                     align-self: stretch;
 
-                    .problem_description_text {
-                        color: var(--challenge-room-light-color);
-                        font-size: var(--problem-description-text-font-size);
-                        line-height: normal;
-                    }
-                }
-
-                .problem_in_out {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: flex-start;
-                    gap: var(--problem-in-out-gap);
-                    align-self: stretch;
-
-                    .problem_in,
-                    .problem_out {
+                    .problem_in_top,
+                    .problem_out_top {
                         display: flex;
-                        flex-direction: column;
-                        justify-content: center;
-                        align-items: flex-start;
-                        gap: 1rem;
-                        align-self: stretch;
+                        align-items: center;
+                        gap: 0.375rem;
 
-                        .problem_in_top,
-                        .problem_out_top {
-                            display: flex;
-                            align-items: center;
-                            gap: 0.375rem;
-
-                            .input_text,
-                            .output_text {
-                                color: var(--challenge-room-light-color);
-                                font-size: var(--problem-in-out-text-font-size);
-                                line-height: 1;
-                            }
-                        }
-
-                        .problem_in_text,
-                        .problem_out_text {
+                        .input_text,
+                        .output_text {
                             color: var(--challenge-room-light-color);
                             font-size: var(--problem-in-out-text-font-size);
                             line-height: 1;
                         }
                     }
-                }
 
-                .problem_example {
+                    .problem_in_text,
+                    .problem_out_text {
+                        color: var(--challenge-room-light-color);
+                        font-size: var(--problem-in-out-text-font-size);
+                        line-height: 1;
+                    }
+                }
+            }
+
+            .problem_example {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--problem-example-gap);
+                align-self: stretch;
+                color: var(--challenge-room-light-color);
+                font-size: var(--problem-example-text-font-size);
+
+                .problem_example_details {
                     display: flex;
                     flex-direction: column;
                     align-items: flex-start;
-                    gap: var(--problem-example-gap);
+                    gap: var(--problem-example-detail-gap);
                     align-self: stretch;
-                    color: var(--challenge-room-light-color);
-                    font-size: var(--problem-example-text-font-size);
-
-                    .problem_example_details {
-                        display: flex;
-                        flex-direction: column;
-                        align-items: flex-start;
-                        gap: var(--problem-example-detail-gap);
-                        align-self: stretch;
-                    }
                 }
             }
         }
     }
-
-      
+ 
     .challenge-room__right {
         display: flex;
         flex-direction: column;
@@ -300,6 +302,7 @@
         justify-content: flex-start;
         gap: var(--challenge-room-right-gap);
         flex-grow: 1;
+        margin-top: 6rem;
 
         .challenge_controls {
             display: flex;
@@ -310,48 +313,42 @@
             gap: var(--challenge-controls-gap);
 
             .challenge_controls__left {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: var(--challenge-controls-left-gap);
-
-            .time {
-                color: var(--challenge-room-light-color);
-                font-size: var(--challenge-time-font-size);
-                line-height: 1;
-            }
-            }
-
-            .challenge_controls__right {
-            display: flex;
-            align-items: center;
-            gap: var(--challenge-controls-right-gap);
-
-            .leave,
-            .draw,
-            .chat {
                 display: flex;
-                padding: var(--challenge-control-button-padding);
                 justify-content: center;
                 align-items: center;
-                gap: var(--challenge-control-button-gap);
-                border-radius: var(--challenge-control-border-radius);
+                gap: var(--challenge-controls-left-gap);
 
-                .control_text {
-                color: var(--challenge-room-light-color);
-                font-size: var(--challenge-control-text-font-size);
-                line-height: 1;
+                .time {
+                    color: var(--challenge-room-light-color);
+                    font-size: var(--challenge-time-font-size);
+                    line-height: 1;
                 }
             }
 
-            .leave {
-                background: var(--challenge-leave-bg);
-            }
+            .challenge_controls__right {
+                display: flex;
+                align-items: center;
+                gap: var(--challenge-controls-right-gap);
 
-            .draw,
-            .chat {
-                background: var(--challenge-draw-chat-bg);
-            }
+                .challenge_controls__actions {
+                    display: flex;
+                    padding: var(--challenge-control-button-padding);
+                    justify-content: center;
+                    align-items: center;
+                    gap: var(--challenge-control-button-gap);
+                    border-radius: var(--challenge-control-border-radius);
+                    background: var(--challenge-draw-chat-bg);
+
+                    .control_text {
+                        color: var(--challenge-room-light-color);
+                        font-size: var(--challenge-control-text-font-size);
+                        line-height: 1;
+                    }
+                }
+
+                .leave {
+                    background: var(--challenge-leave-bg);
+                }
             }
 
             img {
@@ -487,13 +484,13 @@
         }
     }
 
-
     .divider {
         width: 0.25rem;
         background-color: #333;
         cursor: ew-resize;
         position: relative;
         border-radius: 20px;
+        margin-top: 6rem;
     }
 
     @media (max-width: 840px) {
@@ -507,8 +504,36 @@
             height: 0.25rem;
             cursor: ns-resize;
         }
+
+        .challenge-room__right,.divider{
+            margin: 0;
+        }
+
+        .challenge-room__left{
+            margin-top: 2rem;
+        }
     }
 }
+
+.circle {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+
+.green {
+  background-color: #00c853; /* Green */
+}
+
+.orange {
+  background-color: #ff9800; /* Orange */
+}
+
+.red {
+  background-color: #f44336; /* Red */
+}
+
 
 @media screen and (max-width: 1024px) {
   .challenge-room {

@@ -437,7 +437,7 @@ const ChallengeRoom = () => {
                     onMouseUp={handleMouseUp} 
                     onMouseLeave={handleMouseUp}
                 >
-                    <div className="challenge-room__left panel" style={width > 840 ?{ width: `${dividerPosition}%` }:{}}>
+                    <div className="challenge-room__left panel scrollbar" style={width > 840 ?{ width: `${dividerPosition}%` }:{}}>
                         <div className="players__details">
                             <div className="player">
                                 <DefaultProfile initals={getInitials(`${challengeDetails?.playerDetails[0].user_id.full_name}`)}/>
@@ -455,25 +455,25 @@ const ChallengeRoom = () => {
                             </div>
                         </div>
                         <Problem
-                            challengeDetails={challengeDetails}
+                            problemDetails={challengeDetails?.problem_id}
                         />
                     </div>
                     <div className="divider" onMouseDown={handleMouseDown}></div>
-                    <div className="challenge-room__right panel">
+                    <div className="challenge-room__right panel scrollbar">
                         <div className="challenge_controls">
                             <div className="challenge_controls__left">
-                                <img src="/icons/challenge/time.svg" alt="" />
+                                <img className="clock" src="/icons/challenge/time.svg" alt="" />
                                 <div className="time ff-google-n">{formatTime(timeLeft)}</div>
                             </div>
                             <div className="challenge_controls__right">
-                                <div className="leave pointer" onClick={leaveChallenge} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>
+                                <div className="leave challenge_controls__actions pointer" onClick={leaveChallenge} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>
                                     <div className="control_text ff-google-n">Leave</div>
                                 </div>
-                                <div className="draw pointer" onClick={askDrawChallenge} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>
+                                <div className="draw challenge_controls__actions pointer" onClick={askDrawChallenge} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>
                                     <img src="/icons/challenge/draw.svg" alt="" />
                                     <div className="control_text ff-google-n">Draw</div>
                                 </div>
-                                <div className="chat pointer disable">
+                                <div className="chat challenge_controls__actions pointer disable">
                                     <img src="/icons/challenge/chat.svg" alt="" />
                                     <div className="control_text ff-google-n">Chat</div>
                                 </div>
@@ -497,7 +497,7 @@ const ChallengeRoom = () => {
                             </div>
                             <div className="main_editor">
                                 <Editor
-                                    height="400px"
+                                    height="350px"
                                     language={language}
                                     value={code}
                                     onChange={(value) => setCode(value || "")}
