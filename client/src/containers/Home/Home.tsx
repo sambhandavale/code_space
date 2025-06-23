@@ -7,11 +7,11 @@ import { Socket } from "socket.io-client";
 import { useLocation, useNavigate } from "react-router";
 import { getAction, postAction } from "../../services/generalServices";
 import { toast } from "sonner";
-import { create } from "domain";
 
 const Home = () => {
     const challengeRef = useRef<HTMLDivElement | null>(null);
     const location = useLocation();
+    const matchmakingTimeout = useRef<NodeJS.Timeout | null>(null);
 
     const [user, setUser] = useState(() => isAuth());
     const [controlsSelected, setControlsSelected] = useState<{ language: string; time: number }>({ language: '', time: 0 });
@@ -49,8 +49,6 @@ const Home = () => {
         };
     }, [user]);
 
-
-
     const joinMatchmaking = async () => {
         if (!socket) return;
         try{
@@ -65,6 +63,10 @@ const Home = () => {
             }
             if(res && res.data){
                 setMessage(res.data.message);
+                matchmakingTimeout.current = setTimeout(() => {
+                    toast.info('No match found, try again in few times.');
+                    stopMatchmaking();
+                }, 30000);
             }
         }catch(err){
             console.error(err);

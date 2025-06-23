@@ -9,6 +9,7 @@ import { passportInit } from './controllers/authentication/auth';
 import { routes } from './routes';
 import { Server } from 'socket.io';
 import path from 'path';
+import MatchMaking from './models/Challenges/MatchMaking';
 
 dotenv.config();
 
@@ -70,10 +71,17 @@ io.on("connection", (socket) => {
 
               if (socketIds.size === 0) {
                   userSockets.delete(userId);
+                  console.log(`💨 All sockets for user ${userId} are disconnected.`);
+
+                  // Cleanup matchmaking entry
+                  MatchMaking.deleteOne({ user_id: userId }).then(() => {
+                      console.log(`🧹 Removed user ${userId} from matchmaking queue.`);
+                  }).catch(err => console.error("Error removing user from matchmaking queue:", err));
               }
           }
       });
   });
+
 }); 
 
 // Start server

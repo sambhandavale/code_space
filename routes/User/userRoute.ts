@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAllUsers, getUserById, getUserStats, getUserRating, resetUserStats } from "../../controllers/user/userController";
+import { getAllUsers, getUserById, getUserStats, getUserRating, resetUserStats, getOnlineUsers } from "../../controllers/user/userController";
 import passport from "passport";
 import { getUserProfileDetails, updateUserProfile } from "../../controllers/user/userProfileController";
 
@@ -20,11 +20,16 @@ router.post(
     passport.authenticate("jwt", { session: false }),
     updateUserProfile,
 )
+router.get(
+    '/onlineUsers',
+    getOnlineUsers
+);
 router.route("/:id").get(getUserById);
 router.get(
     '/rating/:id',
     passport.authenticate("jwt", { session: false }),
     getUserRating
 );
+
 
 export default router; 

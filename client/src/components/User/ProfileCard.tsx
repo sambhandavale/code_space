@@ -9,6 +9,7 @@ interface ProfileCardProps {
     userProfileCard: IProfileCardInfo | undefined;
     setUserProfileCard: React.Dispatch<React.SetStateAction<IProfileCardInfo | undefined>>;
     handleGlobalSave: () => void;
+    isOnline:boolean;
     loading:boolean;
 }
 
@@ -17,6 +18,7 @@ const ProfileCard = ({
     userProfileCard,
     setUserProfileCard,
     handleGlobalSave,
+    isOnline,
     loading,
 }: ProfileCardProps) => {
     const [editField, setEditField] = useState<string | null>(null);
@@ -50,12 +52,20 @@ const ProfileCard = ({
     return (
         <>
         {!loading ? (
-            <div className="profile_card">
+            <div className="profile_card"> 
                 <div className="profile_image">
                     <img src="/assets/user/testprofile1.png" alt="" />
                     <div className="userrating flex flex-col items-end justify-end gap-1">
                         <div className="rating ff-google-b white">Rating {profilecard_info?.userRating}</div>
-                        <div className="role ff-google-n white">{profilecard_info?.userTitle}</div>
+                        <div className="role ff-google-n white flex gap-2">
+                            {profilecard_info?.userTitle}
+                            {isOnline && 
+                                <div className="flex gap-1 items-center">
+                                    <div className="circle green"></div>
+                                    <span className="ff-google-n white">Online</span>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
                 <div className="profile_details">

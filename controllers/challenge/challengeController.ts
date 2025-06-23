@@ -68,7 +68,7 @@ export const joinMatchmaking = async (req:Request, res:Response) => {
 
         // Try to find a match
         const opponent = await MatchMaking.findOne({
-            language,
+            // language, // initally removing language criteria
             time_control: timeControl,
             user_id: { $ne: userId },
         });

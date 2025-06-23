@@ -5,6 +5,7 @@ import UserModel from "../../models/Users/Users";
 import mongoose from "mongoose";
 import { Request, Response } from "express";
 import { updateLoginStreak } from "./userProfileController";
+import { userSockets } from "../../App";
 
 export const getAllUsers = getAll(User);
 
@@ -120,3 +121,32 @@ export const resetUserStats = async (req: Request, res: Response) => {
     return;
   }
 };
+
+export const getOnlineUsers = async (req, res) => {
+    try {
+        const onlineUsers = Array.from(userSockets.keys());
+        const { username } = req.query;
+
+        let isUserOnline;
+
+        if (username) {
+            const user = await UserModel.findOne({ username }).select('_id');
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            isUserOnline = onlineUsers.includes(user._id.toString());
+        }
+
+        res.status(200).json({
+            count: onlineUsers.length,
+            ...(username && { isUserOnline })
+        });
+    } catch (error) {
+        console.error("Error fetching online users:", error);
+        res.status(500).json({ message: "Server error", error });
+    }
+};
+
+
+

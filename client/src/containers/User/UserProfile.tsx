@@ -23,6 +23,8 @@ const UserProfile = () =>{
     const [userFavourites, setUserFavourites] = useState<IFavorites[]>([]);
     const [userBlogs, setUserBlogs] = useState<IUserBlogSummary[]>([]);
 
+    const [isOnline, setIsOnline] = useState<boolean>(false);
+
     const getUserInfo = async () =>{
         try{
             const res = await getAction(`/users/profile?username=${username}`)
@@ -35,9 +37,30 @@ const UserProfile = () =>{
         }
     }
 
-    useEffect(()=>{
-        getUserInfo();
-    },[]);
+    const getOnlineUsers = async () =>{
+        try{
+            const res = await getAction(`/users/onlineUsers?username=${username}`)
+            setIsOnline(res.data.isUserOnline)
+        }catch(err){
+            console.error(err)
+        } 
+    }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                await Promise.all([
+                    getUserInfo(),
+                    getOnlineUsers()
+                ]);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        fetchData();
+    }, []);
+
 
     useEffect(() => {
         if (userProfileInfo?.userSocials) {
@@ -102,6 +125,7 @@ const UserProfile = () =>{
                             userProfileCard={userProfileCard}
                             setUserProfileCard={setUserProfileCard}
                             handleGlobalSave={handleGlobalSave}
+                            isOnline={isOnline}
                             loading={loading}
                         />
                         <UserStreaks 
