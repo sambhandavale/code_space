@@ -7,11 +7,13 @@ import { logout } from "../../services/auth";
 import DefaultProfile from "./DefaultProfile";
 import { getInitials } from "../../utility/general-utility";
 import { useWindowWidth } from "../../utility/screen-utility";
+import { useUser } from "../../context/UserContext";
 
 const MobileSidebar = ({ isOpen, onClose, scrollToChallenge, userRating }: any) => {
     const navigate = useNavigate();
     const CloseIcon = FiX as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
     const width = useWindowWidth();
+    const { setUserRating } = useUser();
 
     const handleNavigate = (path: string) => {
         navigate(path);
@@ -22,6 +24,7 @@ const MobileSidebar = ({ isOpen, onClose, scrollToChallenge, userRating }: any) 
         logout(() => {
             window.location.href = "/";
         });
+        setUserRating(0)
     };
 
     const handleChallengeClick = () => {

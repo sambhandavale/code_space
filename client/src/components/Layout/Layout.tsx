@@ -4,10 +4,11 @@ import MobileSidebar from "./Sidebar";
 import { getAction } from "../../services/generalServices";
 import { isAuth } from "../../utility/helper";
 import Footer from "./Footer";
-
-const Layout = ({ children, scrollToChallenge, wantFooter = true }: any) => {
+import { useUser } from "../../context/UserContext";
+ 
+const Layout = ({ children, scrollToChallenge }: any) => {
+  const { userRating, setUserRating } = useUser();
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userRating,setUserRating] = useState<number>(0);
 
   useEffect(()=>{
     const getUserRating = async () =>{
@@ -26,6 +27,18 @@ const Layout = ({ children, scrollToChallenge, wantFooter = true }: any) => {
     }
   },[])
 
+  const noFooterRoutes = [
+    "/login", 
+    "/register", 
+    "/challenge/live/:challengeId",
+    "/blog/write",
+    "/login",
+    "/register",
+  ];
+
+  // Simple match: For dynamic routes you may need to improve matching logic
+  const shouldShowFooter = !noFooterRoutes.some(route => location.pathname.startsWith(route.split("/:")[0]));
+
   return (
     <Fragment>
       <Navbar
@@ -41,7 +54,7 @@ const Layout = ({ children, scrollToChallenge, wantFooter = true }: any) => {
         userRating={userRating}
       />
       {children}
-      {wantFooter && <Footer/>}
+      {shouldShowFooter && <Footer/>}
     </Fragment>
   );
 };

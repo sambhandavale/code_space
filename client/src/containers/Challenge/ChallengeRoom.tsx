@@ -1,4 +1,3 @@
-import Layout from "../../components/Layout/Layout"
 import { useParams } from "react-router";
 import { useEffect, useState, useRef } from "react";
 import { getAction, postAction } from "../../services/generalServices";
@@ -14,6 +13,7 @@ import Editor from '@monaco-editor/react';
 import { getInitials, languages } from "../../utility/general-utility";
 import Popup from "../../components/Challenge/ChallengeRoom/Popup";
 import { useWindowWidth } from "../../utility/screen-utility";
+import { useUser } from "../../context/UserContext";
  
 /*
 Note: Message code meaning -
@@ -79,6 +79,19 @@ const ChallengeRoom = () => {
         {name:'Test Cases',icon:'test_case'},
         {name:'Test Run',icon:'test_run'},
     ]
+
+    const { setUserRating } = useUser();
+
+    const refreshRating = async (userId:string) => {
+    try {
+        const res = await getAction(`/users/rating/${userId}`);
+        if (res && res.data) {
+        setUserRating(res.data.rating);
+        }
+    } catch (err) {
+        console.error(err);
+    }
+    };
 
     useEffect(() => {
         const fetchRemainingTime = async () => {
@@ -319,6 +332,8 @@ const ChallengeRoom = () => {
                 setChallengeEndMessage({msg:'',ratingChange:0})
             }
         });
+
+        refreshRating(isAuth()._id)
     
         return () => {
           socket.off("match_result");
@@ -428,7 +443,7 @@ const ChallengeRoom = () => {
     }
 
     return (
-        <Layout wantFooter={false}>
+        <>
             {userAllowed ? (
                 <div 
                     className="challenge-room"
@@ -659,7 +674,7 @@ const ChallengeRoom = () => {
                     onButton1Submit={() => navigate('/')}
                 />
             )}
-        </Layout>
+        </>
     )
 }
 

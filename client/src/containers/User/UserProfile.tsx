@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Layout from "../../components/Layout/Layout";
 import ProfileCard from "../../components/User/ProfileCard";
 import UserActivities from "../../components/User/UserActivities";
 import UserStreaks from "../../components/User/UserStreaks";
@@ -116,64 +115,62 @@ const UserProfile = () =>{
     }
 
     return(
-        <Layout>
-            <div className="profile_page">
-                <div className="profile-r-s1">
-                    <div className="profile-r-s1-c-s1">
-                        <ProfileCard 
-                            profilecard_info={userProfileInfo?.profileCardInfo}
-                            userProfileCard={userProfileCard}
-                            setUserProfileCard={setUserProfileCard}
-                            handleGlobalSave={handleGlobalSave}
-                            isOnline={isOnline}
-                            loading={loading}
-                        />
-                        <UserStreaks 
-                            userstreak_info={userProfileInfo?.userStreaks}
-                            loading={loading}
-                        />
-                    </div>
-                    <div className="profile-r-s1-c-s2">
-                        <UserActivities 
-                            data={convertMatchesToActivityData(userProfileInfo?.dailyMatches)}
-                            userInfo={userProfileInfo?.profileCardInfo}
-                            loading={loading}
-                        />
-
-                        <div className="user_extras">
-                            <UserFavourites
-                                tiles={userProfileInfo?.userFavourites}
-                                userInfo={userProfileInfo?.profileCardInfo}
-                                userFavourites={userFavourites}
-                                setUserFavourites={setUserFavourites}
-                                handleGlobalSave={handleGlobalSave}
-                                loading={loading}
-                            />
-                            <UserSocials
-                                tiles={userProfileInfo?.userSocials}
-                                userInfo={userProfileInfo?.profileCardInfo}
-                                userSocialLinks={userSocialLinks}
-                                setUserSocialLinks={setUserSocialLinks}
-                                handleGlobalSave={handleGlobalSave}
-                                loading={loading}
-                            />
-                        </div>
-                        <UserMatches 
-                            matches={userProfileInfo?.userMatches} 
-                            userInfo={userProfileInfo?.profileCardInfo}
-                            loading={loading}
-                        />
-                        <UserBlogs
-                            userBlogs={userBlogs}
-                            userInfo={userProfileInfo?.profileCardInfo}
-                            loading={loading}
-                        />
-                    </div>
+        <div className="profile_page">
+            <div className="profile-r-s1">
+                <div className="profile-r-s1-c-s1">
+                    <ProfileCard 
+                        profilecard_info={userProfileInfo?.profileCardInfo}
+                        userProfileCard={userProfileCard}
+                        setUserProfileCard={setUserProfileCard}
+                        handleGlobalSave={handleGlobalSave}
+                        isOnline={isOnline}
+                        loading={loading}
+                    />
+                    <UserStreaks 
+                        userstreak_info={userProfileInfo?.userStreaks}
+                        loading={loading}
+                    />
                 </div>
-                <div className="profile-r-s1">
+                <div className="profile-r-s1-c-s2">
+                    <UserActivities 
+                        data={convertMatchesToActivityData(userProfileInfo?.dailyMatches)}
+                        userInfo={userProfileInfo?.profileCardInfo}
+                        loading={loading}
+                    />
+
+                    <div className="user_extras">
+                        <UserFavourites
+                            tiles={userProfileInfo?.userFavourites}
+                            userInfo={userProfileInfo?.profileCardInfo}
+                            userFavourites={userFavourites}
+                            setUserFavourites={setUserFavourites}
+                            handleGlobalSave={handleGlobalSave}
+                            loading={loading}
+                        />
+                        <UserSocials
+                            tiles={userProfileInfo?.userSocials}
+                            userInfo={userProfileInfo?.profileCardInfo}
+                            userSocialLinks={userSocialLinks}
+                            setUserSocialLinks={setUserSocialLinks}
+                            handleGlobalSave={handleGlobalSave}
+                            loading={loading}
+                        />
+                    </div>
+                    <UserMatches 
+                        matches={userProfileInfo?.userMatches} 
+                        userInfo={userProfileInfo?.profileCardInfo}
+                        loading={loading}
+                    />
+                    <UserBlogs
+                        userBlogs={userBlogs}
+                        userInfo={userProfileInfo?.profileCardInfo}
+                        loading={loading}
+                    />
                 </div>
             </div>
-        </Layout>
+            <div className="profile-r-s1">
+            </div>
+        </div>
     )
 }
 

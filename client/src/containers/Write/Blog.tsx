@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { calculateReadingTime, Section } from "./WriteBlog";
 import { getAction, postAction } from "../../services/generalServices";
-import Layout from "../../components/Layout/Layout";
 import DefaultProfile from "../../components/Layout/DefaultProfile";
 import { getInitials } from "../../utility/general-utility";
 import { useNavigate, useParams } from "react-router";
@@ -185,7 +184,7 @@ const Blog = () =>{
     },[])
 
     return(
-        <Layout>
+        <>
             {!loading ? (
                 <div className="write__blog">
                     {isAuth() && (
@@ -319,7 +318,7 @@ const Blog = () =>{
             ):(
                 <BlogViewSkeleton/>
             )}
-        </Layout>
+        </>
     )
 }
 

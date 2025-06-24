@@ -1,12 +1,10 @@
-import Layout from "../../components/Layout/Layout"
 import { useParams } from "react-router";
 import { useEffect, useState, useRef } from "react";
 import { getAction, postAction } from "../../services/generalServices";
 import { isAuth } from "../../utility/helper";
 import { Socket } from "socket.io-client";
-import { getSocket } from "../../hooks/Sockets";
 import { useNavigate } from "react-router";
-import { IChallenge, IProblem } from "../../interfaces/interfaces";
+import { IProblem } from "../../interfaces/interfaces";
 import Problem from "../../components/Challenge/ChallengeRoom/Problem";
 import { toast } from "sonner";
 import Editor from '@monaco-editor/react';
@@ -224,187 +222,185 @@ const SolveProblem = () => {
     }
 
     return (
-        <Layout wantFooter={false}>
-            <div 
-                className="challenge-room"
-                ref={containerRef}
-                onMouseMove={handleMouseMove} 
-                onMouseUp={handleMouseUp} 
-                onMouseLeave={handleMouseUp}
-            >
-                <div className="challenge-room__left panel scrollbar" style={width > 840 ?{ width: `${dividerPosition}%` }:{}}>
-                    <Problem
-                        problemDetails={problemDetails}
-                    />
+        <div 
+            className="challenge-room"
+            ref={containerRef}
+            onMouseMove={handleMouseMove} 
+            onMouseUp={handleMouseUp} 
+            onMouseLeave={handleMouseUp}
+        >
+            <div className="challenge-room__left panel scrollbar" style={width > 840 ?{ width: `${dividerPosition}%` }:{}}>
+                <Problem
+                    problemDetails={problemDetails}
+                />
+            </div>
+            <div className="divider" onMouseDown={handleMouseDown}></div>
+            <div className="challenge-room__right panel scrollbar">
+                <div className="challenge_controls">
+                    <div className="challenge_controls__left">
+                        <img src="/icons/challenge/time.svg" alt="" />
+                        <div className="time ff-google-n">{formatTime(timeLeft)}</div>
+                    </div>
+                    <div className="challenge_controls__right">
+                        <div className="challenge_controls__actions pointer">
+                            <img src="/icons/challenge/time-white.svg" alt="" />
+                            <div className="control_text ff-google-n">Set Timer</div>
+                        </div>
+                    </div>
                 </div>
-                <div className="divider" onMouseDown={handleMouseDown}></div>
-                <div className="challenge-room__right panel scrollbar">
-                    <div className="challenge_controls">
-                        <div className="challenge_controls__left">
-                            <img src="/icons/challenge/time.svg" alt="" />
-                            <div className="time ff-google-n">{formatTime(timeLeft)}</div>
+                <div className="code_editor">
+                    <div className="code_editor__controls glassmorphism-dark">
+                        <div className="code_editor__controls_left">
+                            <img src={langIcon} alt="" />
+                            <div className="editor_text ff-google-n white">Editor</div>
                         </div>
-                        <div className="challenge_controls__right">
-                            <div className="challenge_controls__actions pointer">
-                                <img src="/icons/challenge/time-white.svg" alt="" />
-                                <div className="control_text ff-google-n">Set Timer</div>
+                        <div className="code_editor__controls_right">
+                            <div className="editor_run pointer" onClick={handleRun} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>
+                                <div className="run_text ff-google-n white">{runLoading ? 'Running...' : 'Run'}</div>
+                                <img src="/icons/challenge/run.svg" alt="" />
+                            </div>
+                            <div className="editor_run pointer" onClick={handleSubmit} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>
+                                <div className="run_text ff-google-n yellow">{submitLoading ? 'Submitting...' : 'Submit'}</div>
                             </div>
                         </div>
                     </div>
-                    <div className="code_editor">
-                        <div className="code_editor__controls glassmorphism-dark">
-                            <div className="code_editor__controls_left">
-                                <img src={langIcon} alt="" />
-                                <div className="editor_text ff-google-n white">Editor</div>
-                            </div>
-                            <div className="code_editor__controls_right">
-                                <div className="editor_run pointer" onClick={handleRun} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>
-                                    <div className="run_text ff-google-n white">{runLoading ? 'Running...' : 'Run'}</div>
-                                    <img src="/icons/challenge/run.svg" alt="" />
-                                </div>
-                                <div className="editor_run pointer" onClick={handleSubmit} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>
-                                    <div className="run_text ff-google-n yellow">{submitLoading ? 'Submitting...' : 'Submit'}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="main_editor">
-                            <Editor
-                                height="350px"
-                                language={language}
-                                value={code}
-                                onChange={(value) => setCode(value || "")}
-                                theme="vs-dark"
-                                options={{
-                                    minimap: { enabled: false },
-                                    fontSize: 14,
-                                    scrollBeyondLastLine: false,
-                                    automaticLayout: true,
-                                }}
-                            />
-                        </div>
+                    <div className="main_editor">
+                        <Editor
+                            height="350px"
+                            language={language}
+                            value={code}
+                            onChange={(value) => setCode(value || "")}
+                            theme="vs-dark"
+                            options={{
+                                minimap: { enabled: false },
+                                fontSize: 14,
+                                scrollBeyondLastLine: false,
+                                automaticLayout: true,
+                            }}
+                        />
                     </div>
-                    <div className="test_cases__section glassmorphism-dark">
-                        <div className="test_cases__controls glassmorphism-dark">
-                            {testCaseOptions.map((op,index)=>(
-                                <div 
-                                    key={index}
-                                    className={`test_case_control pointer ${index===selectedTestCaseOption ? 'selected':''}`}
-                                    onClick={()=>setSelectedTestCaseOption(index)}
-                                >
-                                    <img src={`/icons/challenge/${op.icon}.svg`} alt="" />
-                                    <div className="control_text ff-google-n white">{op.name}</div>
-                                </div>
-                            ))}
-                        </div>
-                        {selectedTestCaseOption === 0 ? (
-                            <div className="test_cases">
-                                {
-                                    submitResult.length > 0 && (
-                                        <div className="testcase_result_count nn-google-n white">
-                                            Test Cases Passed: { submitResult.filter((testCase: ITestResult) => testCase.status === "PASSED").length} / {submitResult.length}
-                                        </div>
+                </div>
+                <div className="test_cases__section glassmorphism-dark">
+                    <div className="test_cases__controls glassmorphism-dark">
+                        {testCaseOptions.map((op,index)=>(
+                            <div 
+                                key={index}
+                                className={`test_case_control pointer ${index===selectedTestCaseOption ? 'selected':''}`}
+                                onClick={()=>setSelectedTestCaseOption(index)}
+                            >
+                                <img src={`/icons/challenge/${op.icon}.svg`} alt="" />
+                                <div className="control_text ff-google-n white">{op.name}</div>
+                            </div>
+                        ))}
+                    </div>
+                    {selectedTestCaseOption === 0 ? (
+                        <div className="test_cases">
+                            {
+                                submitResult.length > 0 && (
+                                    <div className="testcase_result_count nn-google-n white">
+                                        Test Cases Passed: { submitResult.filter((testCase: ITestResult) => testCase.status === "PASSED").length} / {submitResult.length}
+                                    </div>
 
-                                    )
-                                }
-                                {problemDetails?.test_cases.slice(0, 3).map((testCase, index) => (
-                                    <div
-                                        key={index}
-                                        className={`test_case glassmorphism-medium ${
-                                            submitResult?.length > 0 && submitResult[index]?.status === 'FAILED'
-                                                ? 'wrong'
-                                                : submitResult[index]?.status === 'PASSED'
-                                                ? 'right'
-                                                : ''
+                                )
+                            }
+                            {problemDetails?.test_cases.slice(0, 3).map((testCase, index) => (
+                                <div
+                                    key={index}
+                                    className={`test_case glassmorphism-medium ${
+                                        submitResult?.length > 0 && submitResult[index]?.status === 'FAILED'
+                                            ? 'wrong'
+                                            : submitResult[index]?.status === 'PASSED'
+                                            ? 'right'
+                                            : ''
+                                    }`}
+                                >
+                                    <div 
+                                        className={`test_case_text ff-google-b ${
+                                            submitResult?.length > 0 && submitResult[index]?.status === 'PASSED'
+                                                ? 'black'
+                                                : 'white'
                                         }`}
                                     >
-                                        <div 
-                                            className={`test_case_text ff-google-b ${
-                                                submitResult?.length > 0 && submitResult[index]?.status === 'PASSED'
-                                                    ? 'black'
-                                                    : 'white'
-                                            }`}
-                                        >
-                                            Testcase {index + 1}
-                                        </div>
-                                        <div
-                                            className={`test_case_text ff-google-n ${
-                                                submitResult?.length > 0 && submitResult[index]?.status === 'PASSED'
-                                                    ? 'black'
-                                                    : 'white'
-                                            }`}
-                                        >
-                                            {testCase.input.includes('\n') &&
-                                                testCase.input.split('\n').map((line, index) => (
-                                                    <div key={index}>{line}</div>
-                                                ))}
-                                            {!testCase.input.includes('\n') && <div key={index}>{testCase.input}</div>}
-                                        </div>
-                                        {submitResult?.length > 0 && (
-                                            <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
-                                                Expected: {submitResult[index]?.output}
-                                            </div>
-                                        )}
-                                        {submitResult?.length > 0 && (
-                                            <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
-                                                Your Output: {submitResult[index]?.actual}
-                                            </div>
-                                        )}
+                                        Testcase {index + 1}
                                     </div>
-
-                                ))}
-                            </div>
-                        ):(
-                            <div className="test_cases">
-                                {problemDetails?.test_cases.slice(-2).map((testCase, index) => (
                                     <div
-                                        key={index}
-                                        className={`test_case glassmorphism-medium ${
-                                                runResult?.length > 0 ? runResult[index]?.status === 'PASSED'
-                                                    ? 'right'
-                                                    : 'wrong':''
-                                            }`}
+                                        className={`test_case_text ff-google-n ${
+                                            submitResult?.length > 0 && submitResult[index]?.status === 'PASSED'
+                                                ? 'black'
+                                                : 'white'
+                                        }`}
                                     >
-                                        <div 
-                                            className={`test_case_text ff-google-b ${
-                                                runResult?.length > 0 && runResult[index]?.status === 'PASSED'
-                                                    ? 'black'
-                                                    : 'white'
-                                            }`}
-                                        >
-                                            Testcase {index + 1}
-                                        </div>
-                                        <div
-                                            className={`test_case_text ff-google-n ${
-                                                runResult?.length > 0 && runResult[index]?.status === 'PASSED'
-                                                    ? 'black'
-                                                    : 'white'
-                                            }`}
-                                        >
-                                            {testCase.input.includes('\n') &&
-                                                testCase.input.split('\n').map((line, index) => (
-                                                    <div key={index}>{line}</div>
-                                                ))}
-                                            {!testCase.input.includes('\n') && <div key={index}>{testCase.input}</div>}
-                                        </div>
-                                        {runResult?.length > 0 && (
-                                            <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
-                                                Expected: {runResult[index]?.output}
-                                            </div>
-                                        )}
-                                        {runResult?.length > 0 && (
-                                            <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
-                                                Your Output: {runResult[index]?.actual}
-                                            </div>
-                                        )}
+                                        {testCase.input.includes('\n') &&
+                                            testCase.input.split('\n').map((line, index) => (
+                                                <div key={index}>{line}</div>
+                                            ))}
+                                        {!testCase.input.includes('\n') && <div key={index}>{testCase.input}</div>}
                                     </div>
+                                    {submitResult?.length > 0 && (
+                                        <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
+                                            Expected: {submitResult[index]?.output}
+                                        </div>
+                                    )}
+                                    {submitResult?.length > 0 && (
+                                        <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
+                                            Your Output: {submitResult[index]?.actual}
+                                        </div>
+                                    )}
+                                </div>
 
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                            ))}
+                        </div>
+                    ):(
+                        <div className="test_cases">
+                            {problemDetails?.test_cases.slice(-2).map((testCase, index) => (
+                                <div
+                                    key={index}
+                                    className={`test_case glassmorphism-medium ${
+                                            runResult?.length > 0 ? runResult[index]?.status === 'PASSED'
+                                                ? 'right'
+                                                : 'wrong':''
+                                        }`}
+                                >
+                                    <div 
+                                        className={`test_case_text ff-google-b ${
+                                            runResult?.length > 0 && runResult[index]?.status === 'PASSED'
+                                                ? 'black'
+                                                : 'white'
+                                        }`}
+                                    >
+                                        Testcase {index + 1}
+                                    </div>
+                                    <div
+                                        className={`test_case_text ff-google-n ${
+                                            runResult?.length > 0 && runResult[index]?.status === 'PASSED'
+                                                ? 'black'
+                                                : 'white'
+                                        }`}
+                                    >
+                                        {testCase.input.includes('\n') &&
+                                            testCase.input.split('\n').map((line, index) => (
+                                                <div key={index}>{line}</div>
+                                            ))}
+                                        {!testCase.input.includes('\n') && <div key={index}>{testCase.input}</div>}
+                                    </div>
+                                    {runResult?.length > 0 && (
+                                        <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
+                                            Expected: {runResult[index]?.output}
+                                        </div>
+                                    )}
+                                    {runResult?.length > 0 && (
+                                        <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
+                                            Your Output: {runResult[index]?.actual}
+                                        </div>
+                                    )}
+                                </div>
+
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
-        </Layout>
+        </div>
     )
 }
 

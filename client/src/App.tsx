@@ -3,6 +3,8 @@ import Routes from "./useRoutes";
 import { getSocket, initializeSocket } from "./hooks/Sockets";
 import { useEffect, useState } from "react";
 import { isAuth } from "./utility/helper";
+import Layout from "./components/Layout/Layout";
+import { UserProvider } from "./context/UserContext";
 // import { getAction } from "./services/generalServices";
 
 const App = (props: { notification?: any; error?: any }) => {
@@ -21,7 +23,7 @@ const App = (props: { notification?: any; error?: any }) => {
         setSocketId(existingSocket.id);
       });
 
-      return () => {
+      return () => { 
         existingSocket.off("connect");
       };
     }
@@ -31,7 +33,13 @@ const App = (props: { notification?: any; error?: any }) => {
 
   const routing = useRoutes(Routes());
 
-  return <>{routing}</>;
+  return(
+    <UserProvider> 
+      <Layout>
+        {routing}
+      </Layout>
+    </UserProvider>
+  )
 };
 
 export default App;

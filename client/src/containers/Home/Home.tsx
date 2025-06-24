@@ -1,4 +1,3 @@
-import Layout from "../../components/Layout/Layout";
 import ChallengeSection from "../../components/Challenge/ChallengeSection";
 import { useState, useEffect, useRef } from "react";
 import { getSocket } from "../../hooks/Sockets";
@@ -166,38 +165,36 @@ const Home = () => {
     }, [socket, navigate]);
 
     return (
-        <Layout scrollToChallenge={scrollToChallenge}>
-            <div className="home">
-                <div className="home-content page-top-m page-bottom-m">
-                    <div className="ls-headline">
-                        <div className="headline">
-                            <div className="headline-text">
-                                <div className="tp-text">Step into the Arena</div>
-                                <div className="btm-text">Let Your Code Speak!</div>
-                            </div>
-                            <div className="headline-text-minor">Challenge your friends</div>
+        <div className="home">
+            <div className="home-content page-top-m page-bottom-m">
+                <div className="ls-headline">
+                    <div className="headline">
+                        <div className="headline-text">
+                            <div className="tp-text">Step into the Arena</div>
+                            <div className="btm-text">Let Your Code Speak!</div>
                         </div>
-                        <div className="main-tabs">
-                            <div className="tab gls-box glassmorphism-dark pointer" onClick={() => scrollToChallenge()}>Challenge</div>
-                            <div className="tab gls-box glassmorphism-dark pointer" onClick={()=> navigate('/blog/write')}>Write</div>
-                        </div>
+                        <div className="headline-text-minor">Challenge your friends</div>
                     </div>
-                    <ChallengeSection 
-                        ref={challengeRef}
-                        controlsSelected={controlsSelected} 
-                        setControlsSelected={setControlsSelected} 
-                        joinMatchmaking={joinMatchmaking}
-                        stopMatchmaking={stopMatchmaking}
-                        message={message}
-                        roomCode={roomCode} 
-                        setRoomCode={setRoomCode}
-                        userCode={userCode}
-                        joinRoom={joinRoom}
-                        createRoom={createRoom}
-                    />
+                    <div className="main-tabs">
+                        <div className="tab gls-box glassmorphism-dark pointer" onClick={() => scrollToChallenge()}>Challenge</div>
+                        <div className="tab gls-box glassmorphism-dark pointer" onClick={()=> navigate('/blog/write')}>Write</div>
+                    </div>
                 </div>
+                <ChallengeSection 
+                    ref={challengeRef}
+                    controlsSelected={controlsSelected} 
+                    setControlsSelected={setControlsSelected} 
+                    joinMatchmaking={joinMatchmaking}
+                    stopMatchmaking={stopMatchmaking}
+                    message={message}
+                    roomCode={roomCode} 
+                    setRoomCode={setRoomCode}
+                    userCode={userCode}
+                    joinRoom={joinRoom}
+                    createRoom={createRoom}
+                />
             </div>
-        </Layout>
+        </div>
     );
 };
 

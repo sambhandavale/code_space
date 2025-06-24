@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import Layout from "../../components/Layout/Layout";
 import { FiPlusCircle } from "react-icons/fi";
 import {FiTrash } from "react-icons/fi";
 import DefaultProfile from "../../components/Layout/DefaultProfile";
@@ -335,7 +334,7 @@ const WriteBlog: React.FC = () => {
     };
 
     return (
-        <Layout wantFooter={false}>
+        <>
             {!loading && (
                 <div className="write__blog"> 
                     <div className="actions">
@@ -666,7 +665,7 @@ const WriteBlog: React.FC = () => {
 
                 </div>
             )}
-        </Layout>
+        </>
     );
 };
 
