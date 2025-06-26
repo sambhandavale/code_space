@@ -454,14 +454,14 @@ const ChallengeRoom = () => {
                 >
                     <div className="challenge-room__left panel scrollbar" style={width > 840 ?{ width: `${dividerPosition}%` }:{}}>
                         <div className="players__details">
-                            <div className="player">
+                            <div className="player pointer" onClick={()=>navigate(`/profile/${challengeDetails?.playerDetails[0].user_id.username}`)}>
                                 <DefaultProfile initals={getInitials(`${challengeDetails?.playerDetails[0].user_id.full_name}`)}/>
                                 <div className="playername left">
                                     {`${challengeDetails?.playerDetails[0].user_id.username} ${!challengeDetails?.active ? challengeDetails?.winner ? challengeDetails?.winner === challengeDetails?.playerDetails[0].user_id._id ? '(Winner)' : '' :'(Draw)' :''}`}
                                     <div className="playerrating">Rating {challengeDetails?.playerDetails[0].rating}</div>
                                 </div>
                             </div>
-                            <div className="player">
+                            <div className="player pointer" onClick={()=>navigate(`/profile/${challengeDetails?.playerDetails[1].user_id.username}`)}>
                                 <div className="playername right">
                                     {`${challengeDetails?.playerDetails[1].user_id.username} ${!challengeDetails?.active ? challengeDetails?.winner ? challengeDetails?.winner === challengeDetails?.playerDetails[1].user_id._id ? '(Winner)' : '' :'(Draw)' :''}`}
                                     <div className="playerrating">Rating {challengeDetails?.playerDetails[1].rating}</div>

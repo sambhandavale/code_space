@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { isAuth } from "./utility/helper";
 import Layout from "./components/Layout/Layout";
 import { UserProvider } from "./context/UserContext";
+import ScrollToTop from "./components/Shared/ScrollUp";
 // import { getAction } from "./services/generalServices";
 
 const App = (props: { notification?: any; error?: any }) => {
@@ -19,7 +20,6 @@ const App = (props: { notification?: any; error?: any }) => {
       const existingSocket = getSocket();
 
       existingSocket.on("connect", () => {
-        console.log("Global socket connected:", existingSocket.id);
         setSocketId(existingSocket.id);
       });
 
@@ -36,6 +36,7 @@ const App = (props: { notification?: any; error?: any }) => {
   return(
     <UserProvider> 
       <Layout>
+        <ScrollToTop />
         {routing}
       </Layout>
     </UserProvider>

@@ -33,6 +33,8 @@
 @use "./styles/Write/write_blog.scss" as *;
 @use "./styles/Write/all_blogs.scss" as *;
 
+@use "./styles/Solve/question_list.scss" as *;
+
 :root {
     --white: #ffffff;
     --black: #000000;

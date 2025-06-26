@@ -1,5 +1,5 @@
 import { FiX } from "react-icons/fi";
-import { FaUser, FaHome, FaPenNib, FaBookOpen, FaSignOutAlt, FaRocket, FaSignInAlt, FaUserPlus } from "react-icons/fa";
+import { FaUser, FaHome, FaPenNib, FaBookOpen, FaSignOutAlt, FaRocket, FaSignInAlt, FaUserPlus, FaCode } from "react-icons/fa";
 import { MdSettings } from "react-icons/md";
 import { isAuth } from "../../utility/helper";
 import { useNavigate } from "react-router";
@@ -63,6 +63,7 @@ const MobileSidebar = ({ isOpen, onClose, scrollToChallenge, userRating }: any) 
                     <div className="sidebar-item ff-google-n" onClick={handleChallengeClick}><FaRocket /> Challenge</div>
                     <div className="sidebar-item ff-google-n" onClick={()=> navigate('/blog/write')}><FaPenNib /> Write</div>
                     <div className="sidebar-item ff-google-n" onClick={()=> navigate('/blogs')}><FaBookOpen /> Blogs</div>
+                    <div className="sidebar-item ff-google-n" onClick={()=> navigate('/solve/questions')}><FaCode /> Solve</div>
                     <hr />
                 </>
             )}

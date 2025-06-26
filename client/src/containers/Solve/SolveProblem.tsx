@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import { useEffect, useState, useRef } from "react";
-import { getAction, postAction } from "../../services/generalServices";
+import { getAction, patchAction, postAction } from "../../services/generalServices";
 import { isAuth } from "../../utility/helper";
 import { Socket } from "socket.io-client";
 import { useNavigate } from "react-router";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import Editor from '@monaco-editor/react';
 import { languages } from "../../utility/general-utility";
 import { useWindowWidth } from "../../utility/screen-utility";
+import { AiOutlineClose } from "react-icons/ai";
 
 interface ITestResult {
     actual: string | null;
@@ -33,8 +34,14 @@ const SolveProblem = () => {
     const [socketId, setSocketId] = useState<string | null | undefined>(null);
     const [problemDetails,setProblemDetails] = useState<IProblem>()
     const [dividerPosition, setDividerPosition] = useState(50);
-    const [timeLeft, setTimeLeft] = useState<number>(10);
+
+    const [showTimerModal, setShowTimerModal] = useState(false);
+    const [isTimerRunning, setIsTimerRunning] = useState(false);
+    const [selectedHours, setSelectedHours] = useState(0);
+    const [selectedMinutes, setSelectedMinutes] = useState(10);
+    const [timeLeft, setTimeLeft] = useState(0);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const prevTimeRef = useRef<number>(timeLeft);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const isDragging = useRef(false);
@@ -53,36 +60,32 @@ const SolveProblem = () => {
 
     const [selectedTestCaseOption, setSelectedTestCaseOption] = useState<number>(0);
 
-    const [challengeEnded, setChallengeEnded] = useState<boolean>(false);
-
     const [languageSelected, setLanguageSelected] = useState<string>('Python')
 
     const testCaseOptions = [
         {name:'Test Cases',icon:'test_case'},
         {name:'Test Run',icon:'test_run'},
     ]
-    
+
+
     useEffect(() => {
-        if (timeLeft <= 0) {
-            console.log('timeup!');
-            return;
-        }
+        if (!isTimerRunning || timeLeft <= 0) return;
 
         timerRef.current = setInterval(() => {
-            setTimeLeft(prev => {
+            setTimeLeft((prev) => {
                 if (prev <= 1) {
                     clearInterval(timerRef.current!);
                     timerRef.current = null;
+                    setIsTimerRunning(false);
+                    toast.info("⏰ Time's up mate!!");  // Show toast here
                     return 0;
                 }
                 return prev - 1;
             });
         }, 1000);
 
-        return () => {
-            if (timerRef.current) clearInterval(timerRef.current);
-        };
-    }, []);
+        return () => clearInterval(timerRef.current!);
+    }, [isTimerRunning]);
 
 
 
@@ -90,6 +93,13 @@ const SolveProblem = () => {
         if (timerRef.current) {
             clearInterval(timerRef.current);
             timerRef.current = null;
+        }
+        setIsTimerRunning(false);
+    };
+
+    const startTimer = () => {
+        if (timeLeft > 0) {
+            setIsTimerRunning(true);
         }
     };
 
@@ -99,7 +109,6 @@ const SolveProblem = () => {
         return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
     
-
     useEffect(()=>{
         const getChallengeDetails = async () =>{
             try{
@@ -160,7 +169,7 @@ const SolveProblem = () => {
     };
 
     const handleMouseUp = () => {
-    isDragging.current = false;
+        isDragging.current = false;
     };
 
     const handleSubmit = async () =>{
@@ -180,7 +189,8 @@ const SolveProblem = () => {
                 setSubmitLoading(false);
                 const allPassed = results.every((testCase:ITestResult) => testCase.status === "PASSED");
                 if(allPassed){
-                    // endChallenge(results.length);
+                    stopTimer();
+                    updateSubmit();
                 }
                 if(res.data.results[0].status === 'ERROR'){
                     toast.error(res.data.results[0].error);
@@ -221,6 +231,16 @@ const SolveProblem = () => {
         }
     }
 
+    const updateSubmit = async () => {
+        try {
+            const response = await patchAction(`/questions/${problemId}/submit?userId=${isAuth()._id}`, {});
+            console.log(response)
+        } catch (error) {
+            console.error("Error updating submits:", error);
+            throw error;
+        }
+    };
+
     return (
         <div 
             className="challenge-room"
@@ -235,173 +255,350 @@ const SolveProblem = () => {
                 />
             </div>
             <div className="divider" onMouseDown={handleMouseDown}></div>
-            <div className="challenge-room__right panel scrollbar">
-                <div className="challenge_controls">
-                    <div className="challenge_controls__left">
-                        <img src="/icons/challenge/time.svg" alt="" />
-                        <div className="time ff-google-n">{formatTime(timeLeft)}</div>
-                    </div>
-                    <div className="challenge_controls__right">
-                        <div className="challenge_controls__actions pointer">
-                            <img src="/icons/challenge/time-white.svg" alt="" />
-                            <div className="control_text ff-google-n">Set Timer</div>
+            {loading ? (
+                <ChallengeRoomSkeleton/>
+            ):(
+                <div className="challenge-room__right panel scrollbar">
+                    <div className="challenge_controls">
+                        <div className="challenge_controls__left">
+                            <img src="/icons/challenge/time.svg" alt="" />
+                            <div className="time ff-google-n">{formatTime(timeLeft)}</div>
                         </div>
-                    </div>
-                </div>
-                <div className="code_editor">
-                    <div className="code_editor__controls glassmorphism-dark">
-                        <div className="code_editor__controls_left">
-                            <img src={langIcon} alt="" />
-                            <div className="editor_text ff-google-n white">Editor</div>
-                        </div>
-                        <div className="code_editor__controls_right">
-                            <div className="editor_run pointer" onClick={handleRun} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>
-                                <div className="run_text ff-google-n white">{runLoading ? 'Running...' : 'Run'}</div>
-                                <img src="/icons/challenge/run.svg" alt="" />
-                            </div>
-                            <div className="editor_run pointer" onClick={handleSubmit} style={challengeEnded || timeLeft === 0 ? {pointerEvents:"none"}:{}}>
-                                <div className="run_text ff-google-n yellow">{submitLoading ? 'Submitting...' : 'Submit'}</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="main_editor">
-                        <Editor
-                            height="350px"
-                            language={language}
-                            value={code}
-                            onChange={(value) => setCode(value || "")}
-                            theme="vs-dark"
-                            options={{
-                                minimap: { enabled: false },
-                                fontSize: 14,
-                                scrollBeyondLastLine: false,
-                                automaticLayout: true,
-                            }}
-                        />
-                    </div>
-                </div>
-                <div className="test_cases__section glassmorphism-dark">
-                    <div className="test_cases__controls glassmorphism-dark">
-                        {testCaseOptions.map((op,index)=>(
-                            <div 
-                                key={index}
-                                className={`test_case_control pointer ${index===selectedTestCaseOption ? 'selected':''}`}
-                                onClick={()=>setSelectedTestCaseOption(index)}
-                            >
-                                <img src={`/icons/challenge/${op.icon}.svg`} alt="" />
-                                <div className="control_text ff-google-n white">{op.name}</div>
-                            </div>
-                        ))}
-                    </div>
-                    {selectedTestCaseOption === 0 ? (
-                        <div className="test_cases">
-                            {
-                                submitResult.length > 0 && (
-                                    <div className="testcase_result_count nn-google-n white">
-                                        Test Cases Passed: { submitResult.filter((testCase: ITestResult) => testCase.status === "PASSED").length} / {submitResult.length}
-                                    </div>
-
-                                )
-                            }
-                            {problemDetails?.test_cases.slice(0, 3).map((testCase, index) => (
-                                <div
-                                    key={index}
-                                    className={`test_case glassmorphism-medium ${
-                                        submitResult?.length > 0 && submitResult[index]?.status === 'FAILED'
-                                            ? 'wrong'
-                                            : submitResult[index]?.status === 'PASSED'
-                                            ? 'right'
-                                            : ''
-                                    }`}
-                                >
+                        <div className="challenge_controls__right">
+                            <div className="challenge_controls__actions pointer" onClick={() => setShowTimerModal(!showTimerModal)}>
+                                <img src="/icons/challenge/time-white.svg" alt="" />
+                                <div className="control_text ff-google-n">Set Timer</div>
+                                {showTimerModal && (
                                     <div 
-                                        className={`test_case_text ff-google-b ${
-                                            submitResult?.length > 0 && submitResult[index]?.status === 'PASSED'
-                                                ? 'black'
-                                                : 'white'
-                                        }`}
+                                        className="timer__modal glassmorphism-dark" 
+                                        onClick={(e) => e.stopPropagation()}
                                     >
-                                        Testcase {index + 1}
-                                    </div>
-                                    <div
-                                        className={`test_case_text ff-google-n ${
-                                            submitResult?.length > 0 && submitResult[index]?.status === 'PASSED'
-                                                ? 'black'
-                                                : 'white'
-                                        }`}
-                                    >
-                                        {testCase.input.includes('\n') &&
-                                            testCase.input.split('\n').map((line, index) => (
-                                                <div key={index}>{line}</div>
-                                            ))}
-                                        {!testCase.input.includes('\n') && <div key={index}>{testCase.input}</div>}
-                                    </div>
-                                    {submitResult?.length > 0 && (
-                                        <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
-                                            Expected: {submitResult[index]?.output}
+                                            <div 
+                                                onClick={() => setShowTimerModal(false)}
+                                                style={{
+                                                    position: "absolute",
+                                                    top: "10px",
+                                                    right: "12px",
+                                                    cursor: "pointer",
+                                                    zIndex: 10,
+                                                    color: "white"
+                                                }}
+                                            >
+                                                <AiOutlineClose size={16} />
+                                            </div>
+                                        <div className="modal__icon">
+                                            <img src="/icons/challenge/stop-watch.svg" alt="timer" width="24" />
                                         </div>
-                                    )}
-                                    {submitResult?.length > 0 && (
-                                        <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
-                                            Your Output: {submitResult[index]?.actual}
+                                        <div className="timer__inputs">
+                                            <div className="timer__input">
+                                                <input
+                                                    type="number"
+                                                    value={selectedHours}
+                                                    className="ff-google-n no-spinner"
+                                                    min={0}
+                                                    max={23}
+                                                    onChange={(e) => setSelectedHours(parseInt(e.target.value))}
+                                                />
+                                                <div className="timer__label">hr</div>
+                                            </div>
+                                            <div className="timer__input">
+                                                <input
+                                                    type="number"
+                                                    className="ff-google-n no-spinner"
+                                                    value={selectedMinutes}
+                                                    min={0}
+                                                    max={59}
+                                                    onChange={(e) => setSelectedMinutes(parseInt(e.target.value))}
+                                                />
+                                                <div className="timer__label">min</div>
+                                            </div>
                                         </div>
-                                    )}
-                                </div>
+                                        <div className="modal__actions">
+                                            <div 
+                                                className="ff-google-n action_bt" 
+                                                onClick={() => {
+                                                    if (isTimerRunning) {
+                                                        stopTimer();
+                                                    } else {
+                                                        startTimer();
+                                                        setShowTimerModal(false);
+                                                    }
+                                                }}
+                                                >
+                                                {isTimerRunning ? "Stop" : timeLeft > 0 ? "Continue" : "Cancel"}
+                                            </div>
 
+
+                                            <div 
+                                                className="ff-google-n action_bt" 
+                                                onClick={() => {
+                                                    const totalSeconds = selectedHours * 3600 + selectedMinutes * 60;
+                                                    setTimeLeft(totalSeconds);
+                                                    setIsTimerRunning(true);
+                                                    setShowTimerModal(false);
+                                                }}
+
+                                            >
+                                                Set
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="code_editor">
+                        <div className="code_editor__controls glassmorphism-dark">
+                            <div className="code_editor__controls_left">
+                                <LanguageDropdown 
+                                    languageSelected={languageSelected} 
+                                    setLanguageSelected={setLanguageSelected} 
+                                />
+                            </div>
+                            <div className="code_editor__controls_right">
+                                <div className="editor_run pointer" onClick={handleRun}>
+                                    <div className="run_text ff-google-n white">{runLoading ? 'Running...' : 'Run'}</div>
+                                    <img src="/icons/challenge/run.svg" alt="" />
+                                </div>
+                                <div className="editor_run pointer" onClick={handleSubmit}>
+                                    <div className="run_text ff-google-n yellow">{submitLoading ? 'Submitting...' : 'Submit'}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="main_editor">
+                            <Editor
+                                height="350px"
+                                language={language}
+                                value={code}
+                                onChange={(value) => setCode(value || "")}
+                                theme="vs-dark"
+                                options={{
+                                    minimap: { enabled: false },
+                                    fontSize: 14,
+                                    scrollBeyondLastLine: false,
+                                    automaticLayout: true,
+                                }}
+                            />
+                        </div>
+                    </div>
+                    <div className="test_cases__section glassmorphism-dark">
+                        <div className="test_cases__controls glassmorphism-dark">
+                            {testCaseOptions.map((op,index)=>(
+                                <div 
+                                    key={index}
+                                    className={`test_case_control pointer ${index===selectedTestCaseOption ? 'selected':''}`}
+                                    onClick={()=>setSelectedTestCaseOption(index)}
+                                >
+                                    <img src={`/icons/challenge/${op.icon}.svg`} alt="" />
+                                    <div className="control_text ff-google-n white">{op.name}</div>
+                                </div>
                             ))}
                         </div>
-                    ):(
-                        <div className="test_cases">
-                            {problemDetails?.test_cases.slice(-2).map((testCase, index) => (
-                                <div
-                                    key={index}
-                                    className={`test_case glassmorphism-medium ${
-                                            runResult?.length > 0 ? runResult[index]?.status === 'PASSED'
+                        {selectedTestCaseOption === 0 ? (
+                            <div className="test_cases">
+                                {
+                                    submitResult.length > 0 && (
+                                        <div className="testcase_result_count nn-google-n white">
+                                            Test Cases Passed: { submitResult.filter((testCase: ITestResult) => testCase.status === "PASSED").length} / {submitResult.length}
+                                        </div>
+
+                                    )
+                                }
+                                {problemDetails?.test_cases.slice(0, 3).map((testCase, index) => (
+                                    <div
+                                        key={index}
+                                        className={`test_case glassmorphism-medium ${
+                                            submitResult?.length > 0 && submitResult[index]?.status === 'FAILED'
+                                                ? 'wrong'
+                                                : submitResult[index]?.status === 'PASSED'
                                                 ? 'right'
-                                                : 'wrong':''
-                                        }`}
-                                >
-                                    <div 
-                                        className={`test_case_text ff-google-b ${
-                                            runResult?.length > 0 && runResult[index]?.status === 'PASSED'
-                                                ? 'black'
-                                                : 'white'
+                                                : ''
                                         }`}
                                     >
-                                        Testcase {index + 1}
-                                    </div>
-                                    <div
-                                        className={`test_case_text ff-google-n ${
-                                            runResult?.length > 0 && runResult[index]?.status === 'PASSED'
-                                                ? 'black'
-                                                : 'white'
-                                        }`}
-                                    >
-                                        {testCase.input.includes('\n') &&
-                                            testCase.input.split('\n').map((line, index) => (
-                                                <div key={index}>{line}</div>
-                                            ))}
-                                        {!testCase.input.includes('\n') && <div key={index}>{testCase.input}</div>}
-                                    </div>
-                                    {runResult?.length > 0 && (
-                                        <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
-                                            Expected: {runResult[index]?.output}
+                                        <div 
+                                            className={`test_case_text ff-google-b ${
+                                                submitResult?.length > 0 && submitResult[index]?.status === 'PASSED'
+                                                    ? 'black'
+                                                    : 'white'
+                                            }`}
+                                        >
+                                            Testcase {index + 1}
                                         </div>
-                                    )}
-                                    {runResult?.length > 0 && (
-                                        <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
-                                            Your Output: {runResult[index]?.actual}
+                                        <div
+                                            className={`test_case_text ff-google-n ${
+                                                submitResult?.length > 0 && submitResult[index]?.status === 'PASSED'
+                                                    ? 'black'
+                                                    : 'white'
+                                            }`}
+                                        >
+                                            {testCase.input.includes('\n') &&
+                                                testCase.input.split('\n').map((line, index) => (
+                                                    <div key={index}>{line}</div>
+                                                ))}
+                                            {!testCase.input.includes('\n') && <div key={index}>{testCase.input}</div>}
                                         </div>
-                                    )}
-                                </div>
+                                        {submitResult?.length > 0 && (
+                                            <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
+                                                Expected: {submitResult[index]?.output}
+                                            </div>
+                                        )}
+                                        {submitResult?.length > 0 && (
+                                            <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
+                                                Your Output: {submitResult[index]?.actual}
+                                            </div>
+                                        )}
+                                    </div>
 
-                            ))}
-                        </div>
-                    )}
+                                ))}
+                            </div>
+                        ):(
+                            <div className="test_cases">
+                                {problemDetails?.test_cases.slice(-2).map((testCase, index) => (
+                                    <div
+                                        key={index}
+                                        className={`test_case glassmorphism-medium ${
+                                                runResult?.length > 0 ? runResult[index]?.status === 'PASSED'
+                                                    ? 'right'
+                                                    : 'wrong':''
+                                            }`}
+                                    >
+                                        <div 
+                                            className={`test_case_text ff-google-b ${
+                                                runResult?.length > 0 && runResult[index]?.status === 'PASSED'
+                                                    ? 'black'
+                                                    : 'white'
+                                            }`}
+                                        >
+                                            Testcase {index + 1}
+                                        </div>
+                                        <div
+                                            className={`test_case_text ff-google-n ${
+                                                runResult?.length > 0 && runResult[index]?.status === 'PASSED'
+                                                    ? 'black'
+                                                    : 'white'
+                                            }`}
+                                        >
+                                            {testCase.input.includes('\n') &&
+                                                testCase.input.split('\n').map((line, index) => (
+                                                    <div key={index}>{line}</div>
+                                                ))}
+                                            {!testCase.input.includes('\n') && <div key={index}>{testCase.input}</div>}
+                                        </div>
+                                        {runResult?.length > 0 && (
+                                            <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
+                                                Expected: {runResult[index]?.output}
+                                            </div>
+                                        )}
+                                        {runResult?.length > 0 && (
+                                            <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
+                                                Your Output: {runResult[index]?.actual}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     )
 }
+
+const LanguageDropdown = ({ languageSelected, setLanguageSelected }:any) => {
+    const [open, setOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement | null>(null);
+    const availableLanguages = languages.filter((lang) => lang.avail === 1);
+    const selected = availableLanguages.find((lang) => lang.name === languageSelected);
+
+    useEffect(() => {
+        const handleClickOutside = (event:any) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            setOpen(false);
+        }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    return (
+        <div className="custom-dropdown" ref={dropdownRef}>
+        <div className="dropdown-selected ff-google-n" onClick={() => setOpen(!open)}>
+            <img src={`/icons/languages/${selected?.icon}.svg`} alt={selected?.name} />
+            <span>{selected?.name}</span>
+            <span className="arrow">&#9662;</span>
+        </div>
+
+        {open && (
+            <div className="dropdown-options">
+            {availableLanguages.map((lang) => (
+                <div
+                key={lang.name}
+                className={`dropdown-option ff-google-n ${lang.name === languageSelected ? 'selected' : ''}`}
+                onClick={() => {
+                    setLanguageSelected(lang.name);
+                    setOpen(false);
+                }}
+                >
+                <img src={`/icons/languages/${lang.icon}.svg`} alt={lang.name} />
+                <span>{lang.name}</span>
+                </div>
+            ))}
+            </div>
+        )}
+        </div>
+    );
+};
+
+const ChallengeRoomSkeleton = () => {
+  return (
+    <div className="challenge-room__right panel scrollbar">
+      {/* Top bar */}
+      <div className="challenge_controls">
+        <div className="challenge_controls__left flex items-center gap-2">
+          <div className="skeleton-box" style={{ width: "24px", height: "24px" }}></div>
+          <div className="skeleton-box" style={{ width: "80px", height: "16px" }}></div>
+        </div>
+        <div className="challenge_controls__right">
+          <div className="skeleton-box" style={{ width: "100px", height: "24px" }}></div>
+        </div>
+      </div>
+
+      {/* Code editor */}
+      <div className="code_editor">
+        <div className="code_editor__controls glassmorphism-dark flex justify-between">
+          <div className="code_editor__controls_left flex gap-2">
+            <div className="skeleton-box" style={{ width: "24px", height: "24px" }}></div>
+            <div className="skeleton-box" style={{ width: "60px", height: "16px" }}></div>
+          </div>
+          <div className="code_editor__controls_right flex gap-4">
+            <div className="skeleton-box" style={{ width: "70px", height: "30px" }}></div>
+            <div className="skeleton-box" style={{ width: "80px", height: "30px" }}></div>
+          </div>
+        </div>
+        <div className="main_editor">
+          <div className="skeleton-box" style={{ height: "350px", width: "100%", borderRadius: "0.5rem" }}></div>
+        </div>
+      </div>
+
+      {/* Test case panel */}
+      <div className="test_cases__section glassmorphism-dark">
+        <div className="test_cases__controls flex gap-4 mb-4">
+          {[1, 2].map((_, i) => (
+            <div className="skeleton-box" style={{ width: "100px", height: "30px" }} key={i}></div>
+          ))}
+        </div>
+
+        <div className="test_cases flex flex-col gap-4">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div className="glassmorphism-medium skeleton-box" style={{ height: "100px", borderRadius: "0.75rem" }} key={i}></div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 export default SolveProblem;

@@ -60,7 +60,7 @@ const AllBlogs = () => {
 
     return (
         <div className="explore__blogs">
-            <header className="ff-kanit-n white">EXPLORE BLOGS</header>
+            <header className="ff-kanit-n white">Explore Blogs</header>
             <input
                 type="text"
                 value={searchQuery}
