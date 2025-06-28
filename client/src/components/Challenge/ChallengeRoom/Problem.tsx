@@ -45,8 +45,6 @@ const Problem = ({ problemDetails }: IProblemProp) => {
           <div className="problem_example" key={index}>
             <div className="problem_example_number ff-google-b">Example {index + 1}</div>
             <div className="problem_example_details">
-              <div className="problem_example_detail ff-google-n">Explanation: {example.explanation}</div>
-
               <div className={`problem_example_detail ff-google-n flex ${example.input.includes('\n') ? 'flex-col' : 'flex-row'} gap-1`}>
                 <>Input:</>
                 {example.input.includes('\n') ? (
@@ -64,6 +62,7 @@ const Problem = ({ problemDetails }: IProblemProp) => {
                   <div>{example.output}</div>
                 )}
               </div>
+              <div className="problem_example_detail ff-google-n">Explanation: {example.explanation}</div>
             </div>
           </div>
         ))}
