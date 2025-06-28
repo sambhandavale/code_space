@@ -18,7 +18,7 @@ export interface IQuestion extends Document {
   task: string;
   input_format: string;
   constraints: string;
-  output_format: string;
+  output_format: string; 
   time: number;
   examples: IExample[];
   test_cases: ITestCase[];
@@ -27,6 +27,7 @@ export interface IQuestion extends Document {
   suggestedBy: ObjectId;
   pings: ObjectId[];
   submits: ObjectId[];
+  tags: string[];
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -75,6 +76,10 @@ const QuestionSchema: Schema = new Schema<IQuestion>(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     }],
+    tags: {
+      type: [String],
+      default: [],
+    },
   },
   { timestamps: true }
 );

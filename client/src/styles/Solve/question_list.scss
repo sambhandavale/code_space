@@ -77,27 +77,22 @@
     }
 
   .all__list {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: var(--question__card-grid-gap);
     width: 100%;
-    justify-content: flex-start;
   }
 
   .question {
-    flex: 1 1 calc(33.333% - var(--question__card-grid-gap));
-    min-width: var(--question__card-min-width);
-    max-width: 100%;
-    box-sizing: border-box;
-
     display: flex;
     flex-direction: column;
     padding: var(--question__card-padding);
+    border-radius: 1.25rem;
     justify-content: space-between;
     align-items: flex-start;
     gap: var(--question__card-gap);
-
-    border-radius: 1.25rem;
+    box-sizing: border-box;
+    height: 100%; /* ensures consistent height across grid cells */
 
     .question__title {
       color: var(--dark-color);

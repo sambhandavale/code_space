@@ -175,6 +175,7 @@ const SolveProblem = () => {
     const handleSubmit = async () =>{
         try{
             setSubmitLoading(true);
+            setSelectedTestCaseOption(0);
             const data = {
                 "user_code":code,
                 "test_cases":problemDetails?.test_cases,
