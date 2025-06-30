@@ -44,24 +44,27 @@ const Register = () => {
       setLoading(true);
       e.preventDefault();
       try {
-          const data = { username: username, email: email, password: password, fullname: name };
+          const normalizedUsername = username.trim().toLowerCase();
+          const data = { username: normalizedUsername, email, password, fullname: name };
+
           if (!name || !username || !email || !password) {
-            toast.error('Please fill in all fields');
-            return;
-          }
-          const validation = validateUserInputs(name, username);
-          if (!validation.valid) {
-            toast.error(validation.message);
-            return;
+              toast.error('Please fill in all fields');
+              return;
           }
 
-          const res = await postAction('/auth/signup',data);
+          const validation = validateUserInputs(name, normalizedUsername);
+          if (!validation.valid) {
+              toast.error(validation.message);
+              return;
+          }
+
+          const res = await postAction('/auth/signup', data);
           if (res.data.error) {
               console.error(res.data.error);
               toast.error(res.data.error);
           } else {
               toast.success('You have been enrolled successfully');
-              handleLoginSubmit(email,password);
+              handleLoginSubmit(email, password);
           }
       } catch (err) {
           console.error("Failed Authentication, ", err);

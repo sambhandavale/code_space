@@ -356,15 +356,23 @@ const SolveProblem = () => {
                                     setLanguageSelected={setLanguageSelected} 
                                 />
                             </div>
-                            <div className="code_editor__controls_right">
-                                <div className="editor_run pointer" onClick={handleRun}>
-                                    <div className="run_text ff-google-n white">{runLoading ? 'Running...' : 'Run'}</div>
-                                    <img src="/icons/challenge/run.svg" alt="" />
+                            {isAuth() ? (
+                                <div className="code_editor__controls_right">
+                                    <div className="editor_run pointer" onClick={handleRun}>
+                                        <div className="run_text ff-google-n white">{runLoading ? 'Running...' : 'Run'}</div>
+                                        <img src="/icons/challenge/run.svg" alt="" />
+                                    </div>
+                                    <div className="editor_run pointer" onClick={handleSubmit}>
+                                        <div className="run_text ff-google-n yellow">{submitLoading ? 'Submitting...' : 'Submit'}</div>
+                                    </div>
                                 </div>
-                                <div className="editor_run pointer" onClick={handleSubmit}>
-                                    <div className="run_text ff-google-n yellow">{submitLoading ? 'Submitting...' : 'Submit'}</div>
+                            ):(
+                                <div className="code_editor__controls_right">
+                                    <div className="editor_run pointer" onClick={()=>navigate('/login')}>
+                                        <div className="run_text ff-google-n yellow">{'Login to Run'}</div>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                         <div className="main_editor">
                             <Editor

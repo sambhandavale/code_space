@@ -30,7 +30,7 @@ const UserSchema = new mongoose.Schema<IUser>(
         hashed_password: { type: String },
         salt: { type: String },
         email: { type: String, lowercase: true, unique: true },
-        username: { type: String },
+        username: { type: String, required: true, lowercase: true, trim: true, unique: true },
         mobile_number: { type: Number },
         role: { type: String, enum: ["user", "admin", "tester"], default: "user" },
     },
@@ -55,6 +55,18 @@ UserSchema.virtual("full_name")
 UserSchema.set('toObject', { virtuals: true });
 UserSchema.set('toJSON', { virtuals: true });
 
+UserSchema.pre("save", function (next) {
+  if (this.isModified("username") && typeof this.username === "string") {
+    this.username = this.username.trim().toLowerCase();
+  }
+
+  if (this.isModified("email") && typeof this.email === "string") {
+    this.email = this.email.trim().toLowerCase();
+  }
+
+  next();
+});
+
 
 UserSchema.methods = {
     authenticate: function (this: IUser, plainText: string): boolean {
@@ -74,6 +86,8 @@ UserSchema.methods = {
         return Math.round(new Date().valueOf() * Math.random()) + "";
     },
 };
+
+UserSchema.index({ username: 1 }, { unique: true });
 
 UserSchema.set("toJSON", { virtuals: true });
 
