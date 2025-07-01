@@ -43,6 +43,7 @@ export const getQuestionSummary = async (req, res) => {
       difficulty: 1,
       pings: 1,
       submits: 1,
+      tags:1,
     });
 
     const summary = questions.map((q) => ({
@@ -52,6 +53,7 @@ export const getQuestionSummary = async (req, res) => {
       difficulty: q.difficulty,
       noOfPings: q.pings.length,
       noOfSubmits: q.submits.length,
+      tags:q.tags
     }));
 
     res.status(200).json({ results: summary.length, questions: summary });
