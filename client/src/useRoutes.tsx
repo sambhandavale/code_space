@@ -10,6 +10,7 @@ import Blog from "./containers/Write/Blog";
 import AllBlogs from "./containers/Write/AllBlogs";
 import SolveProblem from "./containers/Solve/SolveProblem";
 import QuestionsList from "./containers/Solve/QuestionsList";
+import ConfirmEmail from "./containers/Authentication/ConfirmEmail";
 
 interface PrivateRouteProps {
   element: React.ReactNode;
@@ -30,6 +31,7 @@ const routes = () => {
     { path:"/blogs", element:<AllBlogs/> },
     { path:"/solve/questions", element:<QuestionsList/> },
     { path:"/solve/:problemId", element:<SolveProblem/> },
+    { path:"/confirm-email", element:<ConfirmEmail/> },
   ];
 
   const privateRoutes = [

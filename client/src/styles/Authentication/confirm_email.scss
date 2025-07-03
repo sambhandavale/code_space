@@ -1,0 +1,82 @@
+.confirm_email{
+    --scale: 0.8;
+    --confirm_section--padding: 0 calc(1.5rem * var(--scale)) 0 calc(4rem * var(--scale));
+    --confirm-input-font-size: calc(1.375rem * var(--scale));
+    --confirm-submit-padding: calc(0.75rem * var(--scale)) calc(3rem * var(--scale));
+    --confirm__text-font-size:calc(3rem * var(--scale));
+    --confirm__text__subtext-font-size:calc(1.5rem * var(--scale));
+}
+
+.confirm_email{
+    background: linear-gradient(271deg, rgba(0, 0, 0, 0.00) 30.62%, #000 87.07%), url(/assets/bg/moon.jpeg) #141414 50% / cover no-repeat;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+
+    .confirm__section{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        align-self: stretch;
+        margin: var(--confirm_section--padding);
+        gap:2rem;
+    }
+
+    header{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap:0.5rem;
+
+        .confirm__text{
+            font-size: var(--confirm__text-font-size);
+            font-family: 'ARP 240';
+            text-align: center;
+        }
+
+        .confirm__text__subtext{
+            font-size: var(--confirm__text__subtext-font-size);
+            text-align: center;
+        }
+    }
+
+    .confirm_button{
+        display: flex;
+        padding: var(--confirm-submit-padding);
+        justify-content: center;
+        align-items: center;
+        border-radius: calc(10px * var(--scale));
+        border: 1px solid rgba(255, 255, 255, 0.26);
+        background: #FFF;
+        backdrop-filter: blur(11.4px);
+        color: #202020;
+        font-family: "GoogleSansRegular";
+        font-size: var(--confirm-input-font-size);
+        font-weight: 700;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+  .confirm_email {
+    --scale: 0.8;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .confirm_email {
+    --scale: 0.75;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .confirm_email {
+    --scale: 0.7;
+    --confirm_section--padding: 0 calc(1.5rem * var(--scale)) 0 calc(2rem * var(--scale));
+  }
+}

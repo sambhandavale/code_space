@@ -87,10 +87,8 @@ UserSchema.methods = {
     },
 };
 
-UserSchema.index({ username: 1 }, { unique: true });
-
 UserSchema.set("toJSON", { virtuals: true });
 
 const UserModel = mongoose.model<IUser>("User", UserSchema) as Model<IUser>;
 
-export default UserModel;
+export default UserModel; 

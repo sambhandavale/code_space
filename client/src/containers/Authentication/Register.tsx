@@ -59,12 +59,12 @@ const Register = () => {
           }
 
           const res = await postAction('/auth/signup', data);
-          if (res.data.error) {
+          if(res.status == 200){
+            toast.success(res.data.message);
+            // handleLoginSubmit(email, password);
+          } else{
               console.error(res.data.error);
               toast.error(res.data.error);
-          } else {
-              toast.success('You have been enrolled successfully');
-              handleLoginSubmit(email, password);
           }
       } catch (err) {
           console.error("Failed Authentication, ", err);

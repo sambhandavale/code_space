@@ -34,7 +34,8 @@ const Layout = ({ children, scrollToChallenge }: any) => {
     "/blog/write",
     "/login",
     "/register", 
-    "/solve/:problemId"
+    "/solve/:problemId",
+    "/confirm-email"
   ];
 
   // Simple match: For dynamic routes you may need to improve matching logic
