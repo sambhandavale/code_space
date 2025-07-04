@@ -67,10 +67,10 @@ const DescriptionPopup = ({
         <h2
           className="white ff-arp-150"
           style={{
-            lineHeight: "1.3",
             fontSize: "clamp(1.2rem, 2vw, 1.5rem)",
             marginBottom: "1rem",
-            paddingRight: "2rem", // prevent overlap with close icon
+            paddingRight: "2rem",
+            lineHeight:"normal"
           }}
         >
           {title}
@@ -81,7 +81,6 @@ const DescriptionPopup = ({
           className="white"
           style={{
             fontSize: "clamp(0.9rem, 1.5vw, 1rem)",
-            lineHeight: "1.5",
             wordBreak: "break-word",
           }}
         >

@@ -337,10 +337,19 @@ const WriteBlog: React.FC = () => {
         <>
             {!loading && (
                 <div className="write__blog"> 
-                    <div className="actions">
-                        <div className="save__draft glassmorphism-medium gls-box pointer" onClick={saveDraft}>Save Draft</div>
-                        <div className="publish__blog glassmorphism-medium gls-box pointer" onClick={slug ? updateBlog : publishBlog}>{slug ? "Update" : 'Publish'}</div>
-                    </div>
+                    {
+                        isAuth() ? (
+                            <div className="actions">
+                                <div className="save__draft glassmorphism-medium gls-box pointer" onClick={saveDraft}>Save Draft</div>
+                                <div className="publish__blog glassmorphism-medium gls-box pointer" onClick={slug ? updateBlog : publishBlog}>{slug ? "Update" : 'Publish'}</div>
+                            </div>
+                        ):(
+                            <div className="actions">
+                                <div className="save__draft glassmorphism-medium gls-box pointer" onClick={()=>navigate('/login')}>Login to Draft</div>
+                            </div>
+                        )
+                    }
+
                     <div className="blog__header">
                         <div className="blog__date">{currentDateTime}</div>
                         <div
@@ -359,16 +368,20 @@ const WriteBlog: React.FC = () => {
                             {tempBlogHeader}
                         </div>
                     </div>
-
-                    <div className="blog__actions">
-                        <div className="blog__author">
-                            <DefaultProfile initals={getInitials(`${isAuth().full_name}`)}/>
-                            <div className="blog__details">
-                                <div className="author__name">{isAuth().full_name}</div>
-                                <div className="blog__read__time">{calculateReadingTime(sections)} min read</div>
+                    
+                    {
+                        isAuth() && (
+                        <div className="blog__actions">
+                            <div className="blog__author">
+                                <DefaultProfile initals={getInitials(`${isAuth().full_name}`)}/>
+                                <div className="blog__details">
+                                    <div className="author__name">{isAuth().full_name}</div>
+                                    <div className="blog__read__time">{calculateReadingTime(sections)} min read</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                        )
+                    }
 
 
 

@@ -1,5 +1,5 @@
 .home {
-  --scaleby: 1;
+  --scaleby: 0.9;
 
   /* Home */
   --home-width: 100%;
@@ -15,7 +15,7 @@
   /* Headline Text */
   --headline-gap: calc(1.75rem * var(--scaleby)); // 28px
   --headline-text-gap: calc(1.875rem * var(--scaleby)); // 30px
-  --headline-font-size: calc(5.625rem * var(--scaleby)); // 90px
+  --headline-font-size: calc(5rem * var(--scaleby)); // 90px
   --headline-sub-font-size: calc(3.125rem * var(--scaleby)); // 50px
   --headline-minor-font-size: calc(1.25rem * var(--scaleby)); // 20px
   --headline-minor-letter-spacing: calc(0.0125rem * var(--scaleby)); // 0.2px

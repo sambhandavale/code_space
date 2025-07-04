@@ -51,7 +51,7 @@ const UserMatches = ({ matches, userInfo, loading }: IUserMatchesProps) => {
                 <>
                     <div className="all_matches scrollbar">
                         {paginatedMatches?.map((match, index) => (
-                            <div className="match pointer" key={index} onClick={() => navigate(`/challenge/live/${match.challengeId}`)}>
+                            <div className="match pointer" key={index} onClick={() => navigate(`/challenge/${match.challengeId}`)}>
                                 <div className={`index ff-google-n white ${timeControls.find((tc) => tc.time === match.time)?.name.toLowerCase()}`}>
                                     {width > 600 ? (
                                         <img

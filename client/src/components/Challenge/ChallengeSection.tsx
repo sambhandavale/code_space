@@ -73,8 +73,11 @@ const ChallengeSection = ({
           onClose={() => setShowHelp(false)}
           title="How Challenge Works"
         >
-          <div style={{lineHeight:"1.5"}} className="ff-google-n">
-            Select a language and a time format to begin matchmaking. Once matched, you'll face an opponent in a timed coding challenge. Increase your rating with a win. Click "FIND CHALLENGE" to start!
+          <div style={{ lineHeight: "normal" }} className="ff-google-n">
+            Choose your preferred programming language and time format to initiate a challenge.<br /><br />
+            <span className="ff-google-b">Online Challenge:</span> You'll be matched with a random opponent for a live timed coding battle. Winning increases your rating.<br /><br />
+            <span className="ff-google-b">Friend Challenge:</span> Create a challenge with your selected controls and share the challenge code. Your friend can join using the code without selecting controls.<br /><br />
+            Click <span className="ff-google-b">"FIND CHALLENGE"</span> to get started!
           </div>
       </DescriptionPopup>
       {showFriendPopup && (

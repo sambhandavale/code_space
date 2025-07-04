@@ -10,11 +10,7 @@ import blogsRouter from "./Blogs/BlogsRoute";
 
 export const routes = (app: Express) =>{
     app.use("/api/auth", authRouter);
-    app.use(
-        "/api/challenge",
-        passport.authenticate("jwt", { session: false }),
-        challengeRouter,
-    );
+    app.use("/api/challenge",challengeRouter);
     app.use('/api/users', userRouter);
     app.use('/api/questions',questionRouter);
     app.use('/api/extra',extraRouter);

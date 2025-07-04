@@ -110,41 +110,43 @@ const QuestionsList = () => {
                       </button>
                       ))}
                   </div>
-                  <div className="tag__filters-wrapper">
-                    <div className={`tag__filters ${showAllTags ? "wrap" : ""}`}>
-                      <button
-                        className={`filter-btn ff-google-n ${selectedTag === "All" ? "active" : ""}`}
-                        onClick={() => {
-                          setSelectedTag("All");
-                          setCurrentPage(1);
-                        }}
-                      >
-                        All Tags
-                      </button>
-
-                      {tags.map((tag) => (
+                  {!loading && (
+                    <div className="tag__filters-wrapper">
+                      <div className={`tag__filters ${showAllTags ? "wrap" : ""}`}>
                         <button
-                          key={tag.name}
-                          className={`filter-btn ff-google-n ${selectedTag === tag.name ? "active" : ""}`}
+                          className={`filter-btn ff-google-n ${selectedTag === "All" ? "active" : ""}`}
                           onClick={() => {
-                            setSelectedTag(tag.name);
+                            setSelectedTag("All");
                             setCurrentPage(1);
                           }}
                         >
-                          {formatLabel(tag.name)} ({tag.count})
+                          All Tags
                         </button>
-                      ))}
-                    </div>
 
-                    <div className="toggle-container">
-                      <button
-                        className="filter-btn ff-google-n toggle-btn"
-                        onClick={() => setShowAllTags(!showAllTags)}
-                      >
-                        {showAllTags ? "Collapse" : "Expand"}
-                      </button>
+                        {tags.map((tag) => (
+                          <button
+                            key={tag.name}
+                            className={`filter-btn ff-google-n ${selectedTag === tag.name ? "active" : ""}`}
+                            onClick={() => {
+                              setSelectedTag(tag.name);
+                              setCurrentPage(1);
+                            }}
+                          >
+                            {formatLabel(tag.name)} ({tag.count})
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="toggle-container">
+                        <button
+                          className="filter-btn ff-google-n toggle-btn"
+                          onClick={() => setShowAllTags(!showAllTags)}
+                        >
+                          {showAllTags ? "Collapse" : "Expand"}
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
             </header>
             <div className="questions">

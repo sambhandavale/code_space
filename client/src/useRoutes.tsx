@@ -32,11 +32,12 @@ const routes = () => {
     { path:"/solve/questions", element:<QuestionsList/> },
     { path:"/solve/:problemId", element:<SolveProblem/> },
     { path:"/confirm-email", element:<ConfirmEmail/> },
+    { path:"/blog/write", element:<WriteBlog/> },
+    { path: "/challenge/:challengeId", element:<ChallengeRoom/> },
   ];
 
   const privateRoutes = [
     { path: "/challenge/live/:challengeId", element:<ChallengeRoom/> },
-    { path:"/blog/write", element:<WriteBlog/> },
   ];
 
   const protectedRoutes = privateRoutes.map((route) => ({

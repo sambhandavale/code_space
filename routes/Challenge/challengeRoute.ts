@@ -1,30 +1,108 @@
 import { Router } from "express";
+import passport from "passport";
+
 const router = Router();
 
-import { joinMatchmaking, getAllChallenges, getChallengeById, leaveChallenge,leaveMatchmaking, askDrawChallenge, proxyPythonCompiler, proxyPythonTestCaseCompiler, submitChallengeResult, getChallengeStatus, runCodeWithTestCases, acceptDrawChallenge, rejectDrawChallenge } from "../../controllers/challenge/challengeController";
-import { checkRoomStatus, createPrivateChallenge, joinPrivateChallenge } from "../../controllers/challenge/friendChallenge";
+import {
+  joinMatchmaking,
+  getAllChallenges,
+  getChallengeById,
+  leaveChallenge,
+  leaveMatchmaking,
+  askDrawChallenge,
+  proxyPythonCompiler,
+  proxyPythonTestCaseCompiler,
+  submitChallengeResult,
+  getChallengeStatus,
+  runCodeWithTestCases,
+  acceptDrawChallenge,
+  rejectDrawChallenge,
+} from "../../controllers/challenge/challengeController";
 
-router.post("/joinMatchmaking", joinMatchmaking);
-router.route("/leaveChallenge").post(leaveChallenge);
+import {
+  checkRoomStatus,
+  createPrivateChallenge,
+  joinPrivateChallenge,
+} from "../../controllers/challenge/friendChallenge";
 
-router.route("/askDrawChallenge").post(askDrawChallenge);
-router.route("/acceptDrawChallenge").post(acceptDrawChallenge);
-router.route("/rejectDrawChallenge").post(rejectDrawChallenge);
+router.get("/", getAllChallenges);
 
-router.route("/stopMatchmaking").post(leaveMatchmaking);
-router.route("/endChallenge").post(submitChallengeResult);
+router.get("/:id", getChallengeById);
 
-router.route("/").get(getAllChallenges);
-router.route("/:id").get(getChallengeById);
+router.get("/status/:challengeId", getChallengeStatus);
 
-router.route("/submit-answer").post(proxyPythonTestCaseCompiler)
-router.route("/submit-answer-new").post(runCodeWithTestCases)
-router.route("/run-answer").post(proxyPythonCompiler)
+router.get("/room-status/:roomCode", checkRoomStatus);
 
-router.route("/status/:challengeId").get(getChallengeStatus);
+router.post(
+  "/joinMatchmaking",
+  passport.authenticate("jwt", { session: false }),
+  joinMatchmaking
+);
 
-router.post("/create-private", createPrivateChallenge); // host creates challenge with room code
-router.post("/join-private", joinPrivateChallenge);     // friend joins with room code
-router.get("/room-status/:roomCode", checkRoomStatus);  // poll status of the room(non-socket)
+router.post(
+  "/leaveChallenge",
+  passport.authenticate("jwt", { session: false }),
+  leaveChallenge
+);
+
+router.post(
+  "/askDrawChallenge",
+  passport.authenticate("jwt", { session: false }),
+  askDrawChallenge
+);
+
+router.post(
+  "/acceptDrawChallenge",
+  passport.authenticate("jwt", { session: false }),
+  acceptDrawChallenge
+);
+
+router.post(
+  "/rejectDrawChallenge",
+  passport.authenticate("jwt", { session: false }),
+  rejectDrawChallenge
+);
+
+router.post(
+  "/stopMatchmaking",
+  passport.authenticate("jwt", { session: false }),
+  leaveMatchmaking
+);
+
+router.post(
+  "/endChallenge",
+  passport.authenticate("jwt", { session: false }),
+  submitChallengeResult
+);
+
+router.post(
+  "/submit-answer",
+  passport.authenticate("jwt", { session: false }),
+  proxyPythonTestCaseCompiler
+);
+
+router.post(
+  "/submit-answer-new",
+  passport.authenticate("jwt", { session: false }),
+  runCodeWithTestCases
+);
+
+router.post(
+  "/run-answer",
+  passport.authenticate("jwt", { session: false }),
+  proxyPythonCompiler
+);
+
+router.post(
+  "/create-private",
+  passport.authenticate("jwt", { session: false }),
+  createPrivateChallenge
+);
+
+router.post(
+  "/join-private",
+  passport.authenticate("jwt", { session: false }),
+  joinPrivateChallenge
+);
 
 export default router;

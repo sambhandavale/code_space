@@ -4,7 +4,7 @@ import UserActivities from "../../components/User/UserActivities";
 import UserStreaks from "../../components/User/UserStreaks";
 import { IFavorites, IProfileCardInfo, ISocials, IUserBlogSummary, IUserProfile } from "../../interfaces/UserInterfaces";
 import { getAction, postAction } from "../../services/generalServices";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import UserFavourites from "../../components/User/UserFavourites";
 import UserSocials from "../../components/User/UserSocials";
 import UserMatches from "../../components/User/UserMatches";
@@ -14,6 +14,8 @@ import UserBlogs from "../../components/User/UserBlogs";
 
 const UserProfile = () =>{
     const { username } = useParams<{ username: string }>();
+    const navigate = useNavigate();
+
     const [loading, setLoading] = useState<boolean>(true);
     const [userProfileInfo, setUserProfileInfo] = useState<IUserProfile>();
 
@@ -23,10 +25,16 @@ const UserProfile = () =>{
     const [userBlogs, setUserBlogs] = useState<IUserBlogSummary[]>([]);
 
     const [isOnline, setIsOnline] = useState<boolean>(false);
+ 
+    useEffect(() => {
+        if (username && username !== username.toLowerCase()) {
+            navigate(`/profile/${username.toLowerCase()}`, { replace: true });
+        }
+    }, [username]);
 
     const getUserInfo = async () =>{
         try{
-            const res = await getAction(`/users/profile?username=${username}`)
+            const res = await getAction(`/users/profile?username=${username?.toLowerCase()}`)
             setUserProfileInfo(res.data.data);
             setLoading(false);
         }catch(err){
@@ -38,7 +46,7 @@ const UserProfile = () =>{
 
     const getOnlineUsers = async () =>{
         try{
-            const res = await getAction(`/users/onlineUsers?username=${username}`)
+            const res = await getAction(`/users/onlineUsers?username=${username?.toLowerCase()}`)
             setIsOnline(res.data.isUserOnline)
         }catch(err){
             console.error(err)

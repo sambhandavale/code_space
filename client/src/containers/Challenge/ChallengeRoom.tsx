@@ -39,8 +39,9 @@ const ChallengeRoom = () => {
     const { challengeId } = useParams<{ challengeId: string }>();
     const navigate = useNavigate();
     const width = useWindowWidth();
-    const [loading, setLoading] = useState<boolean>(true);
+    const isLiveRoute = location.pathname.includes("/challenge/live/");
 
+    const [loading, setLoading] = useState<boolean>(true);
     const [user, setUser] = useState(() => isAuth());
     const [socket, setSocket] = useState<Socket | null>(null);
     const [socketId, setSocketId] = useState<string | null | undefined>(null);
@@ -114,9 +115,6 @@ const ChallengeRoom = () => {
         fetchRemainingTime();
     }, [challengeId, challengeDetails]);
 
-
-
-    
     useEffect(() => {
         if (timeLeft <= 0) {
             console.log('timeup!');
@@ -165,15 +163,18 @@ const ChallengeRoom = () => {
                     if (res.data.players) {
                         const userId = isAuth()._id;
                         const isAllowed = res.data.active ? res.data.players.some((player: any) => player.user_id === userId) : true;
-                        setUserAllowed(isAllowed);
-                        if(!isAllowed){
+                        if(isLiveRoute){
+                            setUserAllowed(isAllowed);
+                        } else{
+                            setUserAllowed(true);
+                        }
+                        if(!isAllowed && isLiveRoute){
                             setLoading(false);
                             return;
                         }
                     }
                     if(!res.data.active){
                         stopTimer();
-                        
                     }
                     setChallengeDetails(res.data);
                     const lang = languages.find((lang)=>lang.name === res.data.language);
@@ -387,7 +388,7 @@ const ChallengeRoom = () => {
     const handleSubmit = async () =>{
         try{
             setSubmitLoading(true);
-            setSelectedTestCaseOption(0);
+            setSelectedTestCaseOption(0); 
             const data = {
                 "user_code":code,
                 "test_cases":challengeDetails?.problem_id.test_cases,

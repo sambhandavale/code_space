@@ -31,6 +31,7 @@ const Layout = ({ children, scrollToChallenge }: any) => {
     "/login", 
     "/register", 
     "/challenge/live/:challengeId",
+    "/challenge/:challengeId",
     "/blog/write",
     "/login",
     "/register", 
