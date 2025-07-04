@@ -8,7 +8,7 @@ import {
   updateBlog,
   saveDraft,
   getUserBlogs
-} from "../../controllers/Blogs/BlogsController";
+} from "../../controllers/blogs/BlogsController";
 
 import {
   pingBlog,
@@ -16,7 +16,7 @@ import {
   addComment,
   deleteComment,
   incrementView
-} from "../../controllers/Blogs/BlogActivityController"; // Assuming these actions are in a separate controller
+} from "../../controllers/blogs/BlogActivityController"; // Assuming these actions are in a separate controller
 
 const router = Router();
 

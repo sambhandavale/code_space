@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { FiPlusCircle } from "react-icons/fi";
+import { FiImage, FiPlusCircle } from "react-icons/fi";
 import {FiTrash } from "react-icons/fi";
 import DefaultProfile from "../../components/Layout/DefaultProfile";
 import { getInitials } from "../../utility/general-utility";
@@ -15,7 +15,10 @@ interface Item {
     value: string;
     imageUrl?: string;
     imageAlt?: string;
+    align?: "start" | "center" | "end";
+    expanded?: boolean;
 }
+
 
 export interface Section {
     header?: string;
@@ -57,6 +60,11 @@ const WriteBlog: React.FC = () => {
     const [tempBlogHeader, setTempBlogHeader] = useState<string>('');
     const contentRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
     const [currentDateTime, setCurrentDateTime] = useState<string>("");
+
+    const [pendingImages, setPendingImages] = useState<
+    { file: File; sectionIndex: number; localPreviewUrl: string }[]
+    >([]);
+
 
     useEffect(()=>{
         const getBlogDetails = async () =>{
@@ -104,20 +112,29 @@ const WriteBlog: React.FC = () => {
     }, []);
 
     const handleImageUpload = (sectionIndex: number, file: File) => {
-        // Here you would typically upload the image to a server
-        // For now, we'll just create a local URL
         const imageUrl = URL.createObjectURL(file);
-        
+
         const updatedSections = [...sections];
+
+        if (!updatedSections[sectionIndex]) {
+            updatedSections[sectionIndex] = {
+                header: "",
+                items: []
+            };
+        }
+
         updatedSections[sectionIndex].items.push({
             type: "image",
             value: "",
             imageUrl,
-            imageAlt: "Enter image description..."
+            imageAlt: "Enter image description...",
+            align: "start", // default align
+            expanded: false // default height
         });
-        
+
         setSections(updatedSections);
     };
+
 
     const getDaySuffix = (day: number) => {
         if (day > 3 && day < 21) return "th"; // covers 11th, 12th, 13th
@@ -414,6 +431,24 @@ const WriteBlog: React.FC = () => {
                                     >
                                         • Bullet Point
                                     </div>
+                                    <div className="blog__builder__option glassmorphism-medium pointer">
+                                        <label htmlFor={`image-upload-${0}`} style={{cursor: "pointer"}} className="flex items-center gap-1">
+                                            <FiImage size={16} />
+                                            Image
+                                        </label>
+                                        <input
+                                            id={`image-upload-${0}`}
+                                            type="file"
+                                            accept="image/*"
+                                            style={{display: "none"}}
+                                            onChange={(e) => {
+                                                
+                                                if (e.target.files && e.target.files[0]) {
+                                                    handleImageUpload(0, e.target.files[0]);
+                                                }
+                                            }}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -451,23 +486,25 @@ const WriteBlog: React.FC = () => {
                                             >
                                                 • Bullet Point
                                             </div>
+                                            <div className="blog__builder__option glassmorphism-medium pointer">
+                                                <label htmlFor={`image-upload-${sectionIndex}`} style={{cursor: "pointer"}} className="flex items-center gap-1">
+                                                    <FiImage size={16} />
+                                                    Image
+                                                </label>
+                                                <input
+                                                    id={`image-upload-${sectionIndex}`}
+                                                    type="file"
+                                                    accept="image/*"
+                                                    style={{display: "none"}}
+                                                    onChange={(e) => {
+                                                        
+                                                        if (e.target.files && e.target.files[0]) {
+                                                            handleImageUpload(sectionIndex, e.target.files[0]);
+                                                        }
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
-                                        {/* <div className="blog__builder__option glassmorphism-medium pointer">
-                                            <label htmlFor={`image-upload-${sectionIndex}`} style={{cursor: "pointer"}}>
-                                                Image
-                                            </label>
-                                            <input
-                                                id={`image-upload-${sectionIndex}`}
-                                                type="file"
-                                                accept="image/*"
-                                                style={{display: "none"}}
-                                                onChange={(e) => {
-                                                    if (e.target.files && e.target.files[0]) {
-                                                        handleImageUpload(sectionIndex, e.target.files[0]);
-                                                    }
-                                                }}
-                                            />
-                                        </div> */}
                                     </div>
                                 )}
 
@@ -642,34 +679,79 @@ const WriteBlog: React.FC = () => {
 
                                         {item.type === "image" && (
                                             <div className="image__wrapper">
-                                                <img 
-                                                    src={item.imageUrl} 
-                                                    alt={item.imageAlt} 
-                                                    style={{maxWidth: "100%", maxHeight: "400px"}}
-                                                />
-                                                {/* <div
-                                                    className="image__caption"
-                                                    contentEditable
-                                                    suppressContentEditableWarning={true}
-                                                    onBlur={(e) => {
-                                                        const updatedSections = [...sections];
-                                                        updatedSections[sectionIndex].items[itemIndex].imageAlt = 
-                                                            (e.target as HTMLDivElement).innerText;
-                                                        setSections(updatedSections);
+                                                <div
+                                                    className="content__image"
+                                                    style={{
+                                                        display: "flex",
+                                                        justifyContent:
+                                                            item.align === "center"
+                                                                ? "center"
+                                                                : item.align === "end"
+                                                                ? "flex-end"
+                                                                : "flex-start"
                                                     }}
                                                 >
-                                                    {item.imageAlt || "Enter image description..."}
-                                                </div> */}
-                                                <FiTrash
-                                                    className="delete__icon pointer"
-                                                    onClick={() => {
-                                                        const updatedSections = [...sections];
-                                                        updatedSections[sectionIndex].items.splice(itemIndex, 1);
-                                                        setSections(updatedSections);
-                                                    }}
-                                                />
+                                                    <img
+                                                        src={item.imageUrl}
+                                                        alt={item.imageAlt}
+                                                        style={{
+                                                            maxWidth: "100%",
+                                                            maxHeight: item.expanded ? "100%" : "400px",
+                                                            transition: "max-height 0.3s ease"
+                                                        }}
+                                                    />
+                                                </div>
+
+                                                <div className="content__actions">
+                                                    <FiTrash
+                                                        className="delete__icon pointer"
+                                                        onClick={() => {
+                                                            const updatedSections = [...sections];
+                                                            updatedSections[sectionIndex].items.splice(itemIndex, 1);
+                                                            setSections(updatedSections);
+                                                        }}
+                                                    />
+                                                    {["start", "center", "end"].map((alignOption) => (
+                                                        <div
+                                                            key={alignOption}
+                                                            className="action pointer"
+                                                            onClick={() => {
+                                                                const updatedSections = [...sections];
+                                                                updatedSections[sectionIndex].items[itemIndex].align = alignOption as "start" | "center" | "end";
+                                                                setSections(updatedSections);
+                                                            }}
+                                                        >
+                                                            <div 
+                                                                className={`action__label ${item.align === alignOption ? 'ff-google-b':'ff-google-n'}`}
+                                                                style={item.align !== alignOption ? {opacity:"0.6"} : {}}
+                                                            >
+                                                                {alignOption[0].toUpperCase() + alignOption.slice(1)}
+                                                            </div>
+                                                            <img src={`/icons/write/${alignOption}.svg`} alt={alignOption} />
+                                                        </div>
+                                                    ))}
+
+                                                    <div
+                                                        className="action pointer"
+                                                        onClick={() => {
+                                                            const updatedSections = [...sections];
+                                                            const currentItem = updatedSections[sectionIndex].items[itemIndex];
+                                                            currentItem.expanded = !currentItem.expanded;
+                                                            setSections(updatedSections);
+                                                        }}
+                                                        style={!item.expanded ? {opacity:"0.6"} : {}}
+                                                    >
+                                                        <div 
+                                                            className="action__label pointer"
+                                                        >
+                                                            Expand
+                                                        </div>
+                                                        <img src="/icons/write/expand.svg" alt="Expand" />
+                                                    </div>
+                                                </div>
                                             </div>
                                         )}
+
                                     </div>
                                 ))}
                             </div>

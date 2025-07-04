@@ -288,24 +288,28 @@ const Blog = () =>{
 
                                         {item.type === "image" && (
                                             <div className="image__wrapper">
-                                                <img 
-                                                    src={item.imageUrl} 
-                                                    alt={item.imageAlt} 
-                                                    style={{maxWidth: "100%", maxHeight: "400px"}}
-                                                />
-                                                {/* <div
-                                                    className="image__caption"
-                                                    contentEditable
-                                                    suppressContentEditableWarning={true}
-                                                    onBlur={(e) => {
-                                                        const updatedSections = [...sections];
-                                                        updatedSections[sectionIndex].items[itemIndex].imageAlt = 
-                                                            (e.target as HTMLDivElement).innerText;
-                                                        setSections(updatedSections);
+                                                <div
+                                                    className="content__image"
+                                                    style={{
+                                                        display: "flex",
+                                                        justifyContent:
+                                                            item.align === "center"
+                                                                ? "center"
+                                                                : item.align === "end"
+                                                                ? "flex-end"
+                                                                : "flex-start"
                                                     }}
                                                 >
-                                                    {item.imageAlt || "Enter image description..."}
-                                                </div> */}
+                                                    <img
+                                                        src={item.imageUrl}
+                                                        alt={item.imageAlt}
+                                                        style={{
+                                                            maxWidth: "100%",
+                                                            maxHeight: item.expanded ? "100%" : "400px",
+                                                            transition: "max-height 0.3s ease"
+                                                        }}
+                                                    />
+                                                </div>
                                             </div>
                                         )}
                                     </div>
