@@ -80,29 +80,34 @@ const containerClient = blobServiceClient.getContainerClient(
 
 export const uploadImageToAzure = async (req, res) => {
   try {
-    const { blogId } = req.body;
+    const { blogId, hash } = req.body;
     const file = req.file;
 
-    if (!file || !blogId) {
-      return res.status(400).send('Missing image or blogId');
+    if (!file || !blogId || !hash) {
+      res.status(400).send('Missing image, blogId or hash');
+      return;
     }
 
-    // ✅ Use crypto to generate a unique name
-    const randomName = crypto.randomUUID(); // or crypto.randomBytes(16).toString('hex')
-    const blobName = `blog-${blogId}/${randomName}-${file.originalname}`;
-
+    const blobName = `blog-${blogId}/${hash}`;
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
-    await blockBlobClient.uploadData(file.buffer, {
-      blobHTTPHeaders: { blobContentType: file.mimetype },
-    });
+    // ✅ Check if image already exists
+    const exists = await blockBlobClient.exists();
+    if (!exists) {
+      await blockBlobClient.uploadData(file.buffer, {
+        blobHTTPHeaders: { blobContentType: file.mimetype },
+      });
+    }
 
-    return res.status(200).json({ imageUrl: blockBlobClient.url });
+    res.status(200).json({ imageUrl: blockBlobClient.url });
+    return;
   } catch (error) {
     console.error('Azure upload error:', error);
-    return res.status(500).json({ error: 'Failed to upload image' });
+    res.status(500).json({ error: 'Failed to upload image' });
+    return;
   }
 };
+
 
 export const updateBlogImages = async (req: Request, res: Response) => {
   try {

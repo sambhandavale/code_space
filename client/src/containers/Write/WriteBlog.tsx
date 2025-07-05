@@ -260,6 +260,14 @@ const WriteBlog: React.FC = () => {
         toast.message('Draft saved successfully!');
     };
 
+    async function getImageHash(file: Blob): Promise<string> {
+        const buffer = await file.arrayBuffer();
+        const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+
     const publishBlog = async () => {
         try {
             if (!blogHeader.trim()) {
@@ -310,18 +318,21 @@ const WriteBlog: React.FC = () => {
                         updatedSections[secIdx].items.map(async (item) => {
                             if (item.type === "image" && item.imageUrl?.startsWith("blob:")) {
                                 const blob = await fetch(item.imageUrl).then(r => r.blob());
+                                const hash = await getImageHash(blob);
+
                                 const formData = new FormData();
-                                formData.append("image", blob, "temp.jpg");
-                                formData.append("blogId", blogId);
+                                formData.append("image", blob, "blog-image.jpg");
+                                formData.append("blogId", blogId); // or `id` in updateBlog
+                                formData.append("hash", hash);
 
                                 const uploadRes = await axiosInstance.post('/blogs/upload-image', formData, {
                                     headers: { 'Content-Type': 'multipart/form-data' }
                                 });
 
-
                                 const { imageUrl } = uploadRes.data;
                                 return { ...item, imageUrl };
                             }
+
                             return item;
                         })
                     );
@@ -385,9 +396,12 @@ const WriteBlog: React.FC = () => {
                     updatedSections[secIdx].items.map(async (item) => {
                         if (item.type === "image" && item.imageUrl?.startsWith("blob:")) {
                             const blob = await fetch(item.imageUrl).then(r => r.blob());
+                            const hash = await getImageHash(blob);
+
                             const formData = new FormData();
-                            formData.append("image", blob, "edited.jpg");
+                            formData.append("image", blob, "blog-image.jpg");
                             formData.append("blogId", id!);
+                            formData.append("hash", hash);
 
                             const uploadRes = await axiosInstance.post('/blogs/upload-image', formData, {
                                 headers: { 'Content-Type': 'multipart/form-data' }
