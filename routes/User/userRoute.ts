@@ -1,16 +1,26 @@
 import { Router } from "express";
 import { getAllUsers, getUserById, getUserStats, getUserRating, resetUserStats, getOnlineUsers } from "../../controllers/user/userController";
 import passport from "passport";
-import { getUserProfileDetails, updateUserProfile } from "../../controllers/user/userProfileController";
+import { getUserProfileDetails, updateUserProfile, uploadProfileImage } from "../../controllers/user/userProfileController";
+import multer from "multer";
 
 const router = Router()
+const upload = multer();
 
 router.route("/").get(getAllUsers);
-router.route("/details").get(getUserStats);
+router.route("/details").get(getUserStats); 
 router.get(
     '/profile',
     getUserProfileDetails,
 );
+
+router.post(
+  "/upload-profile-image",
+  passport.authenticate("jwt", { session: false }),
+  upload.single("image"),
+  uploadProfileImage
+);
+
 router.get(
     "/resetStats",
     resetUserStats,

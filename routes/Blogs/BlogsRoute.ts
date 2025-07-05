@@ -1,5 +1,6 @@
 import { Router } from "express";
 import passport from "passport";
+
 import {
   createBlog,
   getAllBlogs,
@@ -7,8 +8,10 @@ import {
   getBlogBySlug,
   updateBlog,
   saveDraft,
-  getUserBlogs
-} from "../../controllers/Blogs/BlogsController";
+  getUserBlogs,
+  updateBlogImages,
+  uploadImageToAzure
+} from "../../controllers/blogs/BlogsController";
 
 import {
   pingBlog,
@@ -16,9 +19,13 @@ import {
   addComment,
   deleteComment,
   incrementView
-} from "../../controllers/Blogs/BlogActivityController"; // Assuming these actions are in a separate controller
+} from "../../controllers/blogs/BlogActivityController";
+import multer from "multer";
 
 const router = Router();
+const upload = multer();
+
+/* ========== BLOG CREATION & UPDATES ========== */
 
 // Create Blog
 router.post(
@@ -27,28 +34,51 @@ router.post(
   createBlog
 );
 
+// Update Blog (e.g., title, slug, etc.)
+router.put(
+  "/update/:id",
+  // passport.authenticate("jwt", { session: false }),
+  updateBlog
+);
+
+router.post(
+  "/upload-image",
+  passport.authenticate("jwt", { session: false }),
+  upload.single("image"),
+  uploadImageToAzure 
+);
+
+// ✅ Update blog sections after image uploads (Azure)
+router.patch(
+  "/:id/update-images",
+  passport.authenticate("jwt", { session: false }),
+  updateBlogImages
+);
+
+// Save Draft (optional route if implemented)
+// router.post("/save-draft", saveDraft);
+
+
+/* ========== BLOG FETCHING ========== */
+
 // Get All Blogs
 router.get("/", getAllBlogs);
 
-// Get User Blogs
+// Get User's Blogs
 router.get("/user", getUserBlogs);
 
 // Get Blog by ID
 router.get(
   "/:id",
-  // passport.authenticate("jwt", { session: false }), 
+  // passport.authenticate("jwt", { session: false }),
   getBlogById
 );
 
 // Get Blog by Slug
 router.get("/slug/:slug", getBlogBySlug);
 
-// Update Blog
-router.put(
-  "/update/:slug",
-  // passport.authenticate("jwt", { session: false }),
-  updateBlog
-);
+
+/* ========== BLOG INTERACTIONS ========== */
 
 // Ping Blog
 router.post(
@@ -78,7 +108,7 @@ router.delete(
   deleteComment
 );
 
-// Increment View
+// Increment View Count
 router.post(
   "/view/:id",
   // passport.authenticate("jwt", { session: false }),

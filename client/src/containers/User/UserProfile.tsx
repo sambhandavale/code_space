@@ -11,6 +11,7 @@ import UserMatches from "../../components/User/UserMatches";
 import { isAuth } from "../../utility/helper";
 import { toast } from "sonner";
 import UserBlogs from "../../components/User/UserBlogs";
+import axiosInstance from "../../utility/axios_interceptor";
 
 const UserProfile = () =>{
     const { username } = useParams<{ username: string }>();
@@ -67,6 +68,71 @@ const UserProfile = () =>{
 
         fetchData();
     }, []);
+
+    async function getImageHash(file: File): Promise<string> {
+        const buffer = await file.arrayBuffer();
+        const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const objectUrl = URL.createObjectURL(file);
+        const image = new Image();
+        image.src = objectUrl;
+
+        image.onload = async () => {
+            const width = image.width;
+            const height = image.height;
+            const aspectRatio = width / height;
+
+            // 🧠 Enforce aspect ratio rule (tall images are not allowed)
+            if (aspectRatio < 0.8) {
+                toast.error("Image is too tall. Please use a wider image (e.g., 4:3 or square).");
+                URL.revokeObjectURL(objectUrl);
+                return;
+            }
+
+            try {
+                // 🔐 Compute image hash to check for duplicates
+                const imageHash = await getImageHash(file);
+
+                const formData = new FormData();
+                formData.append("image", file);
+                formData.append("userId", isAuth()._id);
+                formData.append("hash", imageHash);
+
+                const res = await axiosInstance.post('/users/upload-profile-image', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+
+                const { imageUrl } = res.data;
+
+                setUserProfileCard(prev => {
+                    if (!prev) return prev;
+                    return {
+                        ...prev,
+                        profileImage: imageUrl
+                    };
+                });
+
+                toast.success("Profile image updated.");
+            } catch (err) {
+                console.error(err);
+                toast.error("Failed to upload profile image.");
+            } finally {
+                URL.revokeObjectURL(objectUrl);
+            }
+        };
+
+        image.onerror = () => {
+            toast.error("Failed to load image.");
+            URL.revokeObjectURL(objectUrl);
+        };
+    };
 
 
     useEffect(() => {
@@ -132,6 +198,7 @@ const UserProfile = () =>{
                         setUserProfileCard={setUserProfileCard}
                         handleGlobalSave={handleGlobalSave}
                         isOnline={isOnline}
+                        handleProfileImageChange={handleProfileImageChange}
                         loading={loading}
                     />
                     <UserStreaks 

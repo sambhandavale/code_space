@@ -21,7 +21,8 @@ export interface IUserProfile {
 
     bio?: string;
     theme_preference?: string;
-    avatar_frame?: string;
+    profile_image?: string;
+    profile_image_hash?:string,
 }
 
 const FavoriteSchema = new mongoose.Schema<FavoriteItem>(
@@ -68,10 +69,8 @@ const UserProfileSchema = new mongoose.Schema<IUserProfile>(
             type: String,
         },
         theme_preference: { type: String, default: "dark" },
-        avatar_frame: {
-            type: String,
-            default: 'default.png'
-        },
+        profile_image: { type: String},
+        profile_image_hash: { type: String },
     },
     { timestamps: true }
 );

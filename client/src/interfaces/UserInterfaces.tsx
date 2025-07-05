@@ -13,6 +13,7 @@ export interface IProfileCardInfo {
     userTitle:string;
     fullName:string;
     username:string;
+    profileImage?:string;
 }
 
 export interface IDailyMatchRecord {

@@ -3,6 +3,7 @@ import { BsPencil, BsCheck } from 'react-icons/bs';
 import { FaSave } from 'react-icons/fa';
 import { IProfileCardInfo } from "../../interfaces/UserInterfaces";
 import { isAuth } from "../../utility/helper";
+import { FiEdit } from "react-icons/fi";
 
 interface ProfileCardProps {
     profilecard_info: IProfileCardInfo | undefined;
@@ -10,6 +11,7 @@ interface ProfileCardProps {
     setUserProfileCard: React.Dispatch<React.SetStateAction<IProfileCardInfo | undefined>>;
     handleGlobalSave: () => void;
     isOnline:boolean;
+    handleProfileImageChange:(e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
     loading:boolean;
 }
 
@@ -19,6 +21,7 @@ const ProfileCard = ({
     setUserProfileCard,
     handleGlobalSave,
     isOnline,
+    handleProfileImageChange,
     loading,
 }: ProfileCardProps) => {
     const [editField, setEditField] = useState<string | null>(null);
@@ -53,8 +56,19 @@ const ProfileCard = ({
         <>
         {!loading ? (
             <div className="profile_card"> 
-                <div className="profile_image">
-                    <img src="/assets/user/testprofile1.png" alt="" />
+                <div className="profile_image" style={{position:"relative"}}>
+                    <img src={userProfileCard?.profileImage || "/assets/user/testprofile1.png"} alt="" /> 
+                    {itsMe && (
+                        <label className="pointer" style={{position:"absolute",bottom:"1rem", left:"1rem", zIndex:"10"}}>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleProfileImageChange}
+                            />
+                            <div className="upload-btn"><FiEdit size={20} color="white" /></div>
+                        </label>
+                    )}
                     <div className="userrating flex flex-col items-end justify-end gap-1">
                         <div className="rating ff-google-b white">Rating {profilecard_info?.userRating}</div>
                         <div className="role ff-google-n white flex gap-2">
