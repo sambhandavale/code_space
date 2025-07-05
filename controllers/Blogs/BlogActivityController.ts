@@ -15,7 +15,7 @@ export const pingBlog = async (req: Request, res: Response) => {
     if (blog.pings.includes(userId)) {
       res.status(400).json({ error: 'You have already pinged this blog.' });
       return;
-    }
+    } 
 
     blog.pings.push(userId);
     await blog.save();
