@@ -11,7 +11,7 @@ import {
   getUserBlogs,
   updateBlogImages,
   uploadImageToAzure
-} from "../../controllers/blogs/BlogsController";
+} from "../../controllers/Blogs/BlogsController";
 
 import {
   pingBlog,
@@ -19,7 +19,7 @@ import {
   addComment,
   deleteComment,
   incrementView
-} from "../../controllers/blogs/BlogActivityController";
+} from "../../controllers/Blogs/BlogActivityController";
 import multer from "multer";
 
 const router = Router();
