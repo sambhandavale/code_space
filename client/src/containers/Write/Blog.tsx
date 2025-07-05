@@ -190,7 +190,7 @@ const Blog = () =>{
                     {isAuth() && (
                         isAuth()._id === blogAuthorDetails?.id &&
                         <div className="actions">
-                            <div className="save__draft glassmorphism-medium gls-box pointer" onClick={()=>navigate(`/blog/write?editid=${slug}`)}>Edit Blog</div>
+                            <div className="save__draft glassmorphism-medium gls-box pointer" onClick={()=>navigate(`/blog/write?editid=${id}`)}>Edit Blog</div>
                         </div>  
                     )}
                     <div className="blog__header">

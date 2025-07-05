@@ -7,6 +7,8 @@ import UserChallengesModel, { IUserChallenges } from "../../models/Challenges/Us
 import Users from "../../models/Users/Users";
 import Blog from "../../models/Blog/Blog";
 import moment from "moment-timezone";
+import { BlobServiceClient } from "@azure/storage-blob";
+import crypto from "crypto";
 
 export const getUserProfileDetails = async (req: Request, res: Response) => {
     try {
@@ -82,6 +84,7 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
             userTitle: userProfile.title,
             fullName: userInfo['full_name'],
             username: userInfo.username,
+            profileImage:userProfile.profile_image,
         }
 
         const dailyMatches = userStats.daily_matches;
@@ -274,6 +277,61 @@ export const updateUserProfile = async (req: Request, res: Response) => {
         console.error("Error updating user profile:", error);
         res.status(500).json({ message: "Server error", error });
         return;
+    }
+};
+
+const blobServiceClient = BlobServiceClient.fromConnectionString(
+  process.env.AZURE_STORAGE_CONNECTION_STRING!
+);
+
+const containerClient = blobServiceClient.getContainerClient(
+  process.env.AZURE_STORAGE_PROFILE_CONTAINER_NAME!
+);
+
+export const uploadProfileImage = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.body;
+    const file = req.file;
+
+    if (!file || !userId) {
+        res.status(400).json({ error: "Missing image or userId" });
+        return;
+    }
+
+    const hash = crypto.createHash("sha256").update(file.buffer).digest("hex");
+
+    // 2. Create blob name using hash
+    const ext = file.originalname.split(".").pop(); // jpg, png etc.
+    const blobName = `${userId}/${hash}.${ext}`;
+
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+    // 3. Check if already uploaded
+    const exists = await blockBlobClient.exists();
+    if (!exists) {
+      await blockBlobClient.uploadData(file.buffer, {
+        blobHTTPHeaders: { blobContentType: file.mimetype },
+      });
+    }
+
+    const imageUrl = blockBlobClient.url;
+
+    // 4. Save URL and hash to user profile
+    await UserProfile.findOneAndUpdate(
+      { user_id: userId },
+      {
+        profile_image: imageUrl,
+        profile_image_hash: hash,
+      },
+      { new: true }
+    );
+
+    res.status(200).json({ imageUrl });
+    return;
+  } catch (error) {
+    console.error("Profile image upload error:", error);
+    res.status(500).json({ error: "Failed to upload profile image" });
+    return;
     }
 };
 

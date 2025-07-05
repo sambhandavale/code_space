@@ -78,7 +78,7 @@ const UserSocials = ({
         handleGlobalSave(userSocialLinks);
     };
 
-    const allLinksAreEmpty = userSocialLinks.every(link => getLastUrlSegment(link.url) === '...');
+    const allLinksAreEmpty = Array.isArray(userSocialLinks) && userSocialLinks.every(link => getLastUrlSegment(link.url) === '...');
 
     if (!itsMe && allLinksAreEmpty) {
         return null;

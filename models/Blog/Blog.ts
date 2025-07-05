@@ -45,7 +45,7 @@ const ItemSchema = new Schema<Item>({
   value: { type: String, required: function (this: Item) { return this.type !== 'image'; } },
   imageUrl: { type: String },
   imageAlt: { type: String },
-  align: { type: String, enum: ['left', 'center', 'right'], default: 'center' },
+  align: { type: String, enum: ['start', 'center', 'end'], default: 'center' },
   expanded: { type: Boolean, default: false },
 });
 

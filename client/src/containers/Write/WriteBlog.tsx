@@ -5,8 +5,9 @@ import DefaultProfile from "../../components/Layout/DefaultProfile";
 import { getInitials } from "../../utility/general-utility";
 import { isAuth } from "../../utility/helper";
 import { toast } from "sonner";
-import { getAction, postAction, putAction } from "../../services/generalServices";
+import { getAction, patchAction, postAction, putAction } from "../../services/generalServices";
 import { useLocation, useNavigate } from "react-router";
+import axiosInstance from "../../utility/axios_interceptor";
 
 type ItemType = "content" | "bullet" | "image";
 
@@ -48,7 +49,7 @@ export const calculateReadingTime = (sections: Section[]): number => {
 const WriteBlog: React.FC = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
-    const slug = queryParams.get('editid');
+    const id = queryParams.get('editid');
     const navigate = useNavigate();
 
     const [loading, setloading] = useState<boolean>(true);
@@ -69,19 +70,20 @@ const WriteBlog: React.FC = () => {
     useEffect(()=>{
         const getBlogDetails = async () =>{
             try{
-                const res = await getAction(`/blogs/slug/${slug}`);
-                setSections(res.data.sections);
-                setTempBlogHeader(res.data.title);
-                setBlogHeader(res.data.title);
-                setloading(false);
+                const res = await getAction(`/blogs/${id}`);
+                console.log(res);
+                setSections(res.data.blog.sections);
+                setTempBlogHeader(res.data.blog.title);
+                setBlogHeader(res.data.blog.title);
+                setloading(false); 
             }catch(err){
                 console.log(err);
             }finally{
                 setloading(false);
             }
         }
-
-        if(slug){
+        console.log(id)
+        if(id){
             getBlogDetails();
         } else{
             setloading(false);
@@ -112,13 +114,21 @@ const WriteBlog: React.FC = () => {
     }, []);
 
     const handleImageUpload = (sectionIndex: number, file: File) => {
-        const imageUrl = URL.createObjectURL(file);
+        const localPreviewUrl = URL.createObjectURL(file);
+
+        const newPending = {
+            file,
+            sectionIndex,
+            localPreviewUrl,
+        };
+
+        setPendingImages((prev) => [...prev, newPending]);
 
         const updatedSections = [...sections];
 
+        // ✅ Ensure the section exists
         if (!updatedSections[sectionIndex]) {
             updatedSections[sectionIndex] = {
-                header: "",
                 items: []
             };
         }
@@ -126,10 +136,10 @@ const WriteBlog: React.FC = () => {
         updatedSections[sectionIndex].items.push({
             type: "image",
             value: "",
-            imageUrl,
+            imageUrl: localPreviewUrl,
             imageAlt: "Enter image description...",
-            align: "start", // default align
-            expanded: false // default height
+            align: "start",
+            expanded: false,
         });
 
         setSections(updatedSections);
@@ -262,12 +272,12 @@ const WriteBlog: React.FC = () => {
                 return;
             }
 
-            if (/[\/\\]/.test(blogHeader)) { // Checks for slashes
+            if (/[\/\\]/.test(blogHeader)) {
                 toast.error('Title cannot contain slashes or backslashes.');
                 return;
             }
 
-            if (blogHeader.length > 100) { // Optional: Limit title length
+            if (blogHeader.length > 100) {
                 toast.error('Title should be less than 100 characters.');
                 return;
             }
@@ -277,27 +287,66 @@ const WriteBlog: React.FC = () => {
                 return;
             }
 
+            // Step 1: Create blog with temp image URLs
             const data = {
                 title: blogHeader,
                 author: isAuth().full_name,
                 authorId: isAuth()._id,
-                sections: sections,
+                sections,
                 isPublished: true,
                 tags: [],
                 coverImage: "",
             };
 
             const res = await postAction('/blogs/create', data);
+
             if (res.status === 201) {
-                localStorage.removeItem('blogDraft');
-                navigate(`/blog/${res.data._id}/${res.data.slug}`)
-                toast.success('Published!!!'); 
-            } else if (res.status === 400) {
-                console.log(res);
-                toast.error(res.data.error);
+                const blogId = res.data._id;
+                let updatedSections = [...sections];
+
+                // Step 2: Upload images to Azure using blogId
+                for (let secIdx = 0; secIdx < updatedSections.length; secIdx++) {
+                    const updatedItems = await Promise.all(
+                        updatedSections[secIdx].items.map(async (item) => {
+                            if (item.type === "image" && item.imageUrl?.startsWith("blob:")) {
+                                const blob = await fetch(item.imageUrl).then(r => r.blob());
+                                const formData = new FormData();
+                                formData.append("image", blob, "temp.jpg");
+                                formData.append("blogId", blogId);
+
+                                const uploadRes = await axiosInstance.post('/blogs/upload-image', formData, {
+                                    headers: { 'Content-Type': 'multipart/form-data' }
+                                });
+
+
+                                const { imageUrl } = uploadRes.data;
+                                return { ...item, imageUrl };
+                            }
+                            return item;
+                        })
+                    );
+
+                    updatedSections[secIdx].items = updatedItems;
+                }
+
+                // Step 3: Patch the blog with final image URLs
+                const patchRes = await patchAction(`/blogs/${blogId}/update-images`, {
+                    sections: updatedSections
+                });
+
+                if (patchRes.status === 200) {
+                    toast.success('Published!!!');
+                    localStorage.removeItem('blogDraft');
+                    navigate(`/blog/${res.data._id}/${res.data.slug}`);
+                } else {
+                    toast.error('Blog published, but image update failed.');
+                }
+            } else {
+                toast.error(res.data?.error || 'Failed to publish blog.');
             }
         } catch (err) {
-            console.log(err);
+            console.error(err);
+            toast.error("An error occurred during publishing.");
         }
     };
 
@@ -313,12 +362,12 @@ const WriteBlog: React.FC = () => {
                 return;
             }
 
-            if (/[\/\\]/.test(blogHeader)) { // Checks for slashes
+            if (/[\/\\]/.test(blogHeader)) {
                 toast.error('Title cannot contain slashes or backslashes.');
                 return;
             }
 
-            if (blogHeader.length > 100) { // Optional: Limit title length
+            if (blogHeader.length > 100) {
                 toast.error('Title should be less than 100 characters.');
                 return;
             }
@@ -328,27 +377,56 @@ const WriteBlog: React.FC = () => {
                 return;
             }
 
+            let updatedSections = [...sections];
+
+            // Step 2: Upload any new blob images
+            for (let secIdx = 0; secIdx < updatedSections.length; secIdx++) {
+                const updatedItems = await Promise.all(
+                    updatedSections[secIdx].items.map(async (item) => {
+                        if (item.type === "image" && item.imageUrl?.startsWith("blob:")) {
+                            const blob = await fetch(item.imageUrl).then(r => r.blob());
+                            const formData = new FormData();
+                            formData.append("image", blob, "edited.jpg");
+                            formData.append("blogId", id!);
+
+                            const uploadRes = await axiosInstance.post('/blogs/upload-image', formData, {
+                                headers: { 'Content-Type': 'multipart/form-data' }
+                            });
+
+                            const { imageUrl } = uploadRes.data;
+                            return { ...item, imageUrl };
+                        }
+                        return item;
+                    })
+                );
+
+                updatedSections[secIdx].items = updatedItems;
+            }
+
+            // Step 3: Submit updated blog with final image URLs
             const data = {
                 title: blogHeader,
                 author: isAuth().full_name,
-                sections: sections,
+                sections: updatedSections,
                 isPublished: true,
                 tags: [],
                 coverImage: "",
             };
 
-            const res = await putAction(`/blogs/update/${slug}`, data);
+            const res = await putAction(`/blogs/update/${id}`, data);
             if (res.status === 200) {
                 localStorage.removeItem('blogDraft');
-                toast.success('Updated!!!');
+                toast.success('Updated!');
+                navigate(`/blog/${res.data._id}/${res.data.slug}`);
             } else if (res.status === 400) {
-                console.log(res);
                 toast.error(res.data.error);
             }
         } catch (err) {
-            console.log(err);
+            console.error(err);
+            toast.error("Failed to update blog.");
         }
     };
+
 
     return (
         <>
@@ -358,7 +436,7 @@ const WriteBlog: React.FC = () => {
                         isAuth() ? (
                             <div className="actions">
                                 <div className="save__draft glassmorphism-medium gls-box pointer" onClick={saveDraft}>Save Draft</div>
-                                <div className="publish__blog glassmorphism-medium gls-box pointer" onClick={slug ? updateBlog : publishBlog}>{slug ? "Update" : 'Publish'}</div>
+                                <div className="publish__blog glassmorphism-medium gls-box pointer" onClick={id ? updateBlog : publishBlog}>{id ? "Update" : 'Publish'}</div>
                             </div>
                         ):(
                             <div className="actions">

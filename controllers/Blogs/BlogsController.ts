@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Blog from '../../models/Blog/Blog';
 import moment from "moment-timezone";
+import { BlobServiceClient } from '@azure/storage-blob';
 
 export const createBlog = async (req: Request, res: Response) => {
   try {
@@ -68,6 +69,66 @@ export const saveDraft = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Server error.' });
   }
 };
+
+const blobServiceClient = BlobServiceClient.fromConnectionString(
+  process.env.AZURE_STORAGE_CONNECTION_STRING!
+);
+
+const containerClient = blobServiceClient.getContainerClient(
+  process.env.AZURE_STORAGE_BLOG_CONTAINER_NAME!
+);
+
+export const uploadImageToAzure = async (req, res) => {
+  try {
+    const { blogId } = req.body;
+    const file = req.file;
+
+    if (!file || !blogId) {
+      return res.status(400).send('Missing image or blogId');
+    }
+
+    // ✅ Use crypto to generate a unique name
+    const randomName = crypto.randomUUID(); // or crypto.randomBytes(16).toString('hex')
+    const blobName = `blog-${blogId}/${randomName}-${file.originalname}`;
+
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+    await blockBlobClient.uploadData(file.buffer, {
+      blobHTTPHeaders: { blobContentType: file.mimetype },
+    });
+
+    return res.status(200).json({ imageUrl: blockBlobClient.url });
+  } catch (error) {
+    console.error('Azure upload error:', error);
+    return res.status(500).json({ error: 'Failed to upload image' });
+  }
+};
+
+export const updateBlogImages = async (req: Request, res: Response) => {
+  try {
+    const { sections } = req.body;
+    const blogId = req.params.id;
+
+    const updated = await Blog.findByIdAndUpdate(
+      blogId,
+      { sections },
+      { new: true }
+    );
+
+    if (!updated){ 
+      res.status(404).json({ error: "Blog not found" });
+      return;
+    };
+
+    res.status(200).json(updated);
+    return; 
+  } catch (err) {
+    console.error("Error updating blog images:", err);
+    res.status(500).json({ error: "Failed to update blog images" });
+    return;
+  }
+};
+
 
 export const getAllBlogs = async (req: Request, res: Response) => {
   try {
@@ -244,7 +305,7 @@ export const getBlogBySlug = async (req: Request, res: Response) => {
   try {
     const blog = await Blog.findOne({ slug: req.params.slug }).populate('authorId', 'username full_name');
 
-    if (!blog) {
+    if (!blog) { 
       res.status(404).json({ error: 'Blog not found.' });
       return;
     }
@@ -259,7 +320,7 @@ export const updateBlog = async (req: Request, res: Response) => {
   try {
     const { title, author, sections, tags, coverImage, isPublished } = req.body;
 
-    const blog = await Blog.findOne({ slug: req.params.slug });
+    const blog = await Blog.findById(req.params.id);
 
     if (!blog) {
       res.status(404).json({ error: 'Blog not found.' });
