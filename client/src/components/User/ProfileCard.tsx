@@ -26,6 +26,7 @@ const ProfileCard = ({
 }: ProfileCardProps) => {
     const [editField, setEditField] = useState<string | null>(null);
     const [editedValue, setEditedValue] = useState<string>("");
+    const [isProfileImageLoading, setIsProfileImageLoading] = useState(true);
 
     const itsMe = isAuth() ? profilecard_info?.username === isAuth().username : false;
 
@@ -52,36 +53,60 @@ const ProfileCard = ({
         return JSON.stringify(profilecard_info) !== JSON.stringify(userProfileCard);
     }, [profilecard_info, userProfileCard]);
 
+    console.log(userProfileCard?.profileImage)
+    console.log(profilecard_info?.userTitle)
+
     return (
         <>
         {!loading ? (
             <div className="profile_card"> 
-                <div className="profile_image" style={{position:"relative"}}>
-                    <img src={userProfileCard?.profileImage || "/assets/user/testprofile1.png"} alt="" /> 
+                <div className="profile_image" style={{ position: "relative" }}>
+                    
+                    {isProfileImageLoading && (
+                        <div className="image-loader">
+                            {/* Replace this with a spinner, skeleton, shimmer, etc. */}
+                            <span className="text-white">Loading image...</span>
+                        </div>
+                    )}
+
+                    <img
+                        src={userProfileCard?.profileImage || "/assets/user/testprofile1.png"}
+                        alt=""
+                        style={{
+                            display: isProfileImageLoading ? "none" : "block",
+                        }}
+                        onLoad={() => setIsProfileImageLoading(false)}
+                        onError={() => setIsProfileImageLoading(false)} // fallback still shown
+                    />
+
                     {itsMe && (
-                        <label className="pointer" style={{position:"absolute",bottom:"1rem", left:"1rem", zIndex:"10"}}>
+                        <label className="pointer" style={{ position: "absolute", bottom: "1rem", left: "1rem", zIndex: "10" }}>
                             <input
                                 type="file"
                                 accept="image/*"
                                 className="hidden"
                                 onChange={handleProfileImageChange}
                             />
-                            <div className="upload-btn"><FiEdit size={20} color="white" /></div>
+                            <div className="upload-btn">
+                                <FiEdit size={20} color="white" />
+                            </div>
                         </label>
                     )}
+
                     <div className="userrating flex flex-col items-end justify-end gap-1">
                         <div className="rating ff-google-b white">Rating {profilecard_info?.userRating}</div>
                         <div className="role ff-google-n white flex gap-2">
                             {profilecard_info?.userTitle}
-                            {isOnline && 
+                            {isOnline && (
                                 <div className="flex gap-1 items-center">
                                     <div className="circle green"></div>
                                     <span className="ff-google-n white">Online</span>
                                 </div>
-                            }
+                            )}
                         </div>
                     </div>
                 </div>
+
                 <div className="profile_details">
                     {itsMe && hasChanges && (
                         <div className="global-save-btn gls-box glassmorphism-medium" onClick={handleGlobalSave}>
