@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { calculateReadingTime, Section } from "./WriteBlog";
+import { calculateReadingTime, languages, Section } from "./WriteBlog";
 import { getAction, postAction } from "../../services/generalServices";
 import DefaultProfile from "../../components/Layout/DefaultProfile";
 import { getInitials } from "../../utility/general-utility";
@@ -7,6 +7,8 @@ import { useNavigate, useParams } from "react-router";
 import { isAuth } from "../../utility/helper";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import CodeBlockEditor from "../../components/Write/CodeBlockEditor";
+import { FiTrash } from "react-icons/fi";
 
 const Blog = () =>{
     const { id, slug } = useParams<{ id: string; slug: string }>();
@@ -186,138 +188,162 @@ const Blog = () =>{
     return(
         <>
             {!loading ? (
-                <div className="write__blog">
-                    {isAuth() && (
-                        isAuth()._id === blogAuthorDetails?.id &&
-                        <div className="actions">
-                            <div className="save__draft glassmorphism-medium gls-box pointer" onClick={()=>navigate(`/blog/write?editid=${id}`)}>Edit Blog</div>
-                        </div>  
-                    )}
-                    <div className="blog__header">
-                        <div className="blog__date">{blogDate}</div>
-                        <div
-                            className="blog__main__header"
-                        >
-                            {blogTitle}
-                        </div>
-                    </div>
-
-                    <div className="blog__actions">
-                        <div className="blog__author pointer" onClick={()=>navigate(`/profile/${blogAuthorDetails?.username}`)}>
-                            <DefaultProfile initals={getInitials(`${blogAuthor}`)}/>
-                            <div className="blog__details">
-                                <div className="author__name">{blogAuthor}</div>
-                                <div className="blog__read__time">{calculateReadingTime(sections)} min read</div>
-                            </div>
-                        </div>
-                        <div className="blog_interaction">
-                            <div 
-                                className="activity ff-google-n white" 
-                            >
-                                {blogViews} views
-                            </div>
-                            <div 
-                                className="activity ff-google-n white pointer" 
-                                onClick={hasPinged ? unpingBlog : pingBlog}
-                                style={isAuth() ? {} : {pointerEvents:"none"}}
-                            >
-                                <img 
-                                    src={hasPinged ? '/icons/user/pinged.svg' : "/icons/user/ping.svg"} 
-                                    alt="ping" 
-                                />
-                                <span style={{ opacity: hasPinged ? '1' : '0.7' }}>{blogPingsNo}</span>
-                            </div>
-
-                            <AnimatePresence>
-                                {showPingText && (
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.5 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0 }}
-                                        transition={{ duration: 0.5 }}
-                                        className="ping-animation"
-                                    >
-                                        Pingggg!
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
-                    </div>
-
-
-
-                    <div className="blog__content">
-                        {sections.map((section, sectionIndex) => (
+                <div className="write__blog__wrapper">
+                    <div className="write__blog">
+                        {isAuth() && (
+                            isAuth()._id === blogAuthorDetails?.id &&
+                            <div className="actions">
+                                <div className="save__draft glassmorphism-medium gls-box pointer" onClick={()=>navigate(`/blog/write?editid=${id}`)}>Edit Blog</div>
+                            </div>  
+                        )}
+                        <div className="blog__header">
+                            <div className="blog__date">{blogDate}</div>
                             <div
-                                key={sectionIndex}
-                                className="section"
+                                className="blog__main__header"
                             >
-                                {section.header !== undefined && (
-                                    <div className="section__header__wrapper">
-                                        <div
-                                            className="section__header"
+                                {blogTitle}
+                            </div>
+                        </div>
+
+                        <div className="blog__actions">
+                            <div className="blog__author pointer" onClick={()=>navigate(`/profile/${blogAuthorDetails?.username}`)}>
+                                <DefaultProfile initals={getInitials(`${blogAuthor}`)}/>
+                                <div className="blog__details">
+                                    <div className="author__name">{blogAuthor}</div>
+                                    <div className="blog__read__time">{calculateReadingTime(sections)} min read</div>
+                                </div>
+                            </div>
+                            <div className="blog_interaction">
+                                <div 
+                                    className="activity ff-google-n white" 
+                                >
+                                    {blogViews} views
+                                </div>
+                                <div 
+                                    className="activity ff-google-n white pointer" 
+                                    onClick={hasPinged ? unpingBlog : pingBlog}
+                                    style={isAuth() ? {} : {pointerEvents:"none"}}
+                                >
+                                    <img 
+                                        src={hasPinged ? '/icons/user/pinged.svg' : "/icons/user/ping.svg"} 
+                                        alt="ping" 
+                                    />
+                                    <span style={{ opacity: hasPinged ? '1' : '0.7' }}>{blogPingsNo}</span>
+                                </div>
+
+                                <AnimatePresence>
+                                    {showPingText && (
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.5 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0 }}
+                                            transition={{ duration: 0.5 }}
+                                            className="ping-animation"
                                         >
-                                            {section.header || "Enter your section header here..."}
-                                        </div>
-                                    </div>
-                                )}
+                                            Pingggg!
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        </div>
 
-                                {section.items.map((item, itemIndex) => (
-                                    <div key={itemIndex} className="content">
-                                        {item.type === "content" && (
-                                            <div className="content__wrapper">
-                                                <div
-                                                    className="content__input"
-                                                >
-                                                    {item.value !== '' ? item.value : <br/>}
-                                                </div>
+
+
+                        <div className="blog__content">
+                            {sections.map((section, sectionIndex) => (
+                                <div
+                                    key={sectionIndex}
+                                    className="section"
+                                >
+                                    {section.header !== undefined && (
+                                        <div className="section__header__wrapper">
+                                            <div
+                                                className="section__header"
+                                            >
+                                                {section.header || "Enter your section header here..."}
                                             </div>
-                                        )}
+                                        </div>
+                                    )}
 
-                                        {item.type === "bullet" && (
-                                            <div className="bullet__point">
-                                                <div className="bullet__wrapper">
+                                    {section.items.map((item, itemIndex) => (
+                                        <div key={itemIndex} className="content">
+                                            {item.type === "content" && (
+                                                <div className="content__wrapper">
                                                     <div
-                                                        className="bullet__input"
+                                                        className="content__input"
                                                     >
-                                                        • {item.value ? item.value : '\u200B'}
+                                                        {item.value !== '' ? item.value : <br/>}
                                                     </div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
 
-                                        {item.type === "image" && (
-                                            <div className="image__wrapper">
-                                                <div
-                                                    className="content__image"
-                                                    style={{
-                                                        display: "flex",
-                                                        justifyContent:
-                                                            item.align === "center"
-                                                                ? "center"
-                                                                : item.align === "end"
-                                                                ? "flex-end"
-                                                                : "flex-start"
-                                                    }}
-                                                >
-                                                    <img
-                                                        src={item.imageUrl}
-                                                        alt={item.imageAlt}
-                                                        style={{
-                                                            maxWidth: "100%",
-                                                            maxHeight: item.expanded ? "100%" : "400px",
-                                                            transition: "max-height 0.3s ease"
-                                                        }}
-                                                    />
+                                            {item.type === "bullet" && (
+                                                <div className="bullet__point">
+                                                    <div className="bullet__wrapper">
+                                                        <div
+                                                            className="bullet__input"
+                                                        >
+                                                            • {item.value ? item.value : '\u200B'}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        ))}
-                    </div>
+                                            )}
 
+                                            {item.type === "code" && (
+                                                <div className="code-editor-wrapper">
+                                                    <div className="code-editor">
+                                                        <div className="code-toolbar">
+                                                            <>
+                                                            <span className="readonly-label ff-google-n">{item.language || 'plaintext'}</span>
+                                                            <span className="readonly-label ff-google-n">{item.theme || 'vs-dark'}</span>
+                                                            </>
+                                                        </div>
+
+                                                        <CodeBlockEditor
+                                                            value={item.value}
+                                                            language={item.language?.toLowerCase() || 'plaintext'}
+                                                            onChange={() => {}}
+                                                            theme={item.theme || 'vs-dark'}
+                                                            editing={false}
+                                                        />
+
+                                                    </div>
+                                                </div>
+                                            )} 
+
+                                            {item.type === "image" && (
+                                                <div className="image__wrapper">
+                                                    <div
+                                                        className="content__image"
+                                                        style={{
+                                                            display: "flex",
+                                                            justifyContent:
+                                                                item.align === "center"
+                                                                    ? "center"
+                                                                    : item.align === "end"
+                                                                    ? "flex-end"
+                                                                    : "flex-start"
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={item.imageUrl}
+                                                            alt={item.imageAlt}
+                                                            style={{
+                                                                maxWidth: "100%",
+                                                                maxHeight: item.expanded ? "100%" : "400px",
+                                                                transition: "max-height 0.3s ease"
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </div> 
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+
+                    </div>
                 </div>
             ):(
                 <BlogViewSkeleton/>

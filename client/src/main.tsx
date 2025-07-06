@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { Toaster } from 'sonner';
 import App from "./App";
 import "./main.scss";
+import 'highlight.js/styles/github-dark.css';
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

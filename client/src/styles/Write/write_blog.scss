@@ -40,16 +40,24 @@
     --blog_activity-img-size: calc(1.5rem * var(--scale-by));
 }
 
+.write__blog__wrapper{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .write__blog {
-    padding-top: 8rem;
+    padding-top: 8rem; 
+    width: 1000px;
     height: 100%;
     display: flex;
     align-items: flex-start;
     justify-content: center;
     color: var(--font-color);
     font-family: var(--font-google-family);
-    padding-left: var(--write__blog-padding-left);
-    padding-right: var(--write__blog-padding-right);
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
     padding-bottom: var(--write__blog-padding-bottom);
     flex-direction: column;
     gap: var(--write__blog-gap);
@@ -322,28 +330,150 @@
     color: #999;
 }
 
+.code-editor-wrapper {
+  display: flex;
+  align-self: stretch;
+  flex: 1 0 0;
+  gap: 1rem;
+  font-family: 'Fira Code', monospace;
+  margin: 1rem 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Optional: add fake window controls */
+.code-editor-wrapper::after {
+  content: "";
+  display: flex;
+  gap: 6px;
+  padding: 0.5rem;
+  position: absolute;
+  top: 0.3rem;
+  left: 0.6rem;
+}
+
+// .code-editor-wrapper::after {
+//   content: '';
+//   position: absolute;
+//   top: 0.75rem;
+//   left: 0.75rem;
+// //   width: 8px;
+// //   height: 8px;
+//   border-radius: 50%;
+//   background: #ff5f56;
+//   box-shadow:
+//     20px 0 0 #ffbd2e,
+//     40px 0 0 #27c93f;
+// } 
+
+.code-editor {
+  display: flex;
+  align-self: stretch;
+  flex: 1 0 0;
+  flex-direction: column;
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  font-family: 'Fira Code', monospace;
+  box-shadow: 0 0 0 1px #2a2a2a, 0 4px 10px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  position: relative;
+}
+
+.code-toolbar {
+  background: #2d2d2d;
+  color: #ccc;
+  padding: 0.4rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #444;
+  overflow-x: auto;
+
+  select {
+    background: #2d2d2d;
+    color: #ccc;
+    border: 1px solid #444;
+    font-size: 0.85rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    // margin-left: 5rem;
+
+    option {
+      text-transform: capitalize;
+    }
+  }
+}
+
+.tiptap-code-block {
+  background: #1e1e1e;
+  color: #f8f8f2;
+  font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 14px;
+  line-height: 1.5;
+
+  pre {
+    margin: 0;
+    padding: 1rem;
+    overflow-x: auto;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    background: transparent;
+    color: #ccc;
+  }
+
+  code {
+    display: block;
+    padding: 0;
+    background: transparent;
+  }
+}
+
+.code-editor {
+  width: 100%;
+  min-height: 200px;
+  max-height: 500px;
+  overflow: hidden;
+
+  // Desktop responsiveness
+  @media (min-width: 768px) {
+    height: 300px;
+  }
+
+  // Optional: hide on mobile
+  @media (max-width: 767px) {
+    width: 250px;
+  }
+}
+
+.readonly-label{
+    background: #2d2d2d;
+    color: #ccc;
+    border: 1px solid #444;
+    font-size: 0.85rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    text-transform: capitalize;
+}
 
 /* Responsive Scaling */
-@media (max-width: 1050px) {
-    .write__blog {
-        --write__blog-padding-right: calc(8rem * var(--scale-by));
-        --write__blog-padding-left: calc(8rem * var(--scale-by));
+@media (max-width: 1100px) {
+    .write__blog{
+        width: 800px;
     }
 }
 
 @media (max-width: 850px) {
-    .write__blog {
-        --write__blog-padding-right: calc(3rem * var(--scale-by));
-        --write__blog-padding-left: calc(3rem * var(--scale-by));
+    .write__blog{
+        width: 600px;
     }
 }
 
 @media (max-width: 550px) {
     .write__blog {
         --scale-by: 0.8;
-        --write__blog-padding-right: calc(2rem * var(--scale-by));
-        --write__blog-padding-left: calc(2rem * var(--scale-by));
-
         align-items: center;
 
         // .blog__actions {
@@ -360,9 +490,7 @@
 
 @media (max-width: 450px) {
     .write__blog {
-        --scale-by: 0.6;
-        --write__blog-padding-right: calc(1.5rem * var(--scale-by));
-        --write__blog-padding-left: calc(1.5rem * var(--scale-by));
+        --scale-by: 0.7;
 
         .blog__date {
             font-size: 0.75rem;

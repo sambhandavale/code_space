@@ -1,8 +1,10 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 interface Item {
-  type: 'content' | 'bullet' | 'image';
+  type: 'content' | 'bullet' | 'image' | 'code';
   value?: string;
+  language?: string;
+  theme?: string;
   imageUrl?: string;
   imageAlt?: string;
   align?: 'left' | 'center' | 'right';
@@ -41,8 +43,20 @@ export interface IBlog extends Document {
 }
 
 const ItemSchema = new Schema<Item>({
-  type: { type: String, enum: ['content', 'bullet', 'image'], required: true },
+  type: { type: String, enum: ['content', 'bullet', 'image', 'code'], required: true },
   value: { type: String, required: function (this: Item) { return this.type !== 'image'; } },
+  language: {
+    type: String,
+    required: function (this: Item) {
+      return this.type === 'code';
+    },
+  },
+  theme: {
+    type: String,
+    required: function (this: Item) {
+      return this.type === 'code';
+    },
+  },
   imageUrl: { type: String },
   imageAlt: { type: String },
   align: { type: String, enum: ['start', 'center', 'end'], default: 'center' },

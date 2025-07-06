@@ -8,12 +8,15 @@ import { toast } from "sonner";
 import { getAction, patchAction, postAction, putAction } from "../../services/generalServices";
 import { useLocation, useNavigate } from "react-router";
 import axiosInstance from "../../utility/axios_interceptor";
+import CodeBlockEditor from "../../components/Write/CodeBlockEditor";
 
-type ItemType = "content" | "bullet" | "image";
+type ItemType = "content" | "bullet" | "image" | "code";
 
 interface Item {
     type: ItemType;
     value: string;
+    language?: string;
+    theme?: string;
     imageUrl?: string;
     imageAlt?: string;
     align?: "start" | "center" | "end";
@@ -45,6 +48,17 @@ export const calculateReadingTime = (sections: Section[]): number => {
     const wordsPerMinute = 100;
     return Math.ceil(totalWords / wordsPerMinute);
 };
+
+export const languages = [
+  "JavaScript",  // JavaScript
+  "Python",      // Python
+  "Java",        // Java
+  "CPP",         // C++ (Monaco expects "cpp" but will accept "Cpp")
+  "Shell",       // Bash (Monaco uses "shell")
+  "HTML",        // HTML
+  "CSS",         // CSS
+  "Plaintext"    // Plain Text
+];
 
 const WriteBlog: React.FC = () => {
     const location = useLocation();
@@ -181,40 +195,51 @@ const WriteBlog: React.FC = () => {
     };
 
     const addItem = (
-        type: ItemType,
-        sectionIndex?: number,
-        insertAfterIndex?: number,
-        onAddFocus?: (newItemIndex: number, sectionIndex: number) => void
+    type: ItemType,
+    sectionIndex?: number,
+    insertAfterIndex?: number,
+    onAddFocus?: (newItemIndex: number, sectionIndex: number) => void
     ) => {
-        const defaultText = type === "content" ? "" : "";
-        let updatedSections = [...sections];
+    const defaultText = type === 'content' ? '' : '';
 
-        if (activeSectionIndex === null || sections.length === 0) {
-            const newSection: Section = { items: [{ type, value: defaultText }] };
-            updatedSections.push(newSection);
-            setSections(updatedSections);
-            setActiveSectionIndex(updatedSections.length - 1);
-            return;
-        }
-
-        const targetSection = sectionIndex !== undefined ? sectionIndex : activeSectionIndex;
-
-        if (insertAfterIndex !== undefined) {
-            updatedSections[targetSection].items.splice(insertAfterIndex + 1, 0, { type, value: defaultText });
-            setSections(updatedSections);
-
-            setTimeout(() => {
-                onAddFocus?.(insertAfterIndex + 1, targetSection);
-            }, 0);
-        } else {
-            updatedSections[targetSection].items.push({ type, value: defaultText });
-            setSections(updatedSections);
-
-            setTimeout(() => {
-                onAddFocus?.(updatedSections[targetSection].items.length - 1, targetSection);
-            }, 0);
-        }
+    const newItem: Item = {
+        type,
+        value: defaultText,
+        ...(type === 'code' && {
+        language: 'javascript',
+        theme: 'vs-dark',
+        }),
     };
+
+    let updatedSections = [...sections];
+
+    if (activeSectionIndex === null || sections.length === 0) {
+        const newSection: Section = { items: [newItem] };
+        updatedSections.push(newSection);
+        setSections(updatedSections);
+        setActiveSectionIndex(updatedSections.length - 1);
+        return;
+    }
+
+    const targetSection = sectionIndex !== undefined ? sectionIndex : activeSectionIndex;
+
+    if (insertAfterIndex !== undefined) {
+        updatedSections[targetSection].items.splice(insertAfterIndex + 1, 0, newItem);
+        setSections(updatedSections);
+
+        setTimeout(() => {
+        onAddFocus?.(insertAfterIndex + 1, targetSection);
+        }, 0);
+    } else {
+        updatedSections[targetSection].items.push(newItem);
+        setSections(updatedSections);
+
+        setTimeout(() => {
+        onAddFocus?.(updatedSections[targetSection].items.length - 1, targetSection);
+        }, 0);
+    }
+    };
+
 
     const updateHeader = (index: number, html: string) => {
         const updatedSections = [...sections];
@@ -441,286 +466,236 @@ const WriteBlog: React.FC = () => {
         }
     };
 
+    console.log(sections);
 
     return (
         <>
             {!loading && (
-                <div className="write__blog"> 
-                    {
-                        isAuth() ? (
-                            <div className="actions">
-                                <div className="save__draft glassmorphism-medium gls-box pointer" onClick={saveDraft}>Save Draft</div>
-                                <div className="publish__blog glassmorphism-medium gls-box pointer" onClick={id ? updateBlog : publishBlog}>{id ? "Update" : 'Publish'}</div>
-                            </div>
-                        ):(
-                            <div className="actions">
-                                <div className="save__draft glassmorphism-medium gls-box pointer" onClick={()=>navigate('/login')}>Login to Draft</div>
-                            </div>
-                        )
-                    }
-
-                    <div className="blog__header">
-                        <div className="blog__date">{currentDateTime}</div>
-                        <div
-                            className="blog__main__header"
-                            contentEditable
-                            suppressContentEditableWarning={true}
-                            onInput={(e) => setBlogHeader((e.target as HTMLDivElement).innerText)}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    e.preventDefault();
-                                    addItem("content");
-                                }
-                            }}
-                            data-placeholder="Enter your blog header here..."
-                        >
-                            {tempBlogHeader}
-                        </div>
-                    </div>
-                    
-                    {
-                        isAuth() && (
-                        <div className="blog__actions">
-                            <div className="blog__author">
-                                <DefaultProfile initals={getInitials(`${isAuth().full_name}`)}/>
-                                <div className="blog__details">
-                                    <div className="author__name">{isAuth().full_name}</div>
-                                    <div className="blog__read__time">{calculateReadingTime(sections)} min read</div>
+                <div className="write__blog__wrapper">
+                    <div className="write__blog"> 
+                        {
+                            isAuth() ? (
+                                <div className="actions">
+                                    <div className="save__draft glassmorphism-medium gls-box pointer" onClick={saveDraft}>Save Draft</div>
+                                    <div className="publish__blog glassmorphism-medium gls-box pointer" onClick={id ? updateBlog : publishBlog}>{id ? "Update" : 'Publish'}</div>
                                 </div>
-                            </div>
-                        </div>
-                        )
-                    }
-
-
-
-                    <div className="blog__content">
-                        {sections.length === 0 && (
-                            <div className="blog__builder sticky-builder">
-                                <FiPlusCircle className="plus" />
-                                <div className="blog__builder__options">
-                                    <div
-                                        className="blog__builder__option glassmorphism-medium header pointer"
-                                        onClick={addHeader}
-                                    >
-                                        <strong>H</strong>eader
-                                    </div>
-                                    <div
-                                        className="blog__builder__option glassmorphism-medium pointer"
-                                        onClick={addHeader}
-                                    >
-                                        <strong>N</strong>ew Section
-                                    </div>
-                                    <div
-                                        className="blog__builder__option glassmorphism-medium pointer"
-                                        onClick={() => addItem("content", 0)}
-                                    >
-                                        New Line(Content)
-                                    </div>
-                                    <div
-                                        className="blog__builder__option glassmorphism-medium pointer"
-                                        onClick={() => addItem("bullet", 0)}
-                                    >
-                                        • Bullet Point
-                                    </div>
-                                    <div className="blog__builder__option glassmorphism-medium pointer">
-                                        <label htmlFor={`image-upload-${0}`} style={{cursor: "pointer"}} className="flex items-center gap-1">
-                                            <FiImage size={16} />
-                                            Image
-                                        </label>
-                                        <input
-                                            id={`image-upload-${0}`}
-                                            type="file"
-                                            accept="image/*"
-                                            style={{display: "none"}}
-                                            onChange={(e) => {
-                                                
-                                                if (e.target.files && e.target.files[0]) {
-                                                    handleImageUpload(0, e.target.files[0]);
-                                                }
-                                            }}
-                                        />
-                                    </div>
+                            ):(
+                                <div className="actions">
+                                    <div className="save__draft glassmorphism-medium gls-box pointer" onClick={()=>navigate('/login')}>Login to Draft</div>
                                 </div>
-                            </div>
-                        )}
-                        {sections.map((section, sectionIndex) => (
+                            )
+                        }
+
+                        <div className="blog__header">
+                            <div className="blog__date">{currentDateTime}</div>
                             <div
-                                key={sectionIndex}
-                                className="section"
-                                onClick={() => setActiveSectionIndex(sectionIndex)}
+                                className="blog__main__header"
+                                contentEditable
+                                suppressContentEditableWarning={true}
+                                onInput={(e) => setBlogHeader((e.target as HTMLDivElement).innerText)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.preventDefault();
+                                        addItem("content");
+                                    }
+                                }}
+                                data-placeholder="Enter your blog header here..."
                             >
-                                {activeSectionIndex === sectionIndex && (
-                                    <div className="blog__builder sticky-builder">
-                                        <FiPlusCircle className="plus" />
-                                        <div className="blog__builder__options">
-                                            <div
-                                                className="blog__builder__option glassmorphism-medium header pointer"
-                                                onClick={addHeader}
-                                            >
-                                                <strong>H</strong>eader
-                                            </div>
-                                            <div
-                                                className="blog__builder__option glassmorphism-medium pointer"
-                                                onClick={addHeader}
-                                            >
-                                                <strong>N</strong>ew Section
-                                            </div>
-                                            <div
-                                                className="blog__builder__option glassmorphism-medium pointer"
-                                                onClick={() => addItem("content", sectionIndex)}
-                                            >
-                                                New Line(Content)
-                                            </div>
-                                            <div
-                                                className="blog__builder__option glassmorphism-medium pointer"
-                                                onClick={() => addItem("bullet", sectionIndex)}
-                                            >
-                                                • Bullet Point
-                                            </div>
-                                            <div className="blog__builder__option glassmorphism-medium pointer">
-                                                <label htmlFor={`image-upload-${sectionIndex}`} style={{cursor: "pointer"}} className="flex items-center gap-1">
-                                                    <FiImage size={16} />
-                                                    Image
-                                                </label>
-                                                <input
-                                                    id={`image-upload-${sectionIndex}`}
-                                                    type="file"
-                                                    accept="image/*"
-                                                    style={{display: "none"}}
-                                                    onChange={(e) => {
-                                                        
-                                                        if (e.target.files && e.target.files[0]) {
-                                                            handleImageUpload(sectionIndex, e.target.files[0]);
-                                                        }
-                                                    }}
-                                                />
-                                            </div>
-                                        </div>
+                                {tempBlogHeader}
+                            </div>
+                        </div>
+                        
+                        {
+                            isAuth() && (
+                            <div className="blog__actions">
+                                <div className="blog__author">
+                                    <DefaultProfile initals={getInitials(`${isAuth().full_name}`)}/>
+                                    <div className="blog__details">
+                                        <div className="author__name">{isAuth().full_name}</div>
+                                        <div className="blog__read__time">{calculateReadingTime(sections)} min read</div>
                                     </div>
-                                )}
+                                </div>
+                            </div>
+                            )
+                        }
 
-                                {section.header !== undefined && (
-                                    <div className="section__header__wrapper">
+
+
+                        <div className="blog__content">
+                            {sections.length === 0 && (
+                                <div className="blog__builder sticky-builder">
+                                    <FiPlusCircle className="plus" />
+                                    <div className="blog__builder__options">
                                         <div
-                                            className="section__header"
-                                            contentEditable
-                                            suppressContentEditableWarning={true}
-                                            onBlur={(e) => updateHeader(sectionIndex, (e.target as HTMLDivElement).innerText)}
-                                            onClick={() => setActiveSectionIndex(sectionIndex)}
-                                            onKeyDown={(e) => {
-                                                if (e.key === "Enter") {
-                                                    e.preventDefault();
-                                                    addItem("content", sectionIndex, -1);
-                                                    setTimeout(() => {
-                                                        const refKey = `${sectionIndex}-${0}`;
-                                                        const el = contentRefs.current[refKey];
-                                                        el?.focus();
-                                                        placeCaretAtEnd(el);
-                                                    }, 0);
-                                                }
-                                            }}
-                                            data-placeholder="Enter your section header here..."
+                                            className="blog__builder__option glassmorphism-medium pointer"
+                                            onClick={addHeader}
                                         >
-                                            {section.header || ""}
+                                            <strong>H</strong>eader
                                         </div>
-                                        <FiTrash
-                                            className="delete__icon"
-                                            onClick={() => {
-                                                const updatedSections = [...sections];
-                                                updatedSections.splice(sectionIndex, 1);
-                                                setSections(updatedSections);
-                                            }}
-                                        />
-                                    </div>
-                                )}
-
-                                {section.items.map((item, itemIndex) => (
-                                    <div key={itemIndex} className="content">
-                                        {item.type === "content" && (
-                                            <div className="content__wrapper">
-                                                <div
-                                                    className="content__input"
-                                                    contentEditable
-                                                    suppressContentEditableWarning={true}
-                                                    data-placeholder="Enter your content here..."
-                                                    onBlur={(e) =>
-                                                        updateItem(
-                                                            sectionIndex,
-                                                            itemIndex,
-                                                            (e.target as HTMLDivElement).innerText.replace(/\u200B/g, '')
-                                                        )
+                                        <div
+                                            className="blog__builder__option glassmorphism-medium pointer"
+                                            onClick={addHeader}
+                                        >
+                                            <strong>N</strong>ew Section
+                                        </div>
+                                        <div
+                                            className="blog__builder__option glassmorphism-medium pointer"
+                                            onClick={() => addItem("content", 0)}
+                                        >
+                                            New Line(Content)
+                                        </div>
+                                        <div
+                                            className="blog__builder__option glassmorphism-medium pointer"
+                                            onClick={() => addItem("bullet", 0)}
+                                        >
+                                            • Bullet Point
+                                        </div>
+                                        <div className="blog__builder__option glassmorphism-medium pointer">
+                                            <label htmlFor={`image-upload-${0}`} style={{cursor: "pointer"}} className="flex items-center gap-1">
+                                                <FiImage size={16} />
+                                                Image
+                                            </label>
+                                            <input
+                                                id={`image-upload-${0}`}
+                                                type="file"
+                                                accept="image/*"
+                                                style={{display: "none"}}
+                                                onChange={(e) => {
+                                                    
+                                                    if (e.target.files && e.target.files[0]) {
+                                                        handleImageUpload(0, e.target.files[0]);
                                                     }
-                                                    onClick={() => setActiveSectionIndex(sectionIndex)}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === "Enter") {
-                                                            e.preventDefault();
-                                                            addItem("content", sectionIndex, itemIndex, (newItemIndex, targetSection) => {
-                                                                const refKey = `${targetSection}-${newItemIndex}`;
-                                                                const el = contentRefs.current[refKey];
-                                                                el?.focus();
-                                                                placeCaretAtEnd(el);
-                                                            });
-                                                        }
+                                                }}
+                                            />
+                                        </div>
+                                        <div
+                                            className="blog__builder__option glassmorphism-medium pointer"
+                                            onClick={() => addItem("code", 0)}
+                                        >
+                                            {'</>'} Code Block
+                                        </div>
 
-                                                        if (e.key === "Backspace" && (e.target as HTMLDivElement).innerText.trim() === "") {
-                                                            e.preventDefault();
-                                                            if (sections[sectionIndex].items.length === 1) return;
-
-                                                            const updatedSections = [...sections];
-                                                            updatedSections[sectionIndex].items.splice(itemIndex, 1);
-                                                            setSections(updatedSections);
-
-                                                            const prevIndex = itemIndex - 1;
-                                                            if (prevIndex >= 0) {
-                                                                const refKey = `${sectionIndex}-${prevIndex}`;
-                                                                setTimeout(() => {
-                                                                    const el = contentRefs.current[refKey];
-                                                                    el?.focus();
-                                                                    placeCaretAtEnd(el);
-                                                                }, 0);
-                                                            }
-                                                        }
-                                                    }}
-                                                    ref={(el) => {
-                                                        contentRefs.current[`${sectionIndex}-${itemIndex}`] = el;
-                                                    }}
+                                    </div>
+                                </div>
+                            )}
+                            {sections.map((section, sectionIndex) => (
+                                <div
+                                    key={sectionIndex}
+                                    className="section"
+                                    onClick={() => setActiveSectionIndex(sectionIndex)}
+                                >
+                                    {activeSectionIndex === sectionIndex && (
+                                        <div className="blog__builder sticky-builder">
+                                            <FiPlusCircle className="plus" />
+                                            <div className="blog__builder__options">
+                                                <div
+                                                    className="blog__builder__option glassmorphism-medium header pointer"
+                                                    onClick={addHeader}
                                                 >
-                                                    {item.value || ''}
+                                                    <strong>H</strong>eader
                                                 </div>
-                                                <FiTrash
-                                                    className="delete__icon"
-                                                    onClick={() => {
-                                                        const updatedSections = [...sections];
-                                                        updatedSections[sectionIndex].items.splice(itemIndex, 1);
-                                                        setSections(updatedSections);
-                                                    }}
-                                                />
-                                            </div>
-                                        )}
+                                                <div
+                                                    className="blog__builder__option glassmorphism-medium pointer"
+                                                    onClick={addHeader}
+                                                >
+                                                    <strong>N</strong>ew Section
+                                                </div>
+                                                <div
+                                                    className="blog__builder__option glassmorphism-medium pointer"
+                                                    onClick={() => addItem("content", sectionIndex)}
+                                                >
+                                                    New Line(Content)
+                                                </div>
+                                                <div
+                                                    className="blog__builder__option glassmorphism-medium pointer"
+                                                    onClick={() => addItem("bullet", sectionIndex)}
+                                                >
+                                                    • Bullet Point
+                                                </div>
+                                                <div className="blog__builder__option glassmorphism-medium pointer">
+                                                    <label htmlFor={`image-upload-${sectionIndex}`} style={{cursor: "pointer"}} className="flex items-center gap-1">
+                                                        <FiImage size={16} />
+                                                        Image
+                                                    </label>
+                                                    <input
+                                                        id={`image-upload-${sectionIndex}`}
+                                                        type="file"
+                                                        accept="image/*"
+                                                        style={{display: "none"}}
+                                                        onChange={(e) => {
+                                                            if (e.target.files && e.target.files[0]) {
+                                                                handleImageUpload(sectionIndex, e.target.files[0]);
+                                                            }
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div
+                                                    className="blog__builder__option glassmorphism-medium pointer"
+                                                    onClick={() => addItem("code", sectionIndex)}
+                                                >
+                                                    {'</>'} Code Block
+                                                </div>
 
-                                        {item.type === "bullet" && (
-                                            <div className="bullet__point">
-                                                <div className="bullet__wrapper">
-                                                    <span className="bullet__symbol">•</span>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {section.header !== undefined && (
+                                        <div className="section__header__wrapper">
+                                            <div
+                                                className="section__header"
+                                                contentEditable
+                                                suppressContentEditableWarning={true}
+                                                onBlur={(e) => updateHeader(sectionIndex, (e.target as HTMLDivElement).innerText)}
+                                                onClick={() => setActiveSectionIndex(sectionIndex)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter") {
+                                                        e.preventDefault();
+                                                        addItem("content", sectionIndex, -1);
+                                                        setTimeout(() => {
+                                                            const refKey = `${sectionIndex}-${0}`;
+                                                            const el = contentRefs.current[refKey];
+                                                            el?.focus();
+                                                            placeCaretAtEnd(el);
+                                                        }, 0);
+                                                    }
+                                                }}
+                                                data-placeholder="Enter your section header here..."
+                                            >
+                                                {section.header || ""}
+                                            </div>
+                                            <FiTrash
+                                                className="delete__icon"
+                                                onClick={() => {
+                                                    const updatedSections = [...sections];
+                                                    updatedSections.splice(sectionIndex, 1);
+                                                    setSections(updatedSections);
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+
+                                    {section.items.map((item, itemIndex) => (
+                                        <div key={itemIndex} className="content">
+                                            {item.type === "content" && (
+                                                <div className="content__wrapper">
                                                     <div
-                                                        className="bullet__input"
+                                                        className="content__input"
                                                         contentEditable
                                                         suppressContentEditableWarning={true}
+                                                        data-placeholder="Enter your content here..."
                                                         onBlur={(e) =>
                                                             updateItem(
                                                                 sectionIndex,
                                                                 itemIndex,
-                                                                (e.target as HTMLDivElement).innerText.trim()
+                                                                (e.target as HTMLDivElement).innerText.replace(/\u200B/g, '')
                                                             )
                                                         }
                                                         onClick={() => setActiveSectionIndex(sectionIndex)}
                                                         onKeyDown={(e) => {
-                                                            const currentText = (e.target as HTMLDivElement).innerText.trim();
-
                                                             if (e.key === "Enter") {
                                                                 e.preventDefault();
-                                                                addItem("bullet", sectionIndex, itemIndex, (newItemIndex, targetSection) => {
+                                                                addItem("content", sectionIndex, itemIndex, (newItemIndex, targetSection) => {
                                                                     const refKey = `${targetSection}-${newItemIndex}`;
                                                                     const el = contentRefs.current[refKey];
                                                                     el?.focus();
@@ -728,9 +703,8 @@ const WriteBlog: React.FC = () => {
                                                                 });
                                                             }
 
-                                                            if (e.key === "Backspace" && currentText === "") {
+                                                            if (e.key === "Backspace" && (e.target as HTMLDivElement).innerText.trim() === "") {
                                                                 e.preventDefault();
-
                                                                 if (sections[sectionIndex].items.length === 1) return;
 
                                                                 const updatedSections = [...sections];
@@ -751,11 +725,9 @@ const WriteBlog: React.FC = () => {
                                                         ref={(el) => {
                                                             contentRefs.current[`${sectionIndex}-${itemIndex}`] = el;
                                                         }}
-                                                        data-placeholder="Enter your bullet point here..."
                                                     >
                                                         {item.value || ''}
                                                     </div>
-
                                                     <FiTrash
                                                         className="delete__icon"
                                                         onClick={() => {
@@ -765,91 +737,219 @@ const WriteBlog: React.FC = () => {
                                                         }}
                                                     />
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
 
+                                            {item.type === "bullet" && (
+                                                <div className="bullet__point">
+                                                    <div className="bullet__wrapper">
+                                                        <span className="bullet__symbol">•</span>
+                                                        <div
+                                                            className="bullet__input"
+                                                            contentEditable
+                                                            suppressContentEditableWarning={true}
+                                                            onBlur={(e) =>
+                                                                updateItem(
+                                                                    sectionIndex,
+                                                                    itemIndex,
+                                                                    (e.target as HTMLDivElement).innerText.trim()
+                                                                )
+                                                            }
+                                                            onClick={() => setActiveSectionIndex(sectionIndex)}
+                                                            onKeyDown={(e) => {
+                                                                const currentText = (e.target as HTMLDivElement).innerText.trim();
 
-                                        {item.type === "image" && (
-                                            <div className="image__wrapper">
-                                                <div
-                                                    className="content__image"
-                                                    style={{
-                                                        display: "flex",
-                                                        justifyContent:
-                                                            item.align === "center"
-                                                                ? "center"
-                                                                : item.align === "end"
-                                                                ? "flex-end"
-                                                                : "flex-start"
-                                                    }}
-                                                >
-                                                    <img
-                                                        src={item.imageUrl}
-                                                        alt={item.imageAlt}
-                                                        style={{
-                                                            maxWidth: "100%",
-                                                            maxHeight: item.expanded ? "100%" : "400px",
-                                                            transition: "max-height 0.3s ease"
-                                                        }}
-                                                    />
+                                                                if (e.key === "Enter") {
+                                                                    e.preventDefault();
+                                                                    addItem("bullet", sectionIndex, itemIndex, (newItemIndex, targetSection) => {
+                                                                        const refKey = `${targetSection}-${newItemIndex}`;
+                                                                        const el = contentRefs.current[refKey];
+                                                                        el?.focus();
+                                                                        placeCaretAtEnd(el);
+                                                                    });
+                                                                }
+
+                                                                if (e.key === "Backspace" && currentText === "") {
+                                                                    e.preventDefault();
+
+                                                                    if (sections[sectionIndex].items.length === 1) return;
+
+                                                                    const updatedSections = [...sections];
+                                                                    updatedSections[sectionIndex].items.splice(itemIndex, 1);
+                                                                    setSections(updatedSections);
+
+                                                                    const prevIndex = itemIndex - 1;
+                                                                    if (prevIndex >= 0) {
+                                                                        const refKey = `${sectionIndex}-${prevIndex}`;
+                                                                        setTimeout(() => {
+                                                                            const el = contentRefs.current[refKey];
+                                                                            el?.focus();
+                                                                            placeCaretAtEnd(el);
+                                                                        }, 0);
+                                                                    }
+                                                                }
+                                                            }}
+                                                            ref={(el) => {
+                                                                contentRefs.current[`${sectionIndex}-${itemIndex}`] = el;
+                                                            }}
+                                                            data-placeholder="Enter your bullet point here..."
+                                                        >
+                                                            {item.value || ''}
+                                                        </div>
+
+                                                        <FiTrash
+                                                            className="delete__icon"
+                                                            onClick={() => {
+                                                                const updatedSections = [...sections];
+                                                                updatedSections[sectionIndex].items.splice(itemIndex, 1);
+                                                                setSections(updatedSections);
+                                                            }}
+                                                        />
+                                                    </div>
                                                 </div>
+                                            )}
 
-                                                <div className="content__actions">
-                                                    <FiTrash
-                                                        className="delete__icon pointer"
-                                                        onClick={() => {
+                                            {item.type === "code" && (
+                                                <div className="code-editor-wrapper">
+                                                    <div className="code-editor">
+                                                        <div className="code-toolbar">
+                                                        <select
+                                                        value={item.language?.toLowerCase() || 'plaintext'}
+                                                        onChange={(e) => {
                                                             const updatedSections = [...sections];
-                                                            updatedSections[sectionIndex].items.splice(itemIndex, 1);
+                                                            updatedSections[sectionIndex].items[itemIndex].language = e.target.value.toLowerCase();
                                                             setSections(updatedSections);
                                                         }}
+                                                        className="ff-google-n"
+                                                        >
+                                                        {languages.map((lang) => (
+                                                            <option key={lang} value={lang.toLowerCase()}>
+                                                            {lang}
+                                                            </option>
+                                                        ))}
+                                                        </select>
+
+
+                                                        <select
+                                                            value={item.theme || 'vs-dark'}
+                                                            onChange={(e) => {
+                                                            const updatedSections = [...sections];
+                                                            updatedSections[sectionIndex].items[itemIndex].theme = e.target.value;
+                                                            setSections(updatedSections);
+                                                            }}
+                                                            className="ff-google-n"
+                                                        >
+                                                            {['vs-dark', 'vs-light', 'hc-black'].map((theme) => (
+                                                            <option key={theme} value={theme}>
+                                                                {theme}
+                                                            </option>
+                                                            ))}
+                                                        </select>
+                                                        </div>
+
+                                                        <CodeBlockEditor
+                                                            value={item.value}
+                                                            language={item.language?.toLowerCase() || 'plaintext'}
+                                                            onChange={(newValue) => updateItem(sectionIndex, itemIndex, newValue)}
+                                                            theme={item.theme || 'vs-dark'}
+                                                            editing={true}
+                                                        />
+
+                                                    </div>
+                                                    
+                                                    <FiTrash
+                                                    className="delete__icon pointer"
+                                                    onClick={() => {
+                                                        const updatedSections = [...sections];
+                                                        updatedSections[sectionIndex].items.splice(itemIndex, 1);
+                                                        setSections(updatedSections);
+                                                    }}
                                                     />
-                                                    {["start", "center", "end"].map((alignOption) => (
+                                                </div>
+                                            )} 
+
+
+                                            {item.type === "image" && (
+                                                <div className="image__wrapper">
+                                                    <div
+                                                        className="content__image"
+                                                        style={{
+                                                            display: "flex",
+                                                            justifyContent:
+                                                                item.align === "center"
+                                                                    ? "center"
+                                                                    : item.align === "end"
+                                                                    ? "flex-end"
+                                                                    : "flex-start"
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={item.imageUrl}
+                                                            alt={item.imageAlt}
+                                                            style={{
+                                                                maxWidth: "100%",
+                                                                maxHeight: item.expanded ? "100%" : "400px",
+                                                                transition: "max-height 0.3s ease"
+                                                            }}
+                                                        />
+                                                    </div>
+
+                                                    <div className="content__actions">
+                                                        <FiTrash
+                                                            className="delete__icon pointer"
+                                                            onClick={() => {
+                                                                const updatedSections = [...sections];
+                                                                updatedSections[sectionIndex].items.splice(itemIndex, 1);
+                                                                setSections(updatedSections);
+                                                            }}
+                                                        />
+                                                        {["start", "center", "end"].map((alignOption) => (
+                                                            <div
+                                                                key={alignOption}
+                                                                className="action pointer"
+                                                                onClick={() => {
+                                                                    const updatedSections = [...sections];
+                                                                    updatedSections[sectionIndex].items[itemIndex].align = alignOption as "start" | "center" | "end";
+                                                                    setSections(updatedSections);
+                                                                }}
+                                                            >
+                                                                <div 
+                                                                    className={`action__label ${item.align === alignOption ? 'ff-google-b':'ff-google-n'}`}
+                                                                    style={item.align !== alignOption ? {opacity:"0.6"} : {}}
+                                                                >
+                                                                    {alignOption[0].toUpperCase() + alignOption.slice(1)}
+                                                                </div>
+                                                                <img src={`/icons/write/${alignOption}.svg`} alt={alignOption} />
+                                                            </div>
+                                                        ))}
+
                                                         <div
-                                                            key={alignOption}
                                                             className="action pointer"
                                                             onClick={() => {
                                                                 const updatedSections = [...sections];
-                                                                updatedSections[sectionIndex].items[itemIndex].align = alignOption as "start" | "center" | "end";
+                                                                const currentItem = updatedSections[sectionIndex].items[itemIndex];
+                                                                currentItem.expanded = !currentItem.expanded;
                                                                 setSections(updatedSections);
                                                             }}
+                                                            style={!item.expanded ? {opacity:"0.6"} : {}}
                                                         >
                                                             <div 
-                                                                className={`action__label ${item.align === alignOption ? 'ff-google-b':'ff-google-n'}`}
-                                                                style={item.align !== alignOption ? {opacity:"0.6"} : {}}
+                                                                className="action__label pointer"
                                                             >
-                                                                {alignOption[0].toUpperCase() + alignOption.slice(1)}
+                                                                Expand
                                                             </div>
-                                                            <img src={`/icons/write/${alignOption}.svg`} alt={alignOption} />
+                                                            <img src="/icons/write/expand.svg" alt="Expand" />
                                                         </div>
-                                                    ))}
-
-                                                    <div
-                                                        className="action pointer"
-                                                        onClick={() => {
-                                                            const updatedSections = [...sections];
-                                                            const currentItem = updatedSections[sectionIndex].items[itemIndex];
-                                                            currentItem.expanded = !currentItem.expanded;
-                                                            setSections(updatedSections);
-                                                        }}
-                                                        style={!item.expanded ? {opacity:"0.6"} : {}}
-                                                    >
-                                                        <div 
-                                                            className="action__label pointer"
-                                                        >
-                                                            Expand
-                                                        </div>
-                                                        <img src="/icons/write/expand.svg" alt="Expand" />
                                                     </div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
 
-                                    </div>
-                                ))}
-                            </div>
-                        ))}
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+
                     </div>
-
                 </div>
             )}
         </>
