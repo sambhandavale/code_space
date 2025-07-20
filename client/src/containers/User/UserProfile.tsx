@@ -87,14 +87,14 @@ const UserProfile = () =>{
         image.onload = async () => {
             const width = image.width;
             const height = image.height;
-            const aspectRatio = width / height;
+            // const aspectRatio = width / height;
 
             // 🧠 Enforce aspect ratio rule (tall images are not allowed)
-            if (aspectRatio < 0.8) {
-                toast.error("Image is too tall. Please use a wider image (e.g., 4:3 or square).");
-                URL.revokeObjectURL(objectUrl);
-                return;
-            }
+            // if (aspectRatio < 0.8) {
+            //     toast.error("Image is too tall. Please use a wider image (e.g., 4:3 or square).");
+            //     URL.revokeObjectURL(objectUrl);
+            //     return;
+            // }
 
             try {
                 // 🔐 Compute image hash to check for duplicates

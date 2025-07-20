@@ -53,9 +53,6 @@ const ProfileCard = ({
         return JSON.stringify(profilecard_info) !== JSON.stringify(userProfileCard);
     }, [profilecard_info, userProfileCard]);
 
-    console.log(userProfileCard?.profileImage)
-    console.log(profilecard_info?.userTitle)
-
     return (
         <>
         {!loading ? (
@@ -64,8 +61,6 @@ const ProfileCard = ({
                     
                     {isProfileImageLoading && (
                         <div className="image-loader">
-                            {/* Replace this with a spinner, skeleton, shimmer, etc. */}
-                            <span className="text-white">Loading image...</span>
                         </div>
                     )}
 
