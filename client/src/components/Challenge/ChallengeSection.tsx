@@ -98,67 +98,51 @@ const ChallengeSection = ({
         <div className="challenge-icon glassmorphism-medium">
           <img src="/assets/challenge/challenge-icon.svg" alt="Challenge Icon" />
         </div>
-        {isAuth() ? (
-          <div className="controls">
-            <div className="time_lang__controls">
-              <div className="top">
-                <div className="title">Select Language</div>
-              </div>
-              <div className="languages">
-                {languages.map((lang) => (
-                  <div
-                    className={`language glassmorphism-medium ${!lang.avail && 'locked'} gls-box pointer ${
-                      lang.name === controlsSelected.language ? "selected" : ""
-                    }`}
-                    key={lang.name}
-                    onClick={() => setLanguage(lang.name)}
-                  >
-                    <img
-                      src={`/icons/languages/${lang.icon}.svg`}
-                      alt={lang.name}
-                    />
-                    <div className="name">{lang.name}</div>
-                  </div>
-                ))}
-              </div>
+        <div className="controls">
+          <div className="time_lang__controls">
+            <div className="top">
+              <div className="title">Select Language</div>
             </div>
-            <div className="time_lang__controls">
-              <div className="top">
-                <div className="title">Select Time</div>
-                {/* <div className="to_leaderboard glassmorphism-medium">Leaderboard</div> */}
-              </div>
-              <div className="times">
-                {timeControls.map((tcontrol) => (
-                  <TimeControlTab
-                    key={tcontrol.name}
-                    title={tcontrol.name}
-                    userrating={tcontrol.time === 5 ? 'Easy' : tcontrol.time === 10 ? 'Medium' : 'Hard'}
-                    onClick={() => setTime(tcontrol.time)}
-                    isSelected={controlsSelected.time === tcontrol.time}
+            <div className="languages">
+              {languages.map((lang) => (
+                <div
+                  className={`language glassmorphism-medium ${!lang.avail && 'locked'} gls-box pointer ${
+                    lang.name === controlsSelected.language ? "selected" : ""
+                  }`}
+                  key={lang.name}
+                  onClick={() => setLanguage(lang.name)}
+                >
+                  <img
+                    src={`/icons/languages/${lang.icon}.svg`}
+                    alt={lang.name}
                   />
-                ))}
-              </div>
+                  <div className="name">{lang.name}</div>
+                </div>
+              ))}
             </div>
           </div>
-        ):(
-          <div className="controls">
-            <div className="controls_login">
-              <div className="controls_login__text">Log In To Start <span className="neon-font-color">Challenging</span></div>
-              <img src="/icons/multiple-user/multiple-user-yellow.svg" alt="" />
+          <div className="time_lang__controls">
+            <div className="top">
+              <div className="title">Select Time</div>
+              {/* <div className="to_leaderboard glassmorphism-medium">Leaderboard</div> */}
             </div>
-            <div 
-              className="controls_login__tab glassmorphism-medium gls-box pointer" 
-              onClick={()=>navigate('/login')}
-            >
-              Log In
+            <div className="times">
+              {timeControls.map((tcontrol) => (
+                <TimeControlTab
+                  key={tcontrol.name}
+                  title={tcontrol.name}
+                  userrating={tcontrol.time === 5 ? 'Easy' : tcontrol.time === 10 ? 'Medium' : 'Hard'}
+                  onClick={() => setTime(tcontrol.time)}
+                  isSelected={controlsSelected.time === tcontrol.time}
+                />
+              ))}
             </div>
           </div>
-        )}
+        </div>
       </div>
-      {isAuth() && (
+      {isAuth() ? (
         <div className="challenge_buttons flex gap-4 items-center justify-center">
           <div className="challenge__bts ff-google-n">
-            <div className="find_challenge_container">
               <div className="find_challenge glassmorphism-medium gls-box pointer" onClick={joinMatchmaking}>
                 {message !== '' ? message : 'CHALLENGE ONLINE'}
                 {
@@ -176,15 +160,6 @@ const ChallengeSection = ({
                   )
                 }
               </div>
-            </div>
-            {/* {message && (
-              <div 
-                className="find_challenge glassmorphism-medium gls-box pointer"
-                onClick={stopMatchmaking}
-              >
-                {'Cancel'}
-              </div>
-            )} */}
           </div>
           <div className="challenge__bts ff-google-n">
             <div 
@@ -192,6 +167,17 @@ const ChallengeSection = ({
               onClick={()=>setShowFriendPopup(true)}
             >
               {'CHALLENGE FRIEND'}
+            </div>
+          </div>
+        </div>
+      ):(
+        <div className="challenge_buttons flex gap-4 items-center justify-center">
+          <div className="challenge__bts ff-google-n">
+            <div 
+              className="find_challenge glassmorphism-medium gls-box pointer"
+              onClick={()=>navigate('/login')}
+            >
+              {'LOGIN TO CHALLENGE'}
             </div>
           </div>
         </div>
