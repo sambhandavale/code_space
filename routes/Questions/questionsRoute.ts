@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAllQuestions, getQuestionsById, getQuestionsByDifficulty, updatePing, updateSubmits, getQuestionSummary } from "../../controllers/Questions/QuestionsController";
+import { getAllQuestions, getQuestionsById, getQuestionsByDifficulty, updatePing, updateSubmits, getQuestionSummary } from "../../Controllers/Questions/questionsController";
 
 const router = Router();
 

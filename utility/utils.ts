@@ -1,4 +1,4 @@
-import { IBaseRequest } from "../interfaces/core_interfaces";
+import { IBaseRequest } from "../Interfaces/core_interfaces";
 import { Request, Response, NextFunction } from "express";
 
 // Update catchAsync to handle IBaseRequest

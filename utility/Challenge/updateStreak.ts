@@ -1,4 +1,4 @@
-import UserStats from "../../models/Users/UserStats";
+import UserStats from "../../Models/Users/UserStats";
 import moment from "moment-timezone";
 
 export const updateChallengeStreak = async (userId: string, timezone: string) => {

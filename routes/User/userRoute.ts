@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { getAllUsers, getUserById, getUserStats, getUserRating, resetUserStats, getOnlineUsers } from "../../controllers/user/userController";
+import { getAllUsers, getUserById, getUserStats, getUserRating, resetUserStats, getOnlineUsers } from "../../Controllers/User/userController";
 import passport from "passport";
-import { getUserProfileDetails, updateUserProfile, uploadProfileImage } from "../../controllers/user/userProfileController";
+import { getUserProfileDetails, updateUserProfile, uploadProfileImage } from "../../Controllers/User/userProfileController";
 import multer from "multer";
 
 const router = Router()

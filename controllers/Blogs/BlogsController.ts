@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Blog from '../../models/Blog/Blog';
+import Blog from '../../Models/Blog/Blog';
 import moment from "moment-timezone";
 import { BlobServiceClient } from '@azure/storage-blob';
 

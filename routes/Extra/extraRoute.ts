@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { wakeUp } from "../../controllers/extra/wakeup";
+import { wakeUp } from "../../Controllers/Extra/wakeup";
 
 const router = Router()
 

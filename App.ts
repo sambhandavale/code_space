@@ -2,14 +2,14 @@ import express, { Application } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import http from 'http';
-import connectDB from './config/db';
+import connectDB from './Config/db';
 import cookieParser from "cookie-parser";
 import passport from "passport";
-import { passportInit } from './controllers/authentication/auth';
-import { routes } from './routes';
+import { passportInit } from './Controllers/Authentication/auth';
+import { routes } from './Routes';
 import { Server } from 'socket.io';
 import path from 'path';
-import MatchMaking from './models/Challenges/MatchMaking';
+import MatchMaking from './Models/Challenges/MatchMaking';
 
 dotenv.config();
 

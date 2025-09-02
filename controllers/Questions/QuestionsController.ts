@@ -1,5 +1,5 @@
-import { getAll } from "../../utility/handlerFactory";
-import Question from "../../models/Challenges/Question";
+import { getAll } from "../../Utility/handlerFactory";
+import Question from "../../Models/Challenges/Question";
 
 export const getAllQuestions = getAll(Question);
 

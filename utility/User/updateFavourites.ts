@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import UserChallengesModel from "../../models/Challenges/User-Challenges";
-import UserProfile from "../../models/Users/UserProfile";
+import UserChallengesModel from "../../Models/Challenges/User-Challenges";
+import UserProfile from "../../Models/Users/UserProfile";
 
 export const updateUserFavorites = async (userId: string) => {
     try {

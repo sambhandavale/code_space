@@ -247,7 +247,6 @@ const ChallengeRoom = () => {
         }
     };
 
-
     const rejectDrawChallenge = async () =>{
         try{
             setDrawPopup(false);

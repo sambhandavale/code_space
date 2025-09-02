@@ -1,5 +1,5 @@
-import UserStats from "../../models/Users/UserStats";
-import UserProfile from "../../models/Users/UserProfile";
+import UserStats from "../../Models/Users/UserStats";
+import UserProfile from "../../Models/Users/UserProfile";
 
 function getTitleFromRating(rating: number): { title: string; code: string } {
     if (rating < 1000) return { title: "Pupil", code: "PU" };

@@ -26,6 +26,8 @@ export interface IUserChallenges {
     room_code: string;
     status: string;
     is_private: boolean;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const PlayerSchema = new mongoose.Schema<PlayerDetails>({

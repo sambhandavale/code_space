@@ -2,8 +2,8 @@ import { Router } from "express";
 
 const router = Router();
 
-import { userSigninValidator,userSignupValidator, runValidation } from "../../controllers/validators/auth";
-import { signup, signin, confirmEmail } from "../../controllers/authentication/authLocal";
+import { userSigninValidator,userSignupValidator, runValidation } from "../../Controllers/Validators/auth";
+import { signup, signin, confirmEmail } from "../../Controllers/Authentication/authLocal";
 
 router.post("/signup", userSigninValidator, runValidation, signup);
 router.post("/signin", userSigninValidator, runValidation, signin);

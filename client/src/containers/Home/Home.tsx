@@ -19,6 +19,7 @@ const Home = () => {
     const [message, setMessage] = useState<string>('');
     const [roomCode, setRoomCode] = useState("");
     const [userCode, setUserCode] = useState<string>('');
+    const [matchFound, setMatchFound] = useState<boolean>(false);
     const navigate = useNavigate();
 
     const scrollToChallenge = () => {
@@ -58,13 +59,16 @@ const Home = () => {
             }
             const res = await postAction('/challenge/joinMatchmaking',data)
             if(res.status === 400){
+                setMatchFound(true);
                 navigate(`/challenge/live/${res.data.challengeId}`)
             }
             if(res && res.data){
                 setMessage(res.data.message);
                 matchmakingTimeout.current = setTimeout(() => {
-                    toast.info('No match found, try again in few times.');
-                    stopMatchmaking();
+                    if(!matchFound){
+                        toast.info('No match found, try again in few times.');
+                        stopMatchmaking();
+                    }
                 }, 30000);
             }
         }catch(err){
@@ -100,9 +104,9 @@ const Home = () => {
             }
             const res = await postAction('/challenge/create-private', data);
             if(res && res.data){
-                if(res.status === 200){
-                    setUserCode(res.data.roomCode);
-                    checkRoomStatus(res.data.roomCode);
+                if(res.status === 201){
+                    setUserCode(res.data.data.roomCode);
+                    checkRoomStatus(res.data.data.roomCode);
                 }
             }
         }catch(err){
@@ -150,12 +154,12 @@ const Home = () => {
         }
     };
 
-
     useEffect(() => {
         if (!socket) return;
     
         socket.on("match_found", (data) => {
           console.log("Match found:", data);
+          setMatchFound(true);
           navigate(`/challenge/live/${data.challengeId}`);
         });
     

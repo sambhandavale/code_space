@@ -1,6 +1,6 @@
 import passport_jwt from "passport-jwt";
 import { Request, Response } from "express";
-import User from "../../models/Users/Users";
+import User from "../../Models/Users/Users";
 
 const JwtStrategy = passport_jwt.Strategy;
 

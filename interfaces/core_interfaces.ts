@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { IUser } from "../models/Users/Users";
+import { IUser } from "../Models/Users/Users";
 import { ParamsDictionary } from 'express-serve-static-core';
 
 export interface IBaseRequest extends Request<ParamsDictionary> {

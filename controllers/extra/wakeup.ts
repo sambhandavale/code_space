@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { IBaseRequest } from "../../interfaces/core_interfaces";
+import { IBaseRequest } from "../../Interfaces/core_interfaces";
 
 export const wakeUp = async (req: IBaseRequest, res: Response) => {
     console.log('I am awake!!!');

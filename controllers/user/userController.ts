@@ -1,7 +1,7 @@
-import User from "../../models/Users/Users";
-import UserStats from "../../models/Users/UserStats";
-import { getAll } from "../../utility/handlerFactory";
-import UserModel from "../../models/Users/Users";
+import User from "../../Models/Users/Users";
+import UserStats from "../../Models/Users/UserStats";
+import { getAll } from "../../Utility/handlerFactory";
+import UserModel from "../../Models/Users/Users";
 import mongoose from "mongoose";
 import { Request, Response } from "express";
 import { updateLoginStreak } from "./userProfileController";

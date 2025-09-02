@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import UserStats, { IUserStats } from "../../models/Users/UserStats";
-import UserModel, { IUser } from "../../models/Users/Users";
-import UserProfile, { IUserProfile } from "../../models/Users/UserProfile";
-import { formatDate } from "../../utility/utils";
-import UserChallengesModel, { IUserChallenges } from "../../models/Challenges/User-Challenges";
-import Users from "../../models/Users/Users";
-import Blog from "../../models/Blog/Blog";
+import UserStats, { IUserStats } from "../../Models/Users/UserStats";
+import UserModel, { IUser } from "../../Models/Users/Users";
+import UserProfile, { IUserProfile } from "../../Models/Users/UserProfile";
+import { formatDate } from "../../Utility/utils";
+import UserChallengesModel, { IUserChallenges } from "../../Models/Challenges/User-Challenges";
+import Users from "../../Models/Users/Users";
+import Blog from "../../Models/Blog/Blog";
 import moment from "moment-timezone";
 import { BlobServiceClient } from "@azure/storage-blob";
 import crypto from "crypto";

@@ -1,5 +1,5 @@
 import { NextFunction } from "express";
-import { IBaseRequest } from "../interfaces/core_interfaces";
+import { IBaseRequest } from "../Interfaces/core_interfaces";
 
 // utils/handlerFactory.js or similar
 export const getAll = (Model:any) => async (req:any, res:any) => {

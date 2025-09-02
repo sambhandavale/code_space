@@ -4,26 +4,22 @@ import passport from "passport";
 const router = Router();
 
 import {
-  joinMatchmaking,
   getAllChallenges,
-  getChallengeById,
   leaveChallenge,
-  leaveMatchmaking,
   askDrawChallenge,
-  proxyPythonCompiler,
-  proxyPythonTestCaseCompiler,
-  submitChallengeResult,
   getChallengeStatus,
-  runCodeWithTestCases,
   acceptDrawChallenge,
   rejectDrawChallenge,
-} from "../../controllers/challenge/challengeController";
+} from "../../Controllers/Challenge/challengeController";
 
 import {
   checkRoomStatus,
   createPrivateChallenge,
   joinPrivateChallenge,
-} from "../../controllers/challenge/friendChallenge";
+} from "../../Controllers/Challenge/friendChallenge";
+import { getChallengeById, submitChallengeResult } from "../../Controllers/Challenge/resultController";
+import { joinMatchmaking, leaveMatchmaking } from "../../Controllers/Challenge/matchmakingController";
+import { proxyPythonCompiler, proxyPythonTestCaseCompiler, runCodeWithTestCases } from "../../Controllers/Challenge/codeExecutionController";
 
 router.get("/", getAllChallenges);
 
