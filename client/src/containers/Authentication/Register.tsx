@@ -108,7 +108,7 @@ const Register = () => {
         switchText={
           <>
             Already a Member?{' '}
-            <span className="pointer" onClick={() => navigate('/login')}>
+            <span className="pointer underline auth_switch" onClick={() => navigate('/login')}>
               Log In
             </span>
           </>

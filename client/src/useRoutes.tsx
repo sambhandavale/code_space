@@ -11,6 +11,7 @@ import AllBlogs from "./containers/Write/AllBlogs";
 import SolveProblem from "./containers/Solve/SolveProblem";
 import QuestionsList from "./containers/Solve/QuestionsList";
 import ConfirmEmail from "./containers/Authentication/ConfirmEmail";
+import ResetPassword from "./containers/Authentication/ForgotPassword";
 
 interface PrivateRouteProps {
   element: React.ReactNode;
@@ -34,6 +35,7 @@ const routes = () => {
     { path:"/confirm-email", element:<ConfirmEmail/> },
     { path:"/blog/write", element:<WriteBlog/> },
     { path: "/challenge/:challengeId", element:<ChallengeRoom/> },
+    { path: "/reset-password/:token", element:<ResetPassword/> },
   ];
 
   const privateRoutes = [
@@ -45,7 +47,7 @@ const routes = () => {
     element: <PrivateRoute element={route.element} />,
   }));
 
-  return [...commonRoutes, ...protectedRoutes]; // ✅ Return correct structure
+  return [...commonRoutes, ...protectedRoutes]; 
 };
 
 export default routes;

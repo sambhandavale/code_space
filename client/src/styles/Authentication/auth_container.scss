@@ -53,11 +53,15 @@
                 font-family: "GoogleSansRegular";
                 font-size: var(--auth-switch-font-size);
                 letter-spacing: 0.4px;
-
-                span {
-                    color: var(--auth-switch);
-                }
             }
+        }
+
+        .auth_switch{
+          color: var(--auth-switch);
+        }
+
+        .extra_button{
+          color:var(--yellow);
         }
 
         form {
@@ -97,6 +101,11 @@
                         font-size: var(--auth-input-font-size);
                     }
                 }
+            }
+
+            .extra-content{
+              font-size: 0.75rem;
+              color:var(--white);
             }
 
             button {

@@ -2,9 +2,10 @@ import { useNavigate } from "react-router";
 import { useState } from "react";
 import { getAction, postAction } from "../../services/generalServices";
 import { toast } from "sonner";
-import { authenticate, isAuth, setLocalStorage } from "../../utility/helper";
+import { authenticate, setLocalStorage } from "../../utility/helper";
 import GenericFormContainer from "../../components/Authentication/AuthContainer";
 import { useUser } from "../../context/UserContext";
+import Modal from "../../components/Shared/GenericModal";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -13,6 +14,10 @@ const Login = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const { setUserRating } = useUser();
+
+  const [open, setOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState<string>("");
+  const [emailLoading, setEmailLoading] = useState<boolean>(false);
 
   const refreshRating = async (userId:string) => {
     try {
@@ -34,6 +39,29 @@ const Login = () => {
           navigate("/");
         });
       }
+  };
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail) {
+      toast.warning("Please enter your email.");
+      return;
+    }
+
+    setEmailLoading(true);
+    try {
+      const res = await postAction("/auth/forgot-password", { email:resetEmail });
+
+      if (res.status === 200) {
+        toast.success("Password reset link sent! Check your email.");
+        setOpen(false);
+      }
+    } catch (err) {
+      console.error("Request failed:", err);
+      toast.error("Failed to send reset link. Try again.");
+    } finally {
+      setEmailLoading(false);
+    }
   };
 
   const handleLoginSubmit = async (e: any) => {
@@ -74,7 +102,7 @@ const Login = () => {
           switchText={
             <>
               Not a Member Yet?{' '}
-              <span className="pointer" onClick={() => navigate('/register')}>
+              <span className="pointer underline auth_switch" onClick={() => navigate('/register')}>
                 Sign Up
               </span>
             </>
@@ -106,7 +134,38 @@ const Login = () => {
               ],
             },
           ]}
+          extraContentAboveSubmit={
+            <span onClick={() => setOpen(true)}>
+              Can’t remember your password?{" "}
+              <span className="pointer underline extra_button">
+                Forgot Password
+              </span>
+            </span>
+          }
         />
+        <Modal 
+            isOpen={open} 
+            onClose={() => setOpen(false)} 
+            title="Forgot Password"
+            subtitle="Enter your registered email to receive a reset link"
+        >
+          <form onSubmit={handleEmailSubmit} className="forgot-form">
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={resetEmail}
+              onChange={(e) => setResetEmail(e.target.value)}
+              className="forgot-input"
+            />
+            <button
+              type="submit"
+              disabled={emailLoading}
+              className="forgot-submit ff-google-n"
+            >
+              {emailLoading ? "Sending..." : "Send Reset Link"}
+            </button>
+          </form>
+        </Modal>
     </div> 
   )
 }

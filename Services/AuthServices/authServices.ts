@@ -6,6 +6,8 @@ import { sendConfirmationEmail } from "../../Utility/Mails/confirmEmail";
 import moment from "moment-timezone";
 import { sign } from "jsonwebtoken";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import { sendForgotPasswordEmail } from "../../Utility/Mails/forgotPassword";
 
 export class AuthService {
     // Signup → creates pending user & sends email
@@ -154,5 +156,50 @@ export class AuthService {
             },
         },
         };
+    }
+
+    static async forgotPassword(email: string) {
+        const user = await User.findOne({ email });
+        if (!user) {
+            throw new Error("No account found with this email.");
+        }
+
+        // Create JWT with embedded expiry (15 minutes)
+        const resetToken = jwt.sign(
+            { id: user._id },
+            process.env.JWT_SECRET as string,
+            { expiresIn: "15m" }
+        );
+
+        const resetUrl = `${process.env.REACT_APP_BASE_URL}/reset-password/${resetToken}`;
+
+        await sendForgotPasswordEmail(email, resetUrl);
+
+        return { message: "Password reset link sent. Check your email." };
+    }
+
+    static async resetPassword(token: string, newPassword: string) {
+        try {
+        const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
+
+        const user = await User.findById(decoded.id);
+        if (!user) {
+            throw new Error("User not found.");
+        }
+
+        const salt = User.schema.methods.makeSalt();
+        const hashed_password = User.schema.methods.encryptPassword.call({ salt }, newPassword);
+
+        user.salt = salt;
+        user.hashed_password = hashed_password;
+        await user.save();
+
+        return { message: "Password reset successful." };
+        } catch (err: any) {
+        if (err.name === "TokenExpiredError") {
+            throw new Error("Reset link expired.");
+        }
+        throw new Error("Invalid reset link.");
+        }
     }
 }

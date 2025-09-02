@@ -24,6 +24,7 @@ interface GenericFormContainerProps {
   submitText?: string;
   inputRows: InputRow[];
   className?: string;
+  extraContentAboveSubmit?: React.ReactNode; // 👈 NEW
 }
 
 const GenericFormContainer = ({
@@ -34,8 +35,8 @@ const GenericFormContainer = ({
   submitText = 'Submit',
   inputRows,
   className = '',
+  extraContentAboveSubmit,
 }: GenericFormContainerProps) => {
-  // Track visibility of each password input by index
   const [visiblePasswords, setVisiblePasswords] = useState<{ [key: string]: boolean }>({});
 
   const togglePasswordVisibility = (fieldName: string) => {
@@ -58,10 +59,11 @@ const GenericFormContainer = ({
             <div key={rowIndex} className="ly">
               {row.fields.map((field, index) => {
                 const isPassword = field.type === 'password';
-                const fieldType = isPassword && visiblePasswords[field.name] ? 'text' : field.type;
+                const fieldType =
+                  isPassword && visiblePasswords[field.name] ? 'text' : field.type;
 
                 return (
-                  <div key={index} className="input-wrapper">
+                  <div key={index} className="input-wrapper" style={{ position: 'relative' }}>
                     <input
                       type={fieldType}
                       placeholder={field.placeholder}
@@ -78,10 +80,14 @@ const GenericFormContainer = ({
                           right: '10px',
                           top: '50%',
                           transform: 'translateY(-50%)',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
                         }}
                       >
-                        {visiblePasswords[field.name] ? <MdVisibility size={20} color='white'/> : <MdVisibilityOff size={20} color='white'/>}
+                        {visiblePasswords[field.name] ? (
+                          <MdVisibility size={20} color="white" />
+                        ) : (
+                          <MdVisibilityOff size={20} color="white" />
+                        )}
                       </span>
                     )}
                   </div>
@@ -89,6 +95,11 @@ const GenericFormContainer = ({
               })}
             </div>
           ))}
+
+          {extraContentAboveSubmit && (
+            <div className="extra-content">{extraContentAboveSubmit}</div>
+          )}
+
           <button type="submit" aria-live="assertive" className="pointer">
             {loading ? 'Loading...' : submitText}
           </button>

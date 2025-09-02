@@ -53,3 +53,37 @@ export const signin = async (req: Request, res: Response) => {
     res.status(400).json({ error: err.message || "Internal server error" });
   }
 };
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({ error: "Email is required." });
+      return;
+    }
+
+    const result = await AuthService.forgotPassword(email);
+    res.status(200).json(result);
+  } catch (err: any) {
+    console.error("Forgot password error:", err);
+    res.status(400).json({ error: err.message || "Internal server error" });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token) {
+      res.status(400).json({ error: "Token is required." });
+      return;
+    }
+
+    const result = await AuthService.resetPassword(token,newPassword);
+    res.status(200).json(result);
+  } catch (err: any) {
+    console.error("Reset password error:", err);
+    res.status(400).json({ error: err.message || "Internal server error" });
+  }
+};
