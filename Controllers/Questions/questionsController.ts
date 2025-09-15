@@ -1,5 +1,7 @@
 import { getAll } from "../../Utility/handlerFactory";
 import Question from "../../Models/Challenges/Question";
+import UserStats from "../../Models/Users/UserStats";
+import mongoose, { ObjectId } from "mongoose";
 
 export const getAllQuestions = getAll(Question);
 
@@ -91,27 +93,71 @@ export const updatePing = async (req, res) => {
   }
 };
 
-
 export const updateSubmits = async (req, res) => {
-  const userId = req.query.userId || "anonymous";
+  const userId = req.query.userId as string;
   const questionId = req.params.id;
+  const { language } = req.body;
+
+  // --- Validate input IDs ---
+  if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: "Invalid or missing userId" });
+  }
+  if (!mongoose.Types.ObjectId.isValid(questionId)) {
+    return res.status(400).json({ message: "Invalid question id" });
+  }
+  if (!language || typeof language !== "string") {
+    return res.status(400).json({ message: "Language is required" });
+  }
 
   try {
-    const question = await Question.findById(questionId);
-    if (!question) {
-        res.status(404).json({ message: "Question not found" });
-        return;
+    // --- Update the Question's submits array ---
+    const questionResult = await Question.updateOne(
+      { _id: questionId },
+      { $addToSet: { submits: userId } }
+    );
+
+    if (questionResult.matchedCount === 0) {
+      return res.status(404).json({ message: "Question not found" });
     }
 
-    if (!question.submits.includes(userId)) {
-      question.submits.push(userId);
-      await question.save();
-      res.status(200).json({ message: "Submit recorded"});
-      return;
+    // --- Update UserStats for questions_solved ---
+    const userStats = await UserStats.findOne({ user_id: userId });
+
+    if (!userStats) {
+      return res.status(404).json({ message: "UserStats not found" });
     }
 
-    res.status(200).json({ message: "Already submitted"});
-  } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    const solvedQuestion = userStats.questions_solved?.find(
+      (q) => q.question.toString() === questionId
+    );
+
+    if (solvedQuestion) {
+      // Question exists, check if language already added
+      if (!solvedQuestion.language.includes(language.trim())) {
+        solvedQuestion.language.push(language.trim());
+        await userStats.save();
+      }
+    } else {
+      // Question not solved yet, add new entry
+      userStats.questions_solved.push({
+        question: new mongoose.Types.ObjectId(questionId) as unknown as ObjectId,
+        language: [language.trim()],
+        solved_at: new Date(),
+      });
+      await userStats.save();
+    }
+
+    const alreadySubmitted = questionResult.modifiedCount === 0;
+
+    return res.status(200).json({
+      message: alreadySubmitted
+        ? "Already submitted; user stats updated if needed."
+        : "Submit recorded and user stats updated.",
+    });
+  } catch (err: any) {
+    return res.status(500).json({
+      message: "Server error",
+      error: err.message,
+    });
   }
 };

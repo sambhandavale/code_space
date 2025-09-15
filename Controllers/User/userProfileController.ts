@@ -26,7 +26,12 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
                 return;
             }
             userProfile = await UserProfile.findOne({ user_id: userId });
-            userStats = await UserStats.findOne({ user_id: userId }).populate("user_id");
+            userStats = await UserStats.findOne({ user_id: userId })
+                .populate("user_id")
+                .populate({
+                    path: "questions_solved.question",
+                    select: "title difficulty description tags",
+                });
         } else if (username) {
             const user = await UserModel.findOne({ username });
             if (!user) {
@@ -34,7 +39,12 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
                 return;
             }
             userInfo = user;
-            userStats = await UserStats.findOne({ user_id: user._id }).populate("user_id");
+            userStats = await UserStats.findOne({ user_id: user._id })
+                .populate("user_id")
+                .populate({
+                    path: "questions_solved.question",
+                    select: "title difficulty description tags",
+                });
             userProfile = await UserProfile.findOne({ user_id: user._id });
         } else {
             res.status(400).json({ message: "User ID or Username is required" });
@@ -90,6 +100,7 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
         const dailyMatches = userStats.daily_matches;
         const userFavourites = userProfile.favorites;
         const userSocials = userProfile.socials;
+        const userSolvedQuestions = userStats.questions_solved;
 
         // Get user blogs
         const userBlogsData = await Blog.find({ authorId: userInfo._id })
@@ -155,38 +166,50 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
                 userSocials,
                 userMatches,
                 userBlogs,
+                userSolvedQuestions
             }
         });
 
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
     }
-}
+} 
 
 export const updateLoginStreak = async (userId: string, timezone: string = 'UTC') => {
-    const userStats = await UserStats.findOne({ user_id: userId });
-    if (!userStats) return;
+  const userStats = await UserStats.findOne({ user_id: userId });
+  if (!userStats) return;
 
-    const now = moment().tz(timezone).startOf('day');
-    const lastActive = userStats.last_login_date ? moment(userStats.last_login_date).tz(timezone).startOf('day') : null;
+  const now = moment().tz(timezone).startOf('day');
+  const lastActive = userStats.last_login_date
+    ? moment(userStats.last_login_date).tz(timezone).startOf('day')
+    : null;
 
-    if (lastActive && now.diff(lastActive, 'days') === 0) {
-        // Already active today, no update needed
-        return;
-    } else if (lastActive && now.diff(lastActive, 'days') === 1) {
-        // Streak continues
-        userStats.login_streak = (userStats.login_streak || 0) + 1;
+  const diff = lastActive ? now.diff(lastActive, 'days') : null;
 
-        if ((userStats.login_streak || 0) > (userStats.longest_login_streak || 0)) {
-            userStats.longest_login_streak = userStats.login_streak;
-        }
-    } else {
-        // Missed a day → reset streak
-        userStats.login_streak = 1;
+  if (diff === 0) {
+    // Already active today
+    if (!userStats.login_streak || userStats.login_streak === 0) {
+      userStats.login_streak = 1;
+      if ((userStats.longest_login_streak || 0) < userStats.login_streak) {
+        userStats.longest_login_streak = userStats.login_streak;
+      }
     }
+  } else if (diff === 1) {
+    // Streak continues
+    userStats.login_streak = (userStats.login_streak || 0) + 1;
+    if ((userStats.longest_login_streak || 0) < userStats.login_streak) {
+      userStats.longest_login_streak = userStats.login_streak;
+    }
+  } else {
+    // Missed a day or first login → reset
+    userStats.login_streak = 1;
+    if ((userStats.longest_login_streak || 0) < userStats.login_streak) {
+      userStats.longest_login_streak = userStats.login_streak;
+    }
+  }
 
-    userStats.last_login_date = now.toDate();
-    await userStats.save();
+  userStats.last_login_date = moment().tz(timezone).toDate();
+  await userStats.save();
 };
 
 export const updateUserProfile = async (req: Request, res: Response) => {

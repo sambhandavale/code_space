@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import ProfileCard from "../../components/User/ProfileCard";
 import UserActivities from "../../components/User/UserActivities";
 import UserStreaks from "../../components/User/UserStreaks";
-import { IFavorites, IProfileCardInfo, ISocials, IUserBlogSummary, IUserProfile } from "../../interfaces/UserInterfaces";
+import { IFavorites, IProfileCardInfo, ISocials, IUserBlogSummary, IUserProfile, IUserQuestionsSolved } from "../../interfaces/UserInterfaces";
 import { getAction, postAction } from "../../services/generalServices";
 import { useNavigate, useParams } from "react-router";
 import UserFavourites from "../../components/User/UserFavourites";
@@ -12,6 +12,15 @@ import { isAuth } from "../../utility/helper";
 import { toast } from "sonner";
 import UserBlogs from "../../components/User/UserBlogs";
 import axiosInstance from "../../utility/axios_interceptor";
+import UserQuestionsSolved from "../../components/User/UserQuestionsSolved";
+
+type ActivityType = "match" | "question" | "both";
+
+interface ActivityDay {
+  date: string;
+  count: number;
+  type: ActivityType;
+}
 
 const UserProfile = () =>{
     const { username } = useParams<{ username: string }>();
@@ -24,6 +33,7 @@ const UserProfile = () =>{
     const [userSocialLinks, setUserSocialLinks] = useState<ISocials[]>([]);
     const [userFavourites, setUserFavourites] = useState<IFavorites[]>([]);
     const [userBlogs, setUserBlogs] = useState<IUserBlogSummary[]>([]);
+    const [questionsSolved,setQuestionsSolved] = useState<IUserQuestionsSolved[]>([]);
 
     const [isOnline, setIsOnline] = useState<boolean>(false);
  
@@ -148,22 +158,47 @@ const UserProfile = () =>{
         if(userProfileInfo?.userBlogs){
             setUserBlogs(userProfileInfo.userBlogs);
         }
+        if(userProfileInfo?.userSolvedQuestions){
+            setQuestionsSolved(userProfileInfo.userSolvedQuestions);
+        }
     }, [userProfileInfo]);
 
-    const convertMatchesToActivityData = (daily_matches: Record<string, { count: number }> | undefined): { date: string; count: number }[] => {
-        const activityData: { date: string; count: number }[] = [];
+    const convertActivityData = (
+    daily_matches: Record<string, { count: number }> | undefined,
+    solved: IUserQuestionsSolved[] | undefined
+    ): ActivityDay[] => {
+    const activityMap: Record<
+        string,
+        { count: number; type: Set<ActivityType> }
+    > = {};
 
+    // 🏁 Add match counts
+    if (daily_matches) {
         for (const date in daily_matches) {
-            if (daily_matches.hasOwnProperty(date)) {
-                activityData.push({
-                    date: date,
-                    count: daily_matches[date].count
-                });
-            }
+        if (!activityMap[date]) activityMap[date] = { count: 0, type: new Set() };
+        activityMap[date].count += daily_matches[date].count;
+        activityMap[date].type.add("match");
         }
+    }
 
-        return activityData;
+    // ✅ Add solved-question counts
+    if (solved) {
+        solved.forEach((q) => {
+        const d = new Date(q.solved_at).toLocaleDateString("en-CA");
+        if (!activityMap[d]) activityMap[d] = { count: 0, type: new Set() };
+        activityMap[d].count += 1;
+        activityMap[d].type.add("question");
+        });
+    }
+
+    // Convert to array
+    return Object.entries(activityMap).map(([date, { count, type }]) => ({
+        date,
+        count,
+        type: type.size === 2 ? "both" : [...type][0]        // "both" if both types occurred
+    }));
     };
+
 
     const handleGlobalSave = async () =>{
         try{
@@ -208,7 +243,7 @@ const UserProfile = () =>{
                 </div>
                 <div className="profile-r-s1-c-s2">
                     <UserActivities 
-                        data={convertMatchesToActivityData(userProfileInfo?.dailyMatches)}
+                        data={convertActivityData(userProfileInfo?.dailyMatches, userProfileInfo?.userSolvedQuestions)}
                         userInfo={userProfileInfo?.profileCardInfo}
                         loading={loading}
                     />
@@ -241,6 +276,13 @@ const UserProfile = () =>{
                         userInfo={userProfileInfo?.profileCardInfo}
                         loading={loading}
                     />
+                    {questionsSolved.length > 0 && (
+                        <UserQuestionsSolved
+                            questions={questionsSolved} 
+                            userInfo={userProfileInfo?.profileCardInfo}
+                            loading={loading}
+                        />
+                    )}
                 </div>
             </div>
             <div className="profile-r-s1">

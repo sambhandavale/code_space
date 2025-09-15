@@ -21,6 +21,11 @@ export interface IUserStats{
     last_login_date?: Date;
     login_streak?:number;
     longest_login_streak?:number;
+    questions_solved?: {
+        question: ObjectId;
+        language: string[];
+        solved_at: Date;
+    }[];
 }
 
 const UserStatsSchema = new mongoose.Schema<IUserStats>(
@@ -79,7 +84,25 @@ const UserStatsSchema = new mongoose.Schema<IUserStats>(
         },
         longest_login_streak:{
             type:Number,
-        }
+        },
+        questions_solved: [
+            {
+                question: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Question",
+                    required: true,
+                },
+                language: [{
+                    type: String,
+                    required: true,
+                    trim: true,
+                }],
+                solved_at: {
+                    type: Date,
+                    default: Date.now,
+                },
+            },
+        ],
     },
     {
         timestamps:true,

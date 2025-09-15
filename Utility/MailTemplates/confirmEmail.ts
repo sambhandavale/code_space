@@ -23,11 +23,15 @@ export const confirmationTemplate = (url: string) => `
         color:#fff;
         background:#43a047;
       }
+      img{
+        height:2rem;
+      }
       .footer { margin-top:20px; font-size:12px; color:#777; }
     </style>
   </head>
   <body>
     <div class="container">
+      <img src="https://codespacestorage.blob.core.windows.net/assets/logos/logo2.png"/>
       <h2>Welcome to Codespace</h2>
       <p>Please verify your email to activate your account:</p>
       <a href="${url}">Confirm Email</a>

@@ -278,6 +278,19 @@
                     align-self: stretch;
                 }
             }
+
+            .topics{
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap:0.5rem;
+
+              .topic{
+                padding: 0.25rem 1rem;
+                background: #292929;
+                border-radius: 0.25rem;
+              }
+            }
         }
     }
  

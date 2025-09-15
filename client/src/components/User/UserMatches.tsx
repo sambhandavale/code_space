@@ -37,7 +37,7 @@ const UserMatches = ({ matches, userInfo, loading }: IUserMatchesProps) => {
         <div className="matches">
             {!loading && (
                 <header>
-                    <div className="header_text ff-google-n white">{itsMe ? 'Your' : `${userInfo?.username}'s`} Matches</div>
+                    <div className="header_text ff-google-n white">{itsMe ? 'Your' : `${userInfo?.username}'s`} Matches.</div>
                 </header>
             )}
 

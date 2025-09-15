@@ -66,6 +66,12 @@ const Problem = ({ problemDetails }: IProblemProp) => {
             </div>
           </div>
         ))}
+        <div className="topics ff-google-n white">
+          <span>Topics:</span>
+          {problemDetails.tags.map((tag)=>(
+            <div className="topic">{tag}</div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -76,6 +82,7 @@ export const DifficultyBadge = ({ difficulty, padding = "0.5rem", backgroundcolo
   const getCircles = () => {
     const baseStyle: React.CSSProperties = {
       padding,
+      borderRadius:"0.5rem",
       ...(backgroundcolor && { backgroundColor: backgroundcolor }),
       ...(fontcolor && { color: fontcolor }),
     };

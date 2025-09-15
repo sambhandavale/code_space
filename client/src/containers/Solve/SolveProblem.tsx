@@ -112,7 +112,7 @@ const SolveProblem = () => {
     useEffect(()=>{
         const getChallengeDetails = async () =>{
             try{
-                const res = await getAction(`questions/${problemId}`);
+                const res = await getAction(`/questions/${problemId}`);
                 if(res && res.data){
                     setProblemDetails(res.data[0]);
                     const lang = languages.find((lang)=>lang.name === languageSelected);
@@ -234,7 +234,7 @@ const SolveProblem = () => {
 
     const updateSubmit = async () => {
         try {
-            const response = await patchAction(`/questions/${problemId}/submit?userId=${isAuth()._id}`, {});
+            const response = await patchAction(`/questions/${problemId}/submit?userId=${isAuth()._id}`, {language:language});
             console.log(response)
         } catch (error) {
             console.error("Error updating submits:", error);

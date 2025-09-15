@@ -23,11 +23,15 @@ export const forgotPasswordTemplate = (url: string) => `
         color:#fff !important;
         background:#d62828;
       }
+      img{
+        height:2rem;
+      }
       .footer { margin-top:20px; font-size:12px; color:#777; }
     </style>
   </head>
   <body>
     <div class="container">
+	    <img src="https://codespacestorage.blob.core.windows.net/assets/logos/logo2.png"/>
       <h2>Password Reset Request</h2>
       <p>You requested to reset your password. Click the button below to set a new password:</p>
       <a href="${url}" class="button">Reset Password</a>

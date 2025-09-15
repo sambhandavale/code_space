@@ -354,48 +354,50 @@ const Blog = () =>{
 
 const BlogViewSkeleton = () => {
     return (
-        <div className="write__blog">
-            {/* Blog Header Skeleton */}
-            <div className="blog__header">
-                <div className="skeleton-box" style={{ width: "100px", height: "15px", marginBottom: "10px" }}></div>
-                <div className="skeleton-box" style={{ width: "60%", height: "30px" }}></div>
-            </div>
-
-            {/* Blog Author Section Skeleton */}
-            <div className="blog__actions">
-                <div className="blog__author">
-                    <div className="blog__details">
-                        <div className="skeleton-box" style={{ width: "100px", height: "15px", marginBottom: "5px" }}></div>
-                        <div className="skeleton-box" style={{ width: "60px", height: "12px" }}></div>
-                    </div>
+        <div className="write__blog__wrapper">
+            <div className="write__blog">
+                {/* Blog Header Skeleton */}
+                <div className="blog__header">
+                    <div className="skeleton-box" style={{ width: "100px", height: "15px", marginBottom: "10px" }}></div>
+                    <div className="skeleton-box" style={{ width: "60%", height: "30px" }}></div>
                 </div>
 
-                {/* Blog Interaction Skeleton */}
-                <div className="blog_interaction">
-                    <div className="activity skeleton-box" style={{ width: "50px", height: "12px" }}></div>
-                    <div className="activity skeleton-box" style={{ width: "50px", height: "12px" }}></div>
-                    <div className="activity skeleton-box" style={{ width: "50px", height: "12px" }}></div>
-                </div>
-            </div>
-
-            {/* Blog Content Skeleton */}
-            <div className="blog__content">
-                {Array.from({ length: 4 }).map((_, sectionIndex) => (
-                    <div key={sectionIndex} className="section">
-                        <div className="section__header__wrapper">
-                            <div className="skeleton-box" style={{ width: "40%", height: "20px", marginBottom: "10px" }}></div>
+                {/* Blog Author Section Skeleton */}
+                <div className="blog__actions">
+                    <div className="blog__author">
+                        <div className="blog__details">
+                            <div className="skeleton-box" style={{ width: "100px", height: "15px", marginBottom: "5px" }}></div>
+                            <div className="skeleton-box" style={{ width: "60px", height: "12px" }}></div>
                         </div>
-
-                        {Array.from({ length: 2 }).map((_, itemIndex) => (
-                            <div key={itemIndex} className="content">
-                                <div className="content__wrapper">
-                                    <div className="skeleton-box" style={{ width: "100%", height: "15px", marginBottom: "8px" }}></div>
-                                    <div className="skeleton-box" style={{ width: "90%", height: "15px", marginBottom: "8px" }}></div>
-                                </div>
-                            </div>
-                        ))}
                     </div>
-                ))}
+
+                    {/* Blog Interaction Skeleton */}
+                    <div className="blog_interaction">
+                        <div className="activity skeleton-box" style={{ width: "50px", height: "12px" }}></div>
+                        <div className="activity skeleton-box" style={{ width: "50px", height: "12px" }}></div>
+                        <div className="activity skeleton-box" style={{ width: "50px", height: "12px" }}></div>
+                    </div>
+                </div>
+
+                {/* Blog Content Skeleton */}
+                <div className="blog__content">
+                    {Array.from({ length: 4 }).map((_, sectionIndex) => (
+                        <div key={sectionIndex} className="section">
+                            <div className="section__header__wrapper">
+                                <div className="skeleton-box" style={{ width: "40%", height: "20px", marginBottom: "10px" }}></div>
+                            </div>
+
+                            {Array.from({ length: 2 }).map((_, itemIndex) => (
+                                <div key={itemIndex} className="content">
+                                    <div className="content__wrapper">
+                                        <div className="skeleton-box" style={{ width: "100%", height: "15px", marginBottom: "8px" }}></div>
+                                        <div className="skeleton-box" style={{ width: "90%", height: "15px", marginBottom: "8px" }}></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     )

@@ -67,4 +67,17 @@ export interface IUserProfile {
     userSocials:ISocials[];
     userMatches: IUserMatch[];
     userBlogs:IUserBlogSummary[];
+    userSolvedQuestions:IUserQuestionsSolved[];
+}
+
+export interface IUserQuestionsSolved {
+    language:string[];
+    question:{
+        _id:string;
+        title:string;
+        description:string;
+        tags:string[];
+        difficulty:string;
+    }
+    solved_at:Date;
 }

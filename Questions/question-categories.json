@@ -27,7 +27,8 @@
     "math",
     "combinatorics",
     "geometry",
-    "number-theory"
+    "number-theory",
+    "sequence"
   ],
   "algorithms": [
     "binary-search",

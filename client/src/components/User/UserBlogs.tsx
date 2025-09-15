@@ -47,7 +47,7 @@ const UserBlogs = ({ userBlogs, userInfo, loading }: IUserBlogs) => {
         {!loading ? (
             <div className="user_blogs">
                 <header className="ff-google-n white">
-                    <div className="header_text">{itsMe ? 'Your' : `${userInfo?.username}'s`} Blogs</div>
+                    <div className="header_text">{itsMe ? 'Your' : `${userInfo?.username}'s`} Blogs.</div>
                 </header>
 
                 <input

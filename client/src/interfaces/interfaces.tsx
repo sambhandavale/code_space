@@ -28,6 +28,7 @@ export interface IProblem {
     examples: IExample[];
     test_cases:TestCase[];
     template: Record<string, string>;
+    tags:string[];
 }
 
 interface TestCase {
