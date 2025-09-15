@@ -2,6 +2,10 @@ import { Request, Response } from 'express';
 import Blog from '../../Models/Blog/Blog';
 import moment from "moment-timezone";
 import { BlobServiceClient } from '@azure/storage-blob';
+import dotenv from "dotenv";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+dotenv.config();
 
 export const createBlog = async (req: Request, res: Response) => {
   try {
@@ -108,7 +112,6 @@ export const uploadImageToAzure = async (req, res) => {
   }
 };
 
-
 export const updateBlogImages = async (req: Request, res: Response) => {
   try {
     const { sections } = req.body;
@@ -133,7 +136,6 @@ export const updateBlogImages = async (req: Request, res: Response) => {
     return;
   }
 };
-
 
 export const getAllBlogs = async (req: Request, res: Response) => {
   try {
@@ -348,5 +350,71 @@ export const updateBlog = async (req: Request, res: Response) => {
     res.status(200).json(blog);
   } catch (error) {
     res.status(500).json({ error: 'Server error.' });
+  }
+};
+
+// const hf = new InferenceClient(process.env.HF_TOKEN!);
+
+// export const translateCode = async (req: Request, res: Response) => {
+//   const { sourceLang, targetLang, code } = req.body;
+
+//   if (!sourceLang || !targetLang || !code) {
+//     res.status(400).json({ error: "sourceLang, targetLang and code are required" });
+//     return;
+//   }
+
+//   try {
+//     const prompt = `Convert the following ${sourceLang} code to ${targetLang}. 
+//       Return only the translated code.\n\n${code}`;
+
+//     const response = await hf.textGeneration({
+//       model: "codellama/CodeLlama-7b-Instruct-hf",
+//       inputs: prompt,
+//       parameters: {
+//         max_new_tokens: 512,
+//         temperature: 0.2,                // lower = more deterministic
+//         return_full_text: false          // only generated text
+//       }
+//     });
+
+//     res.status(200).json({ translatedCode: response.generated_text.trim() });
+//   } catch (error: any) {
+//     console.error("HF translation error:", error);
+//     res.status(500).json({ error: "Failed to translate code" });
+//   }
+// };
+
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+export const translateCode = async (req: Request, res: Response) => {
+  const { sourceLang, targetLang, code } = req.body;
+
+  if (!sourceLang || !targetLang || !code) {
+    res.status(400).json({ error: "sourceLang, targetLang and code are required" });
+    return;
+  }
+
+  try {
+    const prompt = `
+      Convert the following ${sourceLang} code to ${targetLang}.
+      ⚠️ Important:
+      - Output ONLY the translated ${targetLang} code.
+      - Do NOT include any explanation, comments, or markdown fences.
+      - Keep formatting exactly as valid ${targetLang} code.
+
+      ${code}
+      `;
+
+    const result = await model.generateContent(prompt);
+    const translated = result.response.text().trim();
+
+    res.status(200).json({ translatedCode: translated });
+    return;
+  } catch (error: any) {
+    console.error("Translation error:", error);
+    res.status(500).json({ error: "Failed to translate code" });
+    return;
   }
 };

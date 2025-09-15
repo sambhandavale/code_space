@@ -10,7 +10,8 @@ import {
   saveDraft,
   getUserBlogs,
   updateBlogImages,
-  uploadImageToAzure
+  uploadImageToAzure,
+  translateCode
 } from "../../Controllers/Blogs/blogsController";
 
 import {
@@ -114,5 +115,10 @@ router.post(
   // passport.authenticate("jwt", { session: false }),
   incrementView
 );
+
+router.post(
+  "/translateCode",
+  translateCode
+)
 
 export default router;
