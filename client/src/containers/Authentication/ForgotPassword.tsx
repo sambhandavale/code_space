@@ -26,6 +26,7 @@ const ResetPassword = () => {
     try {
       const data = { token, newPassword: password };
       const res = await postAction("/auth/reset-password", data);
+      console.log(res);
 
       if (res.status === 200) {
         toast.success("Password reset successful. Please log in.");

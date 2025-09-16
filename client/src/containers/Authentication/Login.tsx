@@ -55,6 +55,8 @@ const Login = () => {
       if (res.status === 200) {
         toast.success("Password reset link sent! Check your email.");
         setOpen(false);
+      } else{
+        toast.error(res.data.error);
       }
     } catch (err) {
       console.error("Request failed:", err);

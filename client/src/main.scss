@@ -52,6 +52,12 @@
     --nav-text-hover-color:var(--light-grey);
 }
 
+.layout-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
 .profile-circle {
     min-width: 2.5rem;
