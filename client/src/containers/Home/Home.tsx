@@ -58,7 +58,7 @@ const Home = () => {
                 return;
             }
             const res = await postAction('/challenge/joinMatchmaking',data)
-            if(res.status === 400){
+            if(res.status === 200){
                 setMatchFound(true);
                 navigate(`/challenge/live/${res.data.challengeId}`)
             }
