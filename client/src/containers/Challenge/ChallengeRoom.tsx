@@ -81,17 +81,73 @@ const ChallengeRoom = () => {
         {name:'Test Run',icon:'test_run'},
     ]
 
+    const escAttempts = useRef(0);
+
+    useEffect(() => {
+        if (!isLiveRoute) return;
+
+        const elem = document.documentElement;
+
+        const enterFullscreen = () => {
+        if (elem.requestFullscreen) elem.requestFullscreen();
+        else if ((elem as any).webkitRequestFullscreen)
+            (elem as any).webkitRequestFullscreen();
+        };
+
+        enterFullscreen(); // enter fullscreen initially
+
+        const onFullscreenChange = () => {
+        if (!document.fullscreenElement) {
+            escAttempts.current += 1;
+
+            if (escAttempts.current <= 2) {
+            alert(
+                `⚠️ You exited fullscreen! Attempt ${escAttempts.current} of 2. Screen will be restored.`
+            );
+            // call fullscreen after a tiny delay
+            setTimeout(() => {
+                enterFullscreen();
+            }, 100); 
+            } else {
+            alert(
+                "⚠️ You exited fullscreen multiple times! You will be redirected."
+            );
+            navigate("/"); // redirect to home after 3rd attempt
+            }
+            // TODO: make an API request to log cheating
+        }
+        };
+
+
+        const onVisibilityChange = () => {
+        if (document.hidden) {
+            alert(
+            "⚠️ You switched tabs! This attempt will be flagged."
+            );
+            // TODO: make an API request to log cheating
+        }
+        };
+
+        document.addEventListener("fullscreenchange", onFullscreenChange);
+        document.addEventListener("visibilitychange", onVisibilityChange);
+
+        return () => {
+        document.removeEventListener("fullscreenchange", onFullscreenChange);
+        document.removeEventListener("visibilitychange", onVisibilityChange);
+        };
+    }, [isLiveRoute, navigate]);
+
     const { setUserRating } = useUser();
 
     const refreshRating = async (userId:string) => {
-    try {
-        const res = await getAction(`/users/rating/${userId}`);
-        if (res && res.data) {
-        setUserRating(res.data.rating);
+        try {
+            const res = await getAction(`/users/rating/${userId}`);
+            if (res && res.data) {
+            setUserRating(res.data.rating);
+            }
+        } catch (err) {
+            console.error(err);
         }
-    } catch (err) {
-        console.error(err);
-    }
     };
 
     useEffect(() => {
@@ -138,8 +194,6 @@ const ChallengeRoom = () => {
             if (timerRef.current) clearInterval(timerRef.current);
         };
     }, []);
-
-
 
     const stopTimer = () => {
         if (timerRef.current) {
