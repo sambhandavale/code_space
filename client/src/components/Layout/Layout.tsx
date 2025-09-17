@@ -45,20 +45,22 @@ const Layout = ({ children, scrollToChallenge }: any) => {
 
   return (
     <Fragment>
-      <Navbar
-        scrollToChallenge={scrollToChallenge}
-        isMobileMenuOpen={isMobileMenuOpen}
-        setMobileMenuOpen={setMobileMenuOpen}
-        userRating={userRating}
-      />
-      <MobileSidebar 
-        isOpen={isMobileMenuOpen} 
-        onClose={() => setMobileMenuOpen(false)} 
-        scrollToChallenge={scrollToChallenge}
-        userRating={userRating}
-      />
-      {children}
-      {shouldShowFooter && <Footer/>}
+      <div className="layout-container">
+        <Navbar
+          scrollToChallenge={scrollToChallenge}
+          isMobileMenuOpen={isMobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
+          userRating={userRating}
+        />
+        <MobileSidebar 
+          isOpen={isMobileMenuOpen} 
+          onClose={() => setMobileMenuOpen(false)} 
+          scrollToChallenge={scrollToChallenge}
+          userRating={userRating}
+        />
+        {children}
+        {shouldShowFooter && <Footer/>}
+      </div>
     </Fragment>
   );
 };

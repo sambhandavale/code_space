@@ -190,12 +190,6 @@ const Blog = () =>{
             {!loading ? (
                 <div className="write__blog__wrapper">
                     <div className="write__blog">
-                        {isAuth() && (
-                            isAuth()._id === blogAuthorDetails?.id &&
-                            <div className="actions">
-                                <div className="save__draft glassmorphism-medium gls-box pointer" onClick={()=>navigate(`/blog/write?editid=${id}`)}>Edit Blog</div>
-                            </div>  
-                        )}
                         <div className="blog__header">
                             <div className="blog__date">{blogDate}</div>
                             <div
@@ -230,6 +224,12 @@ const Blog = () =>{
                                     />
                                     <span style={{ opacity: hasPinged ? '1' : '0.7' }}>{blogPingsNo}</span>
                                 </div>
+                                {isAuth() && (
+                                    isAuth()._id === blogAuthorDetails?.id &&
+                                    <div className="actions">
+                                        <div className="save__draft glassmorphism-medium gls-box pointer" onClick={()=>navigate(`/blog/write?editid=${id}`)}>Edit Blog</div>
+                                    </div>  
+                                )}
 
                                 <AnimatePresence>
                                     {showPingText && (
