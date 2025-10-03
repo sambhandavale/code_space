@@ -110,64 +110,64 @@ const ChallengeRoom = () => {
         toast.message("Do not leave fullscreen or your points may be reduced!");
     };
 
-    // useEffect(() => {
-    //     if (!isLiveRoute || challengeEnded) return;
+    useEffect(() => {
+        if (!isLiveRoute || challengeEnded) return;
 
-    //     const elem = document.documentElement;
+        const elem = document.documentElement;
 
-    //     // Function to enter fullscreen
-    //     const enterFullscreen = () => {
-    //         if (elem.requestFullscreen) {
-    //             elem.requestFullscreen();
-    //         } else if ((elem as any).webkitRequestFullscreen) {
-    //             (elem as any).webkitRequestFullscreen();
-    //         }
-    //     };
+        // Function to enter fullscreen
+        const enterFullscreen = () => {
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if ((elem as any).webkitRequestFullscreen) {
+                (elem as any).webkitRequestFullscreen();
+            }
+        };
 
-    //     // Enter fullscreen initially
-    //     enterFullscreen();
+        // Enter fullscreen initially
+        enterFullscreen();
 
-    //     // Handle user exiting fullscreen
-    //     const onFullscreenChange = () => {
-    //         if (!document.fullscreenElement) {
-    //             escAttempts.current += 1;
+        // Handle user exiting fullscreen
+        const onFullscreenChange = () => {
+            if (!document.fullscreenElement) {
+                escAttempts.current += 1;
 
-    //             if (escAttempts.current < 2) {
-    //                 alert(
-    //                     `⚠️ You exited fullscreen! Attempt ${escAttempts.current} of 2. Screen will be restored.`
-    //                 );
-    //                 // Attempt to restore fullscreen (may fail if not user gesture)
-    //                 setTimeout(() => {
-    //                     enterFullscreen();
-    //                 }, 0);
-    //             } else {
-    //                 alert("⚠️ You exited fullscreen multiple times! You will be redirected.");
-    //                 leaveChallenge();
-    //                 navigate("/");
-    //             }
+                if (escAttempts.current < 2) {
+                    alert(
+                        `⚠️ You exited fullscreen! Attempt ${escAttempts.current} of 2. Screen will be restored.`
+                    );
+                    // Attempt to restore fullscreen (may fail if not user gesture)
+                    setTimeout(() => {
+                        enterFullscreen();
+                    }, 0);
+                } else {
+                    alert("⚠️ You exited fullscreen multiple times! You will be redirected.");
+                    leaveChallenge();
+                    navigate("/");
+                }
 
-    //             // TODO: Make an API request to log cheating
-    //         }
-    //     };
+                // TODO: Make an API request to log cheating
+            }
+        };
 
-    //     // Handle tab visibility changes
-    //     const onVisibilityChange = () => {
-    //         if (document.hidden && !challengeEnded) {
-    //             alert("⚠️ You switched tabs! This attempt will be flagged.");
-    //             // TODO: Make an API request to log cheating
-    //         }
-    //     };
+        // Handle tab visibility changes
+        const onVisibilityChange = () => {
+            if (document.hidden && !challengeEnded) {
+                alert("⚠️ You switched tabs! This attempt will be flagged.");
+                // TODO: Make an API request to log cheating
+            }
+        };
 
-    //     // Add event listeners
-    //     document.addEventListener("fullscreenchange", onFullscreenChange);
-    //     document.addEventListener("visibilitychange", onVisibilityChange);
+        // Add event listeners
+        document.addEventListener("fullscreenchange", onFullscreenChange);
+        document.addEventListener("visibilitychange", onVisibilityChange);
 
-    //     // Cleanup event listeners on unmount
-    //     return () => {
-    //         document.removeEventListener("fullscreenchange", onFullscreenChange);
-    //         document.removeEventListener("visibilitychange", onVisibilityChange);
-    //     };
-    // }, [isLiveRoute, navigate, challengeEnded]);
+        // Cleanup event listeners on unmount
+        return () => {
+            document.removeEventListener("fullscreenchange", onFullscreenChange);
+            document.removeEventListener("visibilitychange", onVisibilityChange);
+        };
+    }, [isLiveRoute, navigate, challengeEnded]);
 
 
     const { setUserRating } = useUser();
