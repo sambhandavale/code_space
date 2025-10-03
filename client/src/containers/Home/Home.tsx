@@ -64,12 +64,12 @@ const Home = () => {
             }
             if(res && res.data){
                 setMessage(res.data.message);
-                matchmakingTimeout.current = setTimeout(() => {
-                    if(!matchFound){
-                        toast.info('No match found, try again in few times.');
-                        stopMatchmaking();
-                    }
-                }, 30000);
+                // matchmakingTimeout.current = setTimeout(() => {
+                //     if(!matchFound){
+                //         toast.info('No match found, try again in few times.');
+                //         stopMatchmaking();
+                //     }
+                // }, 30000);
             }
         }catch(err){
             console.error(err);
