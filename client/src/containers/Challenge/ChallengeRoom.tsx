@@ -397,6 +397,12 @@ const ChallengeRoom = () => {
                 clearInterval(timerRef.current); 
             }
 
+            if (document.fullscreenElement) {
+                document.exitFullscreen?.().catch((err) =>
+                    console.error("Error exiting fullscreen:", err)
+                );
+            }
+
             setChallengeEnded(true);
             setResultPopup(true);
 
