@@ -14,6 +14,8 @@ import { getInitials, languages } from "../../utility/general-utility";
 import Popup from "../../components/Challenge/ChallengeRoom/Popup";
 import { useWindowWidth } from "../../utility/screen-utility";
 import { useUser } from "../../context/UserContext";
+import { AnimatePresence, motion } from "framer-motion";
+import CountUp from "react-countup";
  
 /*
 Note: Message code meaning -
@@ -33,7 +35,13 @@ interface ITestResult {
     // execution_time?: number; // in milliseconds
     // error_message?: string; // if status is ERROR
     // memory_usage?: number; // in KB
-  }
+}
+
+const pointsDifficulty:any = {
+    "Easy":6,
+    "Medium":8,
+    "Hard":10
+}
 
 const ChallengeRoom = () => {
     const { challengeId } = useParams<{ challengeId: string }>();
@@ -73,8 +81,12 @@ const ChallengeRoom = () => {
 
     const [resultPopup, setResultPopup] = useState<boolean>(false);
     const [drawPopup, setDrawPopup] = useState<boolean>(false);
+    const [fullscreenEnabled, setFullscreenEnabled] = useState(false);
 
     const [userAllowed, setUserAllowed] = useState<boolean>(false);
+
+    const [isWinner, setIsWinner] = useState<boolean>(false);
+    const [userPoints, setUserPoints] = useState<Record<string, number>>({});
 
     const testCaseOptions = [
         {name:'Test Cases',icon:'test_case'},
@@ -83,59 +95,80 @@ const ChallengeRoom = () => {
 
     const escAttempts = useRef(0);
 
-    useEffect(() => {
-        if (!isLiveRoute) return;
-
+    const handleEnterFullscreen = () => {
         const elem = document.documentElement;
 
-        const enterFullscreen = () => {
-        if (elem.requestFullscreen) elem.requestFullscreen();
-        else if ((elem as any).webkitRequestFullscreen)
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch((err) => {
+                console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+        } else if ((elem as any).webkitRequestFullscreen) {
             (elem as any).webkitRequestFullscreen();
-        };
-
-        enterFullscreen(); // enter fullscreen initially
-
-        const onFullscreenChange = () => {
-        if (!document.fullscreenElement) {
-            escAttempts.current += 1;
-
-            if (escAttempts.current <= 2) {
-            alert(
-                `⚠️ You exited fullscreen! Attempt ${escAttempts.current} of 2. Screen will be restored.`
-            );
-            // call fullscreen after a tiny delay
-            setTimeout(() => {
-                enterFullscreen();
-            }, 100); 
-            } else {
-            alert(
-                "⚠️ You exited fullscreen multiple times! You will be redirected."
-            );
-            navigate("/"); // redirect to home after 3rd attempt
-            }
-            // TODO: make an API request to log cheating
         }
-        };
 
+        setFullscreenEnabled(true); // mark that fullscreen has been enabled
+        toast.message("Do not leave fullscreen or your points may be reduced!");
+    };
 
-        const onVisibilityChange = () => {
-        if (document.hidden) {
-            alert(
-            "⚠️ You switched tabs! This attempt will be flagged."
-            );
-            // TODO: make an API request to log cheating
-        }
-        };
+    // useEffect(() => {
+    //     if (!isLiveRoute || challengeEnded) return;
 
-        document.addEventListener("fullscreenchange", onFullscreenChange);
-        document.addEventListener("visibilitychange", onVisibilityChange);
+    //     const elem = document.documentElement;
 
-        return () => {
-        document.removeEventListener("fullscreenchange", onFullscreenChange);
-        document.removeEventListener("visibilitychange", onVisibilityChange);
-        };
-    }, [isLiveRoute, navigate]);
+    //     // Function to enter fullscreen
+    //     const enterFullscreen = () => {
+    //         if (elem.requestFullscreen) {
+    //             elem.requestFullscreen();
+    //         } else if ((elem as any).webkitRequestFullscreen) {
+    //             (elem as any).webkitRequestFullscreen();
+    //         }
+    //     };
+
+    //     // Enter fullscreen initially
+    //     enterFullscreen();
+
+    //     // Handle user exiting fullscreen
+    //     const onFullscreenChange = () => {
+    //         if (!document.fullscreenElement) {
+    //             escAttempts.current += 1;
+
+    //             if (escAttempts.current < 2) {
+    //                 alert(
+    //                     `⚠️ You exited fullscreen! Attempt ${escAttempts.current} of 2. Screen will be restored.`
+    //                 );
+    //                 // Attempt to restore fullscreen (may fail if not user gesture)
+    //                 setTimeout(() => {
+    //                     enterFullscreen();
+    //                 }, 0);
+    //             } else {
+    //                 alert("⚠️ You exited fullscreen multiple times! You will be redirected.");
+    //                 leaveChallenge();
+    //                 navigate("/");
+    //             }
+
+    //             // TODO: Make an API request to log cheating
+    //         }
+    //     };
+
+    //     // Handle tab visibility changes
+    //     const onVisibilityChange = () => {
+    //         if (document.hidden && !challengeEnded) {
+    //             alert("⚠️ You switched tabs! This attempt will be flagged.");
+    //             // TODO: Make an API request to log cheating
+    //         }
+    //     };
+
+    //     // Add event listeners
+    //     document.addEventListener("fullscreenchange", onFullscreenChange);
+    //     document.addEventListener("visibilitychange", onVisibilityChange);
+
+    //     // Cleanup event listeners on unmount
+    //     return () => {
+    //         document.removeEventListener("fullscreenchange", onFullscreenChange);
+    //         document.removeEventListener("visibilitychange", onVisibilityChange);
+    //     };
+    // }, [isLiveRoute, navigate, challengeEnded]);
+
 
     const { setUserRating } = useUser();
 
@@ -154,8 +187,8 @@ const ChallengeRoom = () => {
         const fetchRemainingTime = async () => {
             try {
                 const res = await getAction(`/challenge/status/${challengeId}`);
-                if (res?.data?.remainingTime != null) {
-                    setTimeLeft(Math.floor(res.data.remainingTime)); // seconds
+                if (res?.data?.data.remainingTime != null) {
+                    setTimeLeft(Math.floor(res.data.data.remainingTime)); // seconds
                 } else if (challengeDetails?.problem_id?.time) {
                     // Fallback in case API doesn't return remaining time
                     setTimeLeft(challengeDetails.problem_id.time * 60);
@@ -229,6 +262,8 @@ const ChallengeRoom = () => {
                     }
                     if(!res.data.active){
                         stopTimer();
+                        setChallengeEnded(true);
+                        navigate(`/challenge/${challengeId}`)
                     }
                     setChallengeDetails(res.data);
                     const lang = languages.find((lang)=>lang.name === res.data.language);
@@ -356,13 +391,15 @@ const ChallengeRoom = () => {
 
     useEffect(() => {
         if (!socket) return;
-    
+
         socket.on("match_result", (data) => {
             if (timerRef.current) {
-                clearInterval(timerRef.current);
+                clearInterval(timerRef.current); 
             }
+
             setChallengeEnded(true);
             setResultPopup(true);
+
             toast.message(
                 `${data.message} ${
                     data.ratingChange > 0
@@ -372,6 +409,7 @@ const ChallengeRoom = () => {
             );
             stopTimer();
             setChallengeEndCode(data.code);
+
             if(data.code === 40){
                 setChallengeEndMessage({msg:`You match is a Draw\nYou Gain +${data.ratingChange}`,ratingChange:data.ratingChange})   
             } else if(data.code === 30){
@@ -388,9 +426,9 @@ const ChallengeRoom = () => {
         });
 
         refreshRating(isAuth()._id)
-    
+
         return () => {
-          socket.off("match_result");
+            socket.off("match_result");
         };
     }, [socket, navigate]);
 
@@ -458,8 +496,8 @@ const ChallengeRoom = () => {
                 if(allPassed){
                     endChallenge(results.length);
                 }
-                if(res.data.results[0].status === 'ERROR'){
-                    toast.error(res.data.results[0].error);
+                if(results[0].status === 'ERROR'){
+                    toast.error(results[0].error);
                 }
             }
         } catch(err){
@@ -484,18 +522,16 @@ const ChallengeRoom = () => {
                 setRunResult(results);
                 setRunLoading(false);
                 console.log(results);
-                // const allPassed = results.every((testCase:ITestResult) => testCase.status === "PASSED");
-                // if(allPassed){
-                //     endChallenge();
-                // }
-                if(res.data.results[0].status === 'ERROR'){
-                    toast.error(res.data.results[0].error);
+                if(results[0].status === 'ERROR'){
+                    toast.error(results[0].error);
                 }
             }
         } catch(err){
             console.error(err);
         }
     }
+
+    console.log(userPoints);
 
     return (
         <>
@@ -509,20 +545,121 @@ const ChallengeRoom = () => {
                 >
                     <div className="challenge-room__left panel scrollbar" style={width > 840 ?{ width: `${dividerPosition}%` }:{}}>
                         <div className="players__details">
-                            <div className="player pointer" onClick={()=>navigate(`/profile/${challengeDetails?.playerDetails[0].user_id.username}`)}>
-                                <DefaultProfile initals={getInitials(`${challengeDetails?.playerDetails[0].user_id.full_name}`)}/>
-                                <div className="playername left">
-                                    {`${challengeDetails?.playerDetails[0].user_id.username} ${!challengeDetails?.active ? challengeDetails?.winner ? challengeDetails?.winner === challengeDetails?.playerDetails[0].user_id._id ? '(Winner)' : '' :'(Draw)' :''}`}
-                                    <div className="playerrating">Rating {challengeDetails?.playerDetails[0].rating}</div>
-                                </div>
+                        {/* Player 0 */}
+                        <div
+                            className="player pointer"
+                            onClick={() =>
+                            navigate(`/profile/${challengeDetails?.playerDetails[0].user_id.username}`)
+                            }
+                        >
+                            <DefaultProfile
+                            initals={getInitials(
+                                `${challengeDetails?.playerDetails[0].user_id.full_name}`
+                            )}
+                            />
+                            <div className="playername left">
+                            {`${challengeDetails?.playerDetails[0].user_id.username} ${
+                                !challengeDetails?.active
+                                ? challengeDetails?.winner
+                                    ? challengeDetails?.winner ===
+                                    challengeDetails?.playerDetails[0].user_id._id
+                                    ? "(Winner)"
+                                    : ""
+                                    : "(Draw)"
+                                : ""
+                            }`}
+
+                            <div className="playerrating">
+                                Rating {challengeDetails?.playerDetails[0].rating}
+                                {/* <AnimatePresence>
+                                {challengeEnded && (
+                                    <motion.span
+                                    key={`p0-${challengeEndMessage?.ratingChange}`}
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: 10 }}
+                                    transition={{ duration: 0.5 }}
+                                    >
+                                    (
+                                    <CountUp
+                                        start={0}
+                                        end={
+                                        (isWinner && challengeDetails?.playerDetails[0].user_id === isAuth()._id) 
+                                            ? (challengeDetails ? pointsDifficulty[challengeDetails.problem_id.difficulty] : 0)
+                                            :(challengeDetails ? pointsDifficulty[challengeDetails.problem_id.difficulty] * -1 : 0)
+                                            // ? (challengeDetails ? pointsDifficulty[challengeDetails.problem_id.difficulty] : 0)
+                                            // : (challengeDetails ? -pointsDifficulty[challengeDetails.problem_id.difficulty] : 0)
+                                        }
+
+                                        duration={1.2}
+                                    />
+                                    )
+                                    </motion.span>
+                                )}
+                                </AnimatePresence> */}
                             </div>
-                            <div className="player pointer" onClick={()=>navigate(`/profile/${challengeDetails?.playerDetails[1].user_id.username}`)}>
-                                <div className="playername right">
-                                    {`${challengeDetails?.playerDetails[1].user_id.username} ${!challengeDetails?.active ? challengeDetails?.winner ? challengeDetails?.winner === challengeDetails?.playerDetails[1].user_id._id ? '(Winner)' : '' :'(Draw)' :''}`}
-                                    <div className="playerrating">Rating {challengeDetails?.playerDetails[1].rating}</div>
-                                </div>
-                                <DefaultProfile initals={getInitials(`${challengeDetails?.playerDetails[1].user_id.full_name}`)}/>
                             </div>
+                        </div>
+
+                        {/* Player 1 */}
+                        <div
+                            className="player pointer"
+                            onClick={() =>
+                            navigate(`/profile/${challengeDetails?.playerDetails[1].user_id.username}`)
+                            }
+                        >
+                            <div className="playername right">
+                            {`${challengeDetails?.playerDetails[1].user_id.username} ${
+                                !challengeDetails?.active
+                                ? challengeDetails?.winner
+                                    ? challengeDetails?.winner ===
+                                    challengeDetails?.playerDetails[1].user_id._id
+                                    ? "(Winner)"
+                                    : ""
+                                    : "(Draw)"
+                                : ""
+                            }`}
+
+                            <div className="playerrating">
+                                Rating {challengeDetails?.playerDetails[1].rating}
+                                {/* <AnimatePresence>
+                                {challengeEnded && (
+                                    <motion.span
+                                    key={`p1-${challengeEndMessage?.ratingChange}`}
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: 10 }}
+                                    transition={{ duration: 0.5 }}
+                                    className={
+                                        challengeDetails?.playerDetails[1].user_id._id === isAuth()._id
+                                        ? "text-green-500 font-semibold ml-1"
+                                        : "text-red-500 font-semibold ml-1"
+                                    }
+                                    >
+                                    (
+                                    <CountUp
+                                        start={0}
+                                        end={
+                                        (isWinner && challengeDetails?.playerDetails[0].user_id === isAuth()._id) 
+                                            ? (challengeDetails ? pointsDifficulty[challengeDetails.problem_id.difficulty] : 0)
+                                            :(challengeDetails ? pointsDifficulty[challengeDetails.problem_id.difficulty] * -1 : 0)
+                                        }
+
+
+                                        duration={1.2}
+                                    />
+                                    )
+                                    </motion.span>
+                                )}
+                                </AnimatePresence> */}
+                            </div>
+                            </div>
+                            <DefaultProfile
+                                initals={getInitials(
+                                    `${challengeDetails?.playerDetails[1].user_id.full_name}`
+                                )}
+                            />
+                        </div>
                         </div>
                         <Problem
                             problemDetails={challengeDetails?.problem_id}
@@ -719,6 +856,14 @@ const ChallengeRoom = () => {
                             onButton2Submit={() => rejectDrawChallenge()}
                         />
                     )}
+                    {!fullscreenEnabled && userAllowed && !challengeEnded && escAttempts.current > 0 && (
+                        <Popup
+                            message={'Enter Fullscreen to Start Challenge'}
+                            button1Text={'Full Screen'}
+                            onButton1Submit={() => handleEnterFullscreen()}
+                        />
+                    )}
+
                 </div>
             ):(
                 !loading &&

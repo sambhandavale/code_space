@@ -17,7 +17,9 @@ export class ChallengeResultService {
       throw new Error("Invalid ratingChanges format. Expected 2 values.");
     }
 
-    const winnerRatingChange = ratingChanges[winnerId];
+    // user1 is always winner and user2 is always loser.
+
+    const winnerRatingChange = ratingChanges['user1'];
     if (winnerRatingChange === undefined) {
       throw new Error("Winner rating change not found in ratingChanges.");
     }
@@ -34,7 +36,7 @@ export class ChallengeResultService {
       throw new Error("Could not determine loser from participants.");
     }
 
-    const loserRatingChange = ratingChanges[loserId];
+    const loserRatingChange = ratingChanges["user2"];
 
     // Update challenge result
     await UserChallenges.findByIdAndUpdate(challengeId, {

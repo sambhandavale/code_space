@@ -3,7 +3,7 @@ import React from "react";
 
 interface IPopup{
     message: string
-    messageCode:number;
+    messageCode?:number;
     button1Text:string;
     onButton1Submit:()=>void;
     button2Text?:string;
@@ -22,10 +22,12 @@ const Popup = ({
     return (
         <div className="result_popup">
             <div className="popup glassmorphism-light">
-                <div className="popup_status">
-                    <img src={`/icons/challenge/${messageCode === 10 || messageCode === 30 ? 'won' : messageCode === 40 ? 'draw_match' : 'lose'}.svg`} alt="" />
-                    <div className="popup_text white ff-kanit-n">{messageCode === 10 || messageCode === 30 ? 'You Won!!' : messageCode === 40 ? 'Draw' : 'Oh No!!'}</div>
-                </div>
+                {messageCode && (
+                    <div className="popup_status">
+                        <img src={`/icons/challenge/${messageCode === 10 || messageCode === 30 ? 'won' : messageCode === 40 ? 'draw_match' : 'lose'}.svg`} alt="" />
+                        <div className="popup_text white ff-kanit-n">{messageCode === 10 || messageCode === 30 ? 'You Won!!' : messageCode === 40 ? 'Draw' : 'Oh No!!'}</div>
+                    </div>
+                )}
                 <div className="popup_msg white ff-google-n">
                     {message.split('\n').map((line, index) => (
                         <React.Fragment key={index}>
