@@ -134,8 +134,8 @@ By merging competition, collaboration, and content creation, we’re building a 
 
 ## 🧠 Inspiration
 
-CodeSpace was built from the idea that **learning through competition is powerful**.  
-It’s not just about solving problems — it’s about building consistency, connecting with others, and growing as a community.
+CodeSpace was inspired by **Codeforces** and **Chess.com**, combining the thrill of competitive matches with community engagement and detailed user analytics.  
+It’s not just about solving problems — it’s about **building consistency, connecting with peers, and growing as a coder**.
 
 > “The more you code, the sharper you get — but the best coders sharpen each other.”
 
@@ -149,4 +149,5 @@ Designed and maintained with scalability, performance, and creativity in mind.
 ---
 
 ### 🚀 _CodeSpace — Where Coders Compete, Learn, and Grow._
+
 
