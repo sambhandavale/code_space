@@ -1,4 +1,4 @@
-# ⚡ CodeSpace
+# CodeSpace
 
 > **Compete. Code. Conquer.**  
 > CodeSpace is a next-generation competitive programming and developer engagement platform where coders can challenge peers, share knowledge, and track their growth — all in one seamless ecosystem.
@@ -149,5 +149,6 @@ Designed and maintained with scalability, performance, and creativity in mind.
 ---
 
 ### 🚀 _CodeSpace — Where Coders Compete, Learn, and Grow._
+
 
 
