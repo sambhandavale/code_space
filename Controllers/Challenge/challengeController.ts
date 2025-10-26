@@ -13,14 +13,26 @@ Note: Message code meaning -
 40: Draw
 */
 
-export const emitToUser = (userId: string, event: string, data: any) => { 
-    const socketIds = userSockets.get(userId); 
-    if (socketIds && socketIds.size > 0) { 
-        socketIds.forEach(socketId => { 
-            io.to(socketId).emit(event, data); 
-        }); 
-    } 
-};
+// export const emitToUser = (userId: string, event: string, data: any) => { 
+//     const socketIds = userSockets.get(userId); 
+//     if (socketIds && socketIds.size > 0) { 
+//         socketIds.forEach(socketId => { 
+//             io.to(socketId).emit(event, data); 
+//         }); 
+//     } 
+// };
+
+export function emitToUser(userId, event, payload) {
+  const ids = userSockets.get(userId);
+  if (!ids || ids.size === 0) {
+    console.warn(`No active sockets for user ${userId}`);
+    return;
+  }
+  for (const id of ids) {
+    io.to(id).emit(event, payload);
+  }
+}
+
 
 export const getAllChallenges = getAll(UserChallenges);
 

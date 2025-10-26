@@ -25,12 +25,12 @@ export const initializeSocket = (): void => {
             newSocket.connect();
         }
 
-        newSocket.emit("register", isAuth()._id);
-
         newSocket.on("connect", () => {
             console.log("Socket connected:", newSocket.id);
+            newSocket.emit("register", isAuth()._id);
             newSocket.emit("userConnected", isAuth()._id);
         });
+
     } else {
         console.log("User is not authenticated, socket not initialized.");
     }

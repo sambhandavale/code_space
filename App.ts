@@ -64,6 +64,11 @@ io.on("connection", (socket) => {
       userSockets.get(userId).add(socket.id);
   });
 
+  socket.on("match_ack", (id) =>
+    console.log(`✅ ${socket.id} acknowledged match ${id}`)
+  );
+
+
   socket.on("disconnect", () => {
       userSockets.forEach((socketIds, userId) => {
           if (socketIds.has(socket.id)) {
