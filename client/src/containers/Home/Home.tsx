@@ -127,7 +127,9 @@ const Home = () => {
             const res = await postAction('/challenge/join-private', data);
             if(res && res.data){
                 if(res.status === 200){
-                    navigate(`/challenge/live/${res.data.challengeId}`)
+                    navigate(`/challenge/live/${res.data.data.challengeId}`)
+                } else{
+                    toast.error('Room not found....');
                 }
             }
         }catch(err){
@@ -139,9 +141,9 @@ const Home = () => {
         try {
             const res = await getAction(`/challenge/room-status/${roomCode}`);
             if (res && res.data) {
-                if (res.data.status === "active") {
-                    navigate(`/challenge/live/${res.data.challengeId}`);
-                }else if(res.data.status === "stale"){
+                if (res.data.data.status === "active") {
+                    navigate(`/challenge/live/${res.data.data.challengeId}`);
+                }else if(res.data.data.status === "stale"){
                     toast.error("Opponent failed to join.")
                     setUserCode('');
                 } else {
