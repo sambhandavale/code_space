@@ -159,7 +159,6 @@ const Home = () => {
     
         socket.on("match_found", (data) => {
           console.log("Match found:", data);
-          socket.emit("match_ack", data.challengeId);
           setMatchFound(true);
           navigate(`/challenge/live/${data.challengeId}`);
         });

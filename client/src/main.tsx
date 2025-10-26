@@ -5,12 +5,15 @@ import { Toaster } from 'sonner';
 import App from "./App";
 import "./main.scss";
 import 'highlight.js/styles/github-dark.css';
+import { SocketProvider } from "./context/SocketProvider";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
-      <Toaster position="top-right" richColors closeButton visibleToasts={1}/>
+      <SocketProvider>
+        <App />
+        <Toaster position="top-right" richColors closeButton visibleToasts={1}/>
+      </SocketProvider>
     </BrowserRouter>
   </StrictMode>
 );
