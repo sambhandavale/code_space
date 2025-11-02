@@ -70,7 +70,7 @@ const UserMatches = ({ matches, userInfo, loading }: IUserMatchesProps) => {
                                         <div className="match__user ff-google-n white">
                                             {isAuth() ? (isAuth().username === userInfo?.username ? "You" : userInfo?.username) : userInfo?.username}
                                         </div>
-                                        {((width > 1100) || (width > 720 && width < 900)) && <div className="vs ff-google-n white">vs</div>}
+                                        {<div className="vs ff-google-n white">vs</div>}
                                         <div className="match__user ff-google-n white">{isAuth() ? isAuth().username === match.opponentName ? 'You' : match.opponentName : match.opponentName}</div>
                                     </div>
                                     <div className="match__controls">

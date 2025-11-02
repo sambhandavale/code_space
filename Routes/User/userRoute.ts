@@ -3,6 +3,7 @@ import { getAllUsers, getUserById, getUserStats, getUserRating, resetUserStats, 
 import passport from "passport";
 import { getUserProfileDetails, updateUserProfile, uploadProfileImage } from "../../Controllers/User/userProfileController";
 import multer from "multer";
+import { optionalAuth } from "../../Middlewares/optionalAuth";
 
 const router = Router()
 const upload = multer();
@@ -11,6 +12,7 @@ router.route("/").get(getAllUsers);
 router.route("/details").get(getUserStats); 
 router.get(
     '/profile',
+    optionalAuth,
     getUserProfileDetails,
 );
 

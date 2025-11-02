@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import {  SetStateAction, useMemo, useState } from "react";
 import { IProfileCardInfo, ISocials } from "../../interfaces/UserInterfaces";
-import { BsPencil, BsCheck } from 'react-icons/bs';
+import { BsPencil, BsCheck, BsCrosshair, BsX } from 'react-icons/bs';
 import { isAuth } from "../../utility/helper";
 import { FaSave } from 'react-icons/fa';
+import { supportedPlatforms } from "../../utility/profile/socials";
 
 interface UserSocialsProps {
     tiles: ISocials[] | undefined;
@@ -10,6 +11,14 @@ interface UserSocialsProps {
     userSocialLinks: ISocials[];
     setUserSocialLinks: React.Dispatch<React.SetStateAction<ISocials[]>>;
     handleGlobalSave: (updatedLinks: ISocials[]) => void;
+    newSocial:{
+        platform: string;
+        url: string;
+    }
+    setNewSocial:React.Dispatch<SetStateAction<{
+        platform: string;
+        url: string;
+    }>>
     loading: boolean;
 }
 
@@ -32,8 +41,11 @@ const UserSocials = ({
     userSocialLinks,
     setUserSocialLinks,
     handleGlobalSave,
+    newSocial,
+    setNewSocial,
     loading
 }: UserSocialsProps) => {
+    const [addingNew, setAddingNew] = useState(false);
     const [editIndex, setEditIndex] = useState<{ row: number; idx: number } | null>(null);
     const [editedValue, setEditedValue] = useState<string>("");
 
@@ -42,8 +54,13 @@ const UserSocials = ({
     const chunkedTiles = chunkArray(userSocialLinks, 2);
 
     const getImageSrc = (label: string) => {
-        return `/icons/socials/dark/${label.toLowerCase()}.svg`;
+        const lowerLabel = label.toLowerCase();
+        if (supportedPlatforms.includes(lowerLabel)) {
+            return `/icons/socials/dark/${lowerLabel}.svg`;
+        }
+        return null;
     };
+
 
     const handleEditClick = (rowIndex: number, idx: number, currentValue: string) => {
         setEditIndex({ row: rowIndex, idx });
@@ -78,6 +95,28 @@ const UserSocials = ({
         handleGlobalSave(userSocialLinks);
     };
 
+    const handleAddNewSocial = () => {
+        setAddingNew(true);
+    };
+
+    const handleNewSocialChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setNewSocial(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSaveNewSocial = () => {
+        if (newSocial.platform.trim() === "" || newSocial.url.trim() === "") return;
+
+        const updatedSocialLinks = [
+            ...userSocialLinks,
+            { platform: newSocial.platform, url: newSocial.url },
+        ];
+        setUserSocialLinks(updatedSocialLinks);
+        setNewSocial({ platform: "", url: "" });
+        setAddingNew(false);
+    };
+
+
     const allLinksAreEmpty = Array.isArray(userSocialLinks) && userSocialLinks.every(link => getLastUrlSegment(link.url) === '...');
 
     if (!itsMe && allLinksAreEmpty) {
@@ -91,8 +130,8 @@ const UserSocials = ({
                     <header className="ff-google-n white flex justify-between items-center" style={{ position: "relative" }}>
                         {itsMe ? 'Your' : `${userInfo?.username}'s`} Socials
                         {itsMe && hasChanges && (
-                            <div className="global-save-btn gls-box glassmorphism-medium" onClick={handleGlobalSaveClick}>
-                                <FaSave />
+                            <div className="global-save-btn pointer glassmorphism-medium" onClick={handleGlobalSaveClick}>
+                                <FaSave color="black"/>
                             </div>
                         )}
                     </header>
@@ -150,6 +189,51 @@ const UserSocials = ({
                             })}
                         </div>
                     ))}
+                    {itsMe && (
+                        <div className="section_tile__row">
+                            <div className="section_tile ff-google-n white flex items-center justify-center gap-2">
+                                {!addingNew ? (
+                                    <div
+                                        className="flex items-center justify-center gap-2 pointer"
+                                        onClick={handleAddNewSocial}
+                                    >
+                                        <span className="add-icon">+</span>
+                                        <span>Add Social</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col gap-2">
+                                        <input
+                                            type="text"
+                                            name="platform"
+                                            placeholder="Platform (e.g., Dev.to, Medium)"
+                                            value={newSocial.platform}
+                                            onChange={handleNewSocialChange}
+                                            className="edit-input ff-google-n"
+                                        />
+                                        <input
+                                            type="text"
+                                            name="url"
+                                            placeholder="URL (e.g., https://medium.com/@username)"
+                                            value={newSocial.url}
+                                            onChange={handleNewSocialChange}
+                                            className="edit-input ff-google-n"
+                                        />
+                                        <div className="flex gap-3">
+                                            <button className="save-btn white" onClick={handleSaveNewSocial}>
+                                                <BsCheck size={18} color="white"/> Save
+                                            </button>
+                                            <button
+                                                className="save-btn white"
+                                                onClick={() => setAddingNew(false)}
+                                            >
+                                                <BsX size={18} color="white"/> Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             ) : (
                 <UserSocialsSkeleton />

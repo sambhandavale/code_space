@@ -35,6 +35,11 @@ const UserProfile = () =>{
     const [userBlogs, setUserBlogs] = useState<IUserBlogSummary[]>([]);
     const [questionsSolved,setQuestionsSolved] = useState<IUserQuestionsSolved[]>([]);
 
+    const [newSocial, setNewSocial] = useState<{ platform: string; url: string }>({
+        platform: "",
+        url: "",
+    });
+
     const [isOnline, setIsOnline] = useState<boolean>(false);
  
     useEffect(() => {
@@ -95,8 +100,8 @@ const UserProfile = () =>{
         image.src = objectUrl;
 
         image.onload = async () => {
-            const width = image.width;
-            const height = image.height;
+            // const width = image.width;
+            // const height = image.height;
             // const aspectRatio = width / height;
 
             // 🧠 Enforce aspect ratio rule (tall images are not allowed)
@@ -164,39 +169,39 @@ const UserProfile = () =>{
     }, [userProfileInfo]);
 
     const convertActivityData = (
-    daily_matches: Record<string, { count: number }> | undefined,
-    solved: IUserQuestionsSolved[] | undefined
+        daily_matches: Record<string, { count: number }> | undefined,
+        solved: IUserQuestionsSolved[] | undefined
     ): ActivityDay[] => {
-    const activityMap: Record<
-        string,
-        { count: number; type: Set<ActivityType> }
-    > = {};
+        const activityMap: Record<
+            string,
+            { count: number; type: Set<ActivityType> }
+        > = {};
 
-    // 🏁 Add match counts
-    if (daily_matches) {
-        for (const date in daily_matches) {
-        if (!activityMap[date]) activityMap[date] = { count: 0, type: new Set() };
-        activityMap[date].count += daily_matches[date].count;
-        activityMap[date].type.add("match");
+        // 🏁 Add match counts
+        if (daily_matches) {
+            for (const date in daily_matches) {
+            if (!activityMap[date]) activityMap[date] = { count: 0, type: new Set() };
+            activityMap[date].count += daily_matches[date].count;
+            activityMap[date].type.add("match");
+            }
         }
-    }
 
-    // ✅ Add solved-question counts
-    if (solved) {
-        solved.forEach((q) => {
-        const d = new Date(q.solved_at).toLocaleDateString("en-CA");
-        if (!activityMap[d]) activityMap[d] = { count: 0, type: new Set() };
-        activityMap[d].count += 1;
-        activityMap[d].type.add("question");
-        });
-    }
+        // ✅ Add solved-question counts
+        if (solved) {
+            solved.forEach((q) => {
+            const d = new Date(q.solved_at).toLocaleDateString("en-CA");
+            if (!activityMap[d]) activityMap[d] = { count: 0, type: new Set() };
+            activityMap[d].count += 1;
+            activityMap[d].type.add("question");
+            });
+        }
 
-    // Convert to array
-    return Object.entries(activityMap).map(([date, { count, type }]) => ({
-        date,
-        count,
-        type: type.size === 2 ? "both" : [...type][0]        // "both" if both types occurred
-    }));
+        // Convert to array
+        return Object.entries(activityMap).map(([date, { count, type }]) => ({
+            date,
+            count,
+            type: type.size === 2 ? "both" : [...type][0]
+        }));
     };
 
 
@@ -240,6 +245,24 @@ const UserProfile = () =>{
                         userstreak_info={userProfileInfo?.userStreaks}
                         loading={loading}
                     />
+                    <UserSocials
+                        tiles={userProfileInfo?.userSocials}
+                        userInfo={userProfileInfo?.profileCardInfo}
+                        userSocialLinks={userSocialLinks}
+                        setUserSocialLinks={setUserSocialLinks}
+                        handleGlobalSave={handleGlobalSave}
+                        newSocial={newSocial}
+                        setNewSocial={setNewSocial}
+                        loading={loading}
+                    />
+                    <UserFavourites
+                        tiles={userProfileInfo?.userFavourites}
+                        userInfo={userProfileInfo?.profileCardInfo}
+                        userFavourites={userFavourites}
+                        setUserFavourites={setUserFavourites}
+                        handleGlobalSave={handleGlobalSave}
+                        loading={loading}
+                    />
                 </div>
                 <div className="profile-r-s1-c-s2">
                     <UserActivities 
@@ -248,24 +271,8 @@ const UserProfile = () =>{
                         loading={loading}
                     />
 
-                    <div className="user_extras">
-                        <UserFavourites
-                            tiles={userProfileInfo?.userFavourites}
-                            userInfo={userProfileInfo?.profileCardInfo}
-                            userFavourites={userFavourites}
-                            setUserFavourites={setUserFavourites}
-                            handleGlobalSave={handleGlobalSave}
-                            loading={loading}
-                        />
-                        <UserSocials
-                            tiles={userProfileInfo?.userSocials}
-                            userInfo={userProfileInfo?.profileCardInfo}
-                            userSocialLinks={userSocialLinks}
-                            setUserSocialLinks={setUserSocialLinks}
-                            handleGlobalSave={handleGlobalSave}
-                            loading={loading}
-                        />
-                    </div>
+                    {/* <div className="user_extras">
+                    </div> */}
                     <UserMatches 
                         matches={userProfileInfo?.userMatches} 
                         userInfo={userProfileInfo?.profileCardInfo}

@@ -93,8 +93,8 @@ const UserFavourites = ({
                     <header className="ff-google-n white flex justify-between items-center" style={{ position: "relative" }}>
                         {itsMe ? 'Your' : `${userInfo?.username}'s`} Favourites
                         {itsMe && hasChanges && (
-                            <div className="global-save-btn gls-box glassmorphism-medium" onClick={handleGlobalSaveClick}>
-                                <FaSave />
+                            <div className="global-save-btn pointer glassmorphism-medium" onClick={handleGlobalSaveClick}>
+                                <FaSave color="black"/>
                             </div>
                         )}
                     </header>

@@ -93,6 +93,11 @@
                     font-size: var(--match-vs-font-size);
                 }
 
+                .vs,.match__user{
+                    align-self: stretch;
+                    text-align: center;
+                }
+
                 img {
                     width: var(--match-image-width);
                 }

@@ -2,6 +2,7 @@ import express, { Application } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import http from 'http';
+import morgan from "morgan";
 import connectDB from './Config/db';
 import cookieParser from "cookie-parser";
 import passport from "passport";
@@ -47,6 +48,8 @@ app.use(express.json());
 connectDB();
 
 app.use(cookieParser());
+
+app.use(morgan("dev"));
 
 app.use(passport.initialize());
 passportInit(passport);

@@ -56,7 +56,8 @@ export interface IUserBlogSummary {
     authorId?:{
         username:string;
         id:string;
-    }
+    };
+    isRelative:boolean;
 }
 
 export interface IUserProfile {

@@ -67,9 +67,9 @@ const ProfileCard = ({
                     <img
                         src={userProfileCard?.profileImage || "/assets/user/testprofile1.png"}
                         alt=""
-                        style={{
-                            display: isProfileImageLoading ? "none" : "block",
-                        }}
+                        // style={{
+                        //     display: isProfileImageLoading ? "none" : "block",
+                        // }}
                         onLoad={() => setIsProfileImageLoading(false)}
                         onError={() => setIsProfileImageLoading(false)} // fallback still shown
                     />
@@ -104,8 +104,8 @@ const ProfileCard = ({
 
                 <div className="profile_details">
                     {itsMe && hasChanges && (
-                        <div className="global-save-btn gls-box glassmorphism-medium" onClick={handleGlobalSave}>
-                            <FaSave color="white"/>
+                        <div className="global-save-btn pointer glassmorphism-medium" onClick={handleGlobalSave}>
+                            <FaSave color="black"/>
                         </div>
                     )}
                     {[

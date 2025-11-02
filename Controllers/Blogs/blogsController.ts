@@ -139,7 +139,7 @@ export const updateBlogImages = async (req: Request, res: Response) => {
 
 export const getAllBlogs = async (req: Request, res: Response) => {
   try {
-    const userTimezone = req.headers['x-user-timezone'] as string || 'UTC';
+    const timezone = req.headers['x-user-timezone'] as string || 'UTC';
 
     const blogs = await Blog.find({ isActive: true })
         .sort({ createdAt: -1 })
@@ -158,30 +158,53 @@ export const getAllBlogs = async (req: Request, res: Response) => {
         }
       }
 
-      // Calculate published duration
       let publishedAgo = '';
-      if (blog.isPublished && blog.publishedAt) {
-        const now = moment().tz(userTimezone);
-        const publishedAt = moment(blog.publishedAt).tz(userTimezone);
-        const diffMinutes = now.diff(publishedAt, 'minutes');
-        const diffHours = now.diff(publishedAt, 'hours');
-        const diffDays = now.diff(publishedAt, 'days');
+      let isRelative = false;
 
-        if (diffMinutes < 1) {
-          publishedAgo = 'Just now';
-        } else if (diffMinutes < 60) {
-          publishedAgo = `${diffMinutes}min`;
-        } else if (diffHours < 24) {
-          publishedAgo = `${diffHours}hr`;
-        } else if (diffDays < 7) {
-          publishedAgo = `${diffDays}d`;
-        } else if (diffDays < 14) {
-          publishedAgo = '1w';
-        } else if (diffDays < 21) {
-          publishedAgo = '2w';
-        } else {
-          publishedAgo = publishedAt.format('MMM D');
-        }
+      if (blog.isPublished && blog.publishedAt) {
+          const now = moment().tz(timezone);
+          const publishedAt = moment(blog.publishedAt).tz(timezone);
+          const diffMinutes = now.diff(publishedAt, 'minutes');
+          const diffHours = now.diff(publishedAt, 'hours');
+          const diffDays = now.diff(publishedAt, 'days');
+
+          if (diffMinutes < 1) {
+              publishedAgo = 'Just now';
+              isRelative = true;
+          } else if (diffMinutes < 60) {
+              publishedAgo = `${diffMinutes}min`;
+              isRelative = true;
+          } else if (diffHours < 24) {
+              publishedAgo = `${diffHours}hr`;
+              isRelative = true;
+          } else if (diffDays < 7) {
+              publishedAgo = `${diffDays}d`;
+              isRelative = true;
+          } else if (diffDays < 14) {
+              publishedAgo = '1w';
+              isRelative = true;
+          } else if (diffDays < 21) {
+              publishedAgo = '2w';
+              isRelative = true;
+          } else {
+              const day = publishedAt.date();
+              const suffix =
+                  day % 10 === 1 && day !== 11
+                      ? 'st'
+                      : day % 10 === 2 && day !== 12
+                      ? 'nd'
+                      : day % 10 === 3 && day !== 13
+                      ? 'rd'
+                      : 'th';
+
+              const year =
+                  publishedAt.year() !== now.year()
+                      ? `, ${publishedAt.year()}`
+                      : '';
+
+              publishedAgo = `${publishedAt.format('MMM')} ${day}${suffix}${year}`;
+              isRelative = false;
+          }
       }
 
       return {

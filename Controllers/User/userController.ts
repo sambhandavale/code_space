@@ -54,7 +54,7 @@ export const getUserRating = async (req, res) => {
         if (!userRating) {
             return res.status(404).json({ message: "User details not found" });
         }
-        await updateLoginStreak(req.params.id, timezone)
+        // await updateLoginStreak(req.params.id, timezone)
         res.status(200).json(userRating);
     } catch (error) {
         res.status(500).json({ message: "Server error", error });

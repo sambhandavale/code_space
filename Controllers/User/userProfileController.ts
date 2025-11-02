@@ -9,8 +9,9 @@ import Blog from "../../Models/Blog/Blog";
 import moment from "moment-timezone";
 import { BlobServiceClient } from "@azure/storage-blob";
 import crypto from "crypto";
+import { IBaseRequest } from "../../Interfaces/core_interfaces";
 
-export const getUserProfileDetails = async (req: Request, res: Response) => {
+export const getUserProfileDetails = async (req: IBaseRequest, res: Response) => {
     try {
         const username = req.query.username;
         const userId = req.query.userId;
@@ -18,6 +19,8 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
         let userInfo: IUser;
         let userStats: IUserStats;
         let userProfile: IUserProfile;
+
+        console.log(req.user._id);
 
         if (userId) {
             userInfo = await UserModel.findById(userId);
@@ -55,6 +58,8 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
             res.status(404).json({ message: "User stats or profile not found" });
             return;
         }
+
+        await updateLoginStreak(userInfo._id.toString(), timezone, req.user._id.toString() === userInfo._id.toString())
 
         const challenges = await UserChallengesModel.find({ "players.user_id": userInfo._id })
             .populate('players', 'username full_name')
@@ -118,6 +123,8 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
             }
 
             let publishedAgo = '';
+            let isRelative = false;
+
             if (blog.isPublished && blog.publishedAt) {
                 const now = moment().tz(timezone);
                 const publishedAt = moment(blog.publishedAt).tz(timezone);
@@ -127,18 +134,40 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
 
                 if (diffMinutes < 1) {
                     publishedAgo = 'Just now';
+                    isRelative = true;
                 } else if (diffMinutes < 60) {
                     publishedAgo = `${diffMinutes}min`;
+                    isRelative = true;
                 } else if (diffHours < 24) {
                     publishedAgo = `${diffHours}hr`;
+                    isRelative = true;
                 } else if (diffDays < 7) {
                     publishedAgo = `${diffDays}d`;
+                    isRelative = true;
                 } else if (diffDays < 14) {
                     publishedAgo = '1w';
+                    isRelative = true;
                 } else if (diffDays < 21) {
                     publishedAgo = '2w';
+                    isRelative = true;
                 } else {
-                    publishedAgo = publishedAt.format('MMM D');
+                    const day = publishedAt.date();
+                    const suffix =
+                        day % 10 === 1 && day !== 11
+                            ? 'st'
+                            : day % 10 === 2 && day !== 12
+                            ? 'nd'
+                            : day % 10 === 3 && day !== 13
+                            ? 'rd'
+                            : 'th';
+
+                    const year =
+                        publishedAt.year() !== now.year()
+                            ? `, ${publishedAt.year()}`
+                            : '';
+
+                    publishedAgo = `${publishedAt.format('MMM')} ${day}${suffix}${year}`;
+                    isRelative = false;
                 }
             }
 
@@ -153,6 +182,7 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
                 comments: blog.comments.length,
                 firstContent,
                 publishedAgo: blog.isPublished ? publishedAgo : 'Draft',
+                isRelative,
             };
         });
 
@@ -175,7 +205,7 @@ export const getUserProfileDetails = async (req: Request, res: Response) => {
     }
 } 
 
-export const updateLoginStreak = async (userId: string, timezone: string = 'UTC') => {
+export const updateLoginStreak = async (userId: string, timezone: string = 'UTC', update:boolean = false) => {
   const userStats = await UserStats.findOne({ user_id: userId });
   if (!userStats) return;
 
@@ -188,23 +218,34 @@ export const updateLoginStreak = async (userId: string, timezone: string = 'UTC'
 
   if (diff === 0) {
     // Already active today
-    if (!userStats.login_streak || userStats.login_streak === 0) {
-      userStats.login_streak = 1;
-      if ((userStats.longest_login_streak || 0) < userStats.login_streak) {
-        userStats.longest_login_streak = userStats.login_streak;
-      }
+    if(update){
+        if (!userStats.login_streak || userStats.login_streak === 0) {
+            userStats.login_streak = 1;
+            if ((userStats.longest_login_streak || 0) < userStats.login_streak) {
+                userStats.longest_login_streak = userStats.login_streak;
+            }
+        }
     }
   } else if (diff === 1) {
     // Streak continues
-    userStats.login_streak = (userStats.login_streak || 0) + 1;
-    if ((userStats.longest_login_streak || 0) < userStats.login_streak) {
-      userStats.longest_login_streak = userStats.login_streak;
+    if(update){
+        userStats.login_streak = (userStats.login_streak || 0) + 1;
+        if ((userStats.longest_login_streak || 0) < userStats.login_streak) {
+        userStats.longest_login_streak = userStats.login_streak;
+        }
     }
   } else {
     // Missed a day or first login → reset
-    userStats.login_streak = 1;
-    if ((userStats.longest_login_streak || 0) < userStats.login_streak) {
-      userStats.longest_login_streak = userStats.login_streak;
+    if(update){
+        userStats.login_streak = 1;
+        if ((userStats.longest_login_streak || 0) < userStats.login_streak) {
+            userStats.longest_login_streak = userStats.login_streak;
+        }
+    } else{
+        userStats.login_streak = 0;
+        if ((userStats.longest_login_streak || 0) < userStats.login_streak) {
+            userStats.longest_login_streak = userStats.login_streak;
+        }
     }
   }
 
