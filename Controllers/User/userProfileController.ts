@@ -19,8 +19,7 @@ export const getUserProfileDetails = async (req: IBaseRequest, res: Response) =>
         let userInfo: IUser;
         let userStats: IUserStats;
         let userProfile: IUserProfile;
-
-        console.log(req.user._id);
+        let sameUser = req.user? req.user._id.toString() === userInfo._id.toString() : false;
 
         if (userId) {
             userInfo = await UserModel.findById(userId);
@@ -59,7 +58,7 @@ export const getUserProfileDetails = async (req: IBaseRequest, res: Response) =>
             return;
         }
 
-        await updateLoginStreak(userInfo._id.toString(), timezone, req.user._id.toString() === userInfo._id.toString())
+        await updateLoginStreak(userInfo._id.toString(), timezone, sameUser)
 
         const challenges = await UserChallengesModel.find({ "players.user_id": userInfo._id })
             .populate('players', 'username full_name')
