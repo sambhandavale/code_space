@@ -10,6 +10,7 @@ import { routes } from './Routes';
 import { Server } from 'socket.io';
 import path from 'path';
 import MatchMaking from './Models/Challenges/MatchMaking';
+import { MatchmakingService } from './Services/ChallengeServices/matchmakingService';
 
 dotenv.config();
 
@@ -62,6 +63,28 @@ io.on("connection", (socket) => {
           userSockets.set(userId, new Set());
       }
       userSockets.get(userId).add(socket.id);
+  });
+
+  socket.on("join_queue", async ({ userId, language, timeControl, timezone }) => {
+    try {
+      console.log(`🎯 ${userId} joined matchmaking queue`);
+      const result = await MatchmakingService.joinMatchmaking(
+        userId,
+        language,
+        timeControl,
+        timezone
+      );
+
+      if (result.matchFound) {
+        console.log(`✅ Match found for ${userId}`);
+        // MatchmakingService handles socket emits internally now
+      } else {
+        socket.emit("queued", { message: "Searching for a match..." });
+      }
+    } catch (err) {
+      console.error("Error in join_queue:", err);
+      socket.emit("error_message", { message: "Internal server error" });
+    }
   });
 
   socket.on("disconnect", () => {

@@ -49,31 +49,57 @@ const Home = () => {
         };
     }, [user]);
 
-    const joinMatchmaking = async () => {
-        if (!socket) return;
-        try{
-            const data = {userId:isAuth()._id, language:controlsSelected.language, timeControl:controlsSelected.time}
-            if(controlsSelected.language === '' || controlsSelected.time === 0 ){
-                toast.error('Please Select the Challenge Controlls!!');
-                return;
-            }
-            const res = await postAction('/challenge/joinMatchmaking',data)
-            if(res.status === 400){
-                setMatchFound(true);
-                navigate(`/challenge/live/${res.data.challengeId}`)
-            }
-            if(res && res.data){
-                setMessage(res.data.message);
-                // matchmakingTimeout.current = setTimeout(() => {
-                //     if(!matchFound){
-                //         toast.info('No match found, try again in few times.');
-                //         stopMatchmaking();
-                //     }
-                // }, 30000);
-            }
-        }catch(err){
-            console.error(err);
+    // const joinMatchmaking = async () => {
+    //     if (!socket) return;
+    //     try{
+    //         const data = {userId:isAuth()._id, language:controlsSelected.language, timeControl:controlsSelected.time}
+    //         if(controlsSelected.language === '' || controlsSelected.time === 0 ){
+    //             toast.error('Please Select the Challenge Controlls!!');
+    //             return;
+    //         }
+    //         const res = await postAction('/challenge/joinMatchmaking',data)
+    //         if(res.status === 400){
+    //             setMatchFound(true);
+    //             navigate(`/challenge/live/${res.data.challengeId}`)
+    //         }
+    //         if(res && res.data){
+    //             setMessage(res.data.message);
+    //             // matchmakingTimeout.current = setTimeout(() => {
+    //             //     if(!matchFound){
+    //             //         toast.info('No match found, try again in few times.');
+    //             //         stopMatchmaking();
+    //             //     }
+    //             // }, 30000);
+    //         }
+    //     }catch(err){
+    //         console.error(err);
+    //     }
+    // };
+
+    const joinMatchmaking = () => {
+        const user = isAuth();
+        if (!user) return toast.error("You must be logged in!");
+
+        if (!controlsSelected.language || !controlsSelected.time) {
+            return toast.error("Please select challenge controls!");
         }
+
+        if(!socket) return;
+
+        socket.emit("join_queue", {
+            userId: user._id,
+            language: controlsSelected.language,
+            timeControl: controlsSelected.time,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        });
+
+        socket.on("queued",(data)=>{
+            setMessage(data.message);
+        })
+
+        return () => {
+          socket.off("queued");
+        };
     };
 
     const stopMatchmaking = async () =>{
@@ -156,17 +182,35 @@ const Home = () => {
         }
     };
 
+    // useEffect(() => {
+    //     if (!socket) return;
+    
+    //     socket.on("match_found", (data) => {
+    //       console.log("Match found:", data);
+    //       setMatchFound(true);
+    //       navigate(`/challenge/live/${data.challengeId}`);
+    //     });
+    
+    //     return () => {
+    //       socket.off("match_found");
+    //     };
+    // }, [socket, navigate]);
+
     useEffect(() => {
         if (!socket) return;
-    
+
         socket.on("match_found", (data) => {
-          console.log("Match found:", data);
-          setMatchFound(true);
-          navigate(`/challenge/live/${data.challengeId}`);
+            console.log("🔥 Match found:", data);
+            navigate(`/challenge/live/${data.challengeId}`);
         });
-    
+
+        socket.on("queued", (msg) => {
+            console.log(msg.message);
+        });
+
         return () => {
-          socket.off("match_found");
+            socket.off("match_found");
+            socket.off("queued");
         };
     }, [socket, navigate]);
 

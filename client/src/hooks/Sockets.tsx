@@ -4,36 +4,32 @@ import { isAuth } from "../utility/helper";
 let socket: Socket | null = null;
 
 export const getSocket = (): Socket => {
-    if (!socket) {
-        socket = io(import.meta.env.VITE_SERVER_URL, {
-            transports: ["websocket"],
-            autoConnect: false,
-        });
+  if (!socket) {
+    socket = io(import.meta.env.VITE_SERVER_URL, {
+      transports: ["websocket"],
+      autoConnect: false,
+      path: "/socket.io/",
+    });
 
-        socket.on("disconnect", () => {
-            console.log("Socket disconnected");
-        });
-    }
-    return socket;
+    socket.on("disconnect", () => {
+      console.log("⚠️ Socket disconnected");
+    });
+  }
+  return socket;
 };
 
 export const initializeSocket = (): void => {
-    if (isAuth()) {
-        const newSocket = getSocket();
+  const user = isAuth();
+  if (!user) return console.log("User not authenticated — socket not initialized.");
 
-        if (!newSocket.connected) {
-            newSocket.connect();
-        }
+  const newSocket = getSocket();
 
-        newSocket.on("connect", () => {
-            console.log("Socket connected:", newSocket.id);
-            newSocket.emit("register", isAuth()._id);
-            newSocket.emit("userConnected", isAuth()._id);
-        });
+  if (!newSocket.connected) newSocket.connect();
 
-    } else {
-        console.log("User is not authenticated, socket not initialized.");
-    }
+  newSocket.on("connect", () => {
+    console.log("✅ Socket connected:", newSocket.id);
+    newSocket.emit("register", user._id); // register user
+  });
 };
 
 export const getSocketId = (): string | undefined => {

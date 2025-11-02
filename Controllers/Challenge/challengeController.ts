@@ -22,14 +22,14 @@ Note: Message code meaning -
 //     } 
 // };
 
-export function emitToUser(userId, event, payload) {
+export function emitToUser(userId: string, event: string, payload: any) {
   const ids = userSockets.get(userId);
   if (!ids || ids.size === 0) {
-    console.warn(`No active sockets for user ${userId}`);
+    console.warn(`⚠️ No active sockets for user ${userId}`);
     return;
   }
-  for (const id of ids) {
-    io.to(id).emit(event, payload);
+  for (const socketId of ids) {
+    io.to(socketId).emit(event, payload);
   }
 }
 
