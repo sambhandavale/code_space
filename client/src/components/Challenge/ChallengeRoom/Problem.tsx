@@ -68,8 +68,8 @@ const Problem = ({ problemDetails }: IProblemProp) => {
         ))}
         <div className="topics ff-google-n white">
           <span>Topics:</span>
-          {problemDetails.tags.map((tag)=>(
-            <div className="topic">{tag}</div>
+          {problemDetails.tags.map((tag,index)=>(
+            <div className="topic" key={index}>{tag}</div>
           ))}
         </div>
       </div>

@@ -16,6 +16,7 @@ import { useWindowWidth } from "../../utility/screen-utility";
 import { useUser } from "../../context/UserContext";
 import { AnimatePresence, motion } from "framer-motion";
 import CountUp from "react-countup";
+import SecureEditor from "../../components/Challenge/TextEditor";
  
 /*
 Note: Message code meaning -
@@ -240,7 +241,6 @@ const ChallengeRoom = () => {
         const s = seconds % 60;
         return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
-    
 
     useEffect(()=>{
         const getChallengeDetails = async () =>{
@@ -479,7 +479,7 @@ const ChallengeRoom = () => {
     };
 
     const handleMouseUp = () => {
-    isDragging.current = false;
+        isDragging.current = false;
     };
 
     const handleSubmit = async () =>{
@@ -537,8 +537,6 @@ const ChallengeRoom = () => {
         }
     }
 
-    console.log(userPoints);
-
     return (
         <>
             {userAllowed ? (
@@ -577,32 +575,6 @@ const ChallengeRoom = () => {
 
                             <div className="playerrating">
                                 Rating {challengeDetails?.playerDetails[0].rating}
-                                {/* <AnimatePresence>
-                                {challengeEnded && (
-                                    <motion.span
-                                    key={`p0-${challengeEndMessage?.ratingChange}`}
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: 10 }}
-                                    transition={{ duration: 0.5 }}
-                                    >
-                                    (
-                                    <CountUp
-                                        start={0}
-                                        end={
-                                        (isWinner && challengeDetails?.playerDetails[0].user_id === isAuth()._id) 
-                                            ? (challengeDetails ? pointsDifficulty[challengeDetails.problem_id.difficulty] : 0)
-                                            :(challengeDetails ? pointsDifficulty[challengeDetails.problem_id.difficulty] * -1 : 0)
-                                            // ? (challengeDetails ? pointsDifficulty[challengeDetails.problem_id.difficulty] : 0)
-                                            // : (challengeDetails ? -pointsDifficulty[challengeDetails.problem_id.difficulty] : 0)
-                                        }
-
-                                        duration={1.2}
-                                    />
-                                    )
-                                    </motion.span>
-                                )}
-                                </AnimatePresence> */}
                             </div>
                             </div>
                         </div>
@@ -628,36 +600,6 @@ const ChallengeRoom = () => {
 
                             <div className="playerrating">
                                 Rating {challengeDetails?.playerDetails[1].rating}
-                                {/* <AnimatePresence>
-                                {challengeEnded && (
-                                    <motion.span
-                                    key={`p1-${challengeEndMessage?.ratingChange}`}
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: 10 }}
-                                    transition={{ duration: 0.5 }}
-                                    className={
-                                        challengeDetails?.playerDetails[1].user_id._id === isAuth()._id
-                                        ? "text-green-500 font-semibold ml-1"
-                                        : "text-red-500 font-semibold ml-1"
-                                    }
-                                    >
-                                    (
-                                    <CountUp
-                                        start={0}
-                                        end={
-                                        (isWinner && challengeDetails?.playerDetails[0].user_id === isAuth()._id) 
-                                            ? (challengeDetails ? pointsDifficulty[challengeDetails.problem_id.difficulty] : 0)
-                                            :(challengeDetails ? pointsDifficulty[challengeDetails.problem_id.difficulty] * -1 : 0)
-                                        }
-
-
-                                        duration={1.2}
-                                    />
-                                    )
-                                    </motion.span>
-                                )}
-                                </AnimatePresence> */}
                             </div>
                             </div>
                             <DefaultProfile
@@ -709,7 +651,7 @@ const ChallengeRoom = () => {
                                 </div>
                             </div>
                             <div className="main_editor">
-                                <Editor
+                                {/* <Editor
                                     height="350px"
                                     language={language}
                                     value={code}
@@ -721,6 +663,11 @@ const ChallengeRoom = () => {
                                         scrollBeyondLastLine: false,
                                         automaticLayout: true,
                                     }}
+                                /> */}
+                                <SecureEditor 
+                                    language={language}
+                                    code={code}
+                                    setCode={setCode}
                                 />
                             </div>
                         </div>
