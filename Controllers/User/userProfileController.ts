@@ -19,7 +19,6 @@ export const getUserProfileDetails = async (req: IBaseRequest, res: Response) =>
         let userInfo: IUser;
         let userStats: IUserStats;
         let userProfile: IUserProfile;
-        let sameUser = req.user? req.user._id.toString() === userInfo._id.toString() : false;
 
         if (userId) {
             userInfo = await UserModel.findById(userId);
@@ -57,6 +56,8 @@ export const getUserProfileDetails = async (req: IBaseRequest, res: Response) =>
             res.status(404).json({ message: "User stats or profile not found" });
             return;
         }
+
+        const sameUser = req.user ? req.user._id.toString() === userInfo._id.toString() : false;
 
         await updateLoginStreak(userInfo._id.toString(), timezone, sameUser)
 
@@ -199,9 +200,16 @@ export const getUserProfileDetails = async (req: IBaseRequest, res: Response) =>
             }
         });
 
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error });
+    } catch (error: any) {
+        console.error("❌ Error in getUserProfileDetails:", error);
+
+        res.status(500).json({
+            message: "Server error",
+            error: error.message || error.toString(),
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+        });
     }
+
 } 
 
 export const updateLoginStreak = async (userId: string, timezone: string = 'UTC', update:boolean = false) => {
