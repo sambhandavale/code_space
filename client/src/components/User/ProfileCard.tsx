@@ -117,7 +117,7 @@ const ProfileCard = ({
                         <div className="detail" key={field}>
                             <div className="detail_label ff-google-n white flex items-center gap-2">
                                 {label}
-                                {itsMe && (
+                                {itsMe && field != 'username' && (
                                     <div
                                         className="edit-btn"
                                         onClick={() => handleEditClick(field, userProfileCard ? String(userProfileCard[field as keyof IProfileCardInfo]) : '')}
