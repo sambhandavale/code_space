@@ -89,7 +89,17 @@ const AllBlogs = () => {
                                     <div className="time ff-google-n white" style={{ opacity: "0.7" }}>
                                         {blog.isRelative ? `${blog.publishedAgo} ago` : blog.publishedAgo}
                                     </div>
-                                    <div className="time ff-google-n white">{blog.views} <span style={{ opacity: "0.7" }}>view<span style={blog.views > 10 ? { opacity: "1" } : { opacity: "0" }}>s</span></span></div>
+                                    <div className="time ff-google-n white">
+                                        {blog.views} 
+                                        <span style={{ opacity: "0.7" }}>
+                                            view
+                                            <span 
+                                                style={blog.views > 1 ? { opacity: "1" } : { opacity: "0" }}
+                                            >
+                                                s
+                                            </span>
+                                        </span>
+                                        </div>
                                     <div className="activity ff-google-n white">
                                         <img src="/icons/user/ping.svg" alt="" />
                                         <span style={{ opacity: "0.7" }}>{blog.pings}</span>

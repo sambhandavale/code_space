@@ -108,7 +108,7 @@ export const getUserProfileDetails = async (req: IBaseRequest, res: Response) =>
         const userSolvedQuestions = userStats.questions_solved;
 
         // Get user blogs
-        const userBlogsData = await Blog.find({ authorId: userInfo._id })
+        const userBlogsData = await Blog.find({ authorId: userInfo._id, isActive:true })
             .sort({ createdAt: -1 })
             .select('title slug isPublished tags views pings comments publishedAt sections createdAt');
 
