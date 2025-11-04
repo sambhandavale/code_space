@@ -179,6 +179,7 @@ export const addQuestion = async (req: Request, res: Response) => {
       template,
       suggestedBy,
       tags,
+      approved=false
     } = req.body;
 
     // 🔹 Required field validation
@@ -213,6 +214,7 @@ export const addQuestion = async (req: Request, res: Response) => {
       template,
       suggestedBy,
       tags,
+      approved
     });
 
     // 🔹 Save to DB

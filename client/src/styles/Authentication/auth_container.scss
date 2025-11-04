@@ -89,23 +89,23 @@
               font-size: 0.75rem;
               color:var(--white);
             }
-
-            button {
-                display: flex;
-                padding: var(--auth-submit-padding);
-                justify-content: center;
-                align-items: center;
-                border-radius: calc(10px * var(--scale));
-                border: 1px solid rgba(255, 255, 255, 0.26);
-                background: #FFF;
-                backdrop-filter: blur(11.4px);
-                color: #202020;
-                font-family: "GoogleSansRegular";
-                font-size: var(--auth-input-font-size);
-                font-weight: 700;
-            }
         }
     }
+}
+
+.common_button {
+    display: flex;
+    padding: 0.75rem 3rem;
+    justify-content: center;
+    align-items: center;
+    border-radius: calc(10px);
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    background: #FFF;
+    backdrop-filter: blur(11.4px);
+    color: #202020;
+    font-family: "GoogleSansRegular";
+    font-size: var(--auth-input-font-size);
+    font-weight: 700;
 }
 
 .input_box {

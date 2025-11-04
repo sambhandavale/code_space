@@ -100,7 +100,7 @@ const GenericFormContainer = ({
             <div className="extra-content">{extraContentAboveSubmit}</div>
           )}
 
-          <button type="submit" aria-live="assertive" className="pointer">
+          <button type="submit" aria-live="assertive" className="pointer common_button">
             {loading ? 'Loading...' : submitText}
           </button>
         </form>

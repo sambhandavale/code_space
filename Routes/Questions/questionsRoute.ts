@@ -1,13 +1,15 @@
 import { Router } from "express";
-import { getAllQuestions, getQuestionsById, getQuestionsByDifficulty, updatePing, updateSubmits, getQuestionSummary } from "../../Controllers/Questions/questionsController";
+import * as questionsController from "../../Controllers/Questions/questionsController";
 
 const router = Router();
 
-router.route('/').get(getAllQuestions);
-router.get('/questionList',getQuestionSummary)
-router.route('/:id').get(getQuestionsById);
-router.route('/difficulty/:difficulty').get(getQuestionsByDifficulty);
-router.route('/:id/ping').patch(updatePing);
-router.route('/:id/submit').patch(updateSubmits);
+router.route('/').get(questionsController.getAllQuestions);
+router.get('/questionList',questionsController.getQuestionSummary)
+router.route('/:id').get(questionsController.getQuestionsById);
+router.route('/difficulty/:difficulty').get(questionsController.getQuestionsByDifficulty);
+router.route('/:id/ping').patch(questionsController.updatePing);
+router.route('/:id/submit').patch(questionsController.updateSubmits);
+
+router.post('/add',questionsController.addQuestion);
 
 export default router;

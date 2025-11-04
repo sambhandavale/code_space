@@ -63,6 +63,7 @@
             font-size: 1rem;
             justify-content: flex-start;
             gap:1rem;
+            flex-wrap: wrap;
         }
 
         .input__field {
@@ -160,6 +161,11 @@
             flex: 1 0 0;
             padding: 0.5rem 0;
             border-radius: 0.5rem;
+        }
+
+        .active{
+            background-color: white;
+            color:#000;
         }
     }
   }
