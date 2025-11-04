@@ -83,24 +83,6 @@
                   align-self: stretch;
                   flex: 1 0 0;
                 }
-
-                input {
-                    display: flex;
-                    padding: var(--auth-input-padding);
-                    flex: 1 0 0;
-                    align-self: stretch;
-
-                    font-family: 'GoogleSansRegular';
-                    color: var(--white);
-                    font-size: var(--auth-input-font-size);
-                    border-radius: calc(10px * var(--scale));
-
-                    &::placeholder {
-                        font-family: 'GoogleSansRegular';
-                        color: var(--white);
-                        font-size: var(--auth-input-font-size);
-                    }
-                }
             }
 
             .extra-content{
@@ -123,6 +105,24 @@
                 font-weight: 700;
             }
         }
+    }
+}
+
+.input_box {
+    display: flex;
+    padding: var(--auth-input-padding);
+    flex: 1 0 0;
+    align-self: stretch;
+
+    font-family: 'GoogleSansRegular';
+    color: var(--white);
+    font-size: var(--auth-input-font-size);
+    border-radius: calc(10px * var(--scale));
+
+    &::placeholder {
+        font-family: 'GoogleSansRegular';
+        color: #ffffffaf;
+        font-size: var(--auth-input-font-size);
     }
 }
 

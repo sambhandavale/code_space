@@ -1,7 +1,8 @@
 import { getAll } from "../../Utility/handlerFactory";
-import Question from "../../Models/Challenges/Question";
+import Question, { IQuestion } from "../../Models/Challenges/Question";
 import UserStats from "../../Models/Users/UserStats";
 import mongoose, { ObjectId } from "mongoose";
+import { Request, Response } from "express";
 
 export const getAllQuestions = getAll(Question);
 
@@ -158,6 +159,74 @@ export const updateSubmits = async (req, res) => {
     return res.status(500).json({
       message: "Server error",
       error: err.message,
+    });
+  }
+};
+
+export const addQuestion = async (req: Request, res: Response) => {
+  try {
+    const {
+      title,
+      description,
+      difficulty,
+      task,
+      input_format,
+      constraints,
+      output_format,
+      time,
+      examples,
+      test_cases,
+      template,
+      suggestedBy,
+      tags,
+    } = req.body;
+
+    // 🔹 Required field validation
+    if (
+      !title ||
+      !description ||
+      !difficulty ||
+      !task ||
+      !input_format ||
+      !constraints ||
+      !output_format ||
+      !time ||
+      !examples ||
+      !test_cases
+    ) {
+      res.status(400).json({ message: "Missing required fields" });
+      return;
+    }
+
+    // 🔹 Create question document
+    const newQuestion: IQuestion = new Question({
+      title,
+      description,
+      difficulty,
+      task,
+      input_format,
+      constraints,
+      output_format,
+      time,
+      examples,
+      test_cases,
+      template,
+      suggestedBy,
+      tags,
+    });
+
+    // 🔹 Save to DB
+    const savedQuestion = await newQuestion.save();
+
+    res.status(201).json({
+      message: "Question added successfully",
+      data: savedQuestion,
+    });
+  } catch (error: any) {
+    console.error("Error adding question:", error);
+    res.status(500).json({
+      message: "Server error while adding question",
+      error: error.message,
     });
   }
 };

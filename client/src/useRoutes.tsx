@@ -12,6 +12,7 @@ import SolveProblem from "./containers/Solve/SolveProblem";
 import QuestionsList from "./containers/Solve/QuestionsList";
 import ConfirmEmail from "./containers/Authentication/ConfirmEmail";
 import ResetPassword from "./containers/Authentication/ForgotPassword";
+import Question from "./containers/Solve/Question";
 
 interface PrivateRouteProps {
   element: React.ReactNode;
@@ -27,15 +28,16 @@ const routes = () => {
     { path: "/home", element: <Home /> },
     { path: "/login", element: <Login /> },
     { path: "/register", element: <Register /> },
-    { path:"/profile/:username", element:<UserProfile/> },
-    { path:"/blog/:id/:slug", element:<Blog/> },
-    { path:"/blogs", element:<AllBlogs/> },
-    { path:"/solve/questions", element:<QuestionsList/> },
-    { path:"/solve/:problemId", element:<SolveProblem/> },
-    { path:"/confirm-email", element:<ConfirmEmail/> },
-    { path:"/blog/write", element:<WriteBlog/> },
+    { path: "/profile/:username", element:<UserProfile/> },
+    { path: "/blog/:id/:slug", element:<Blog/> },
+    { path: "/blogs", element:<AllBlogs/> },
+    { path: "/solve/questions", element:<QuestionsList/> },
+    { path: "/solve/:problemId", element:<SolveProblem/> },
+    { path: "/confirm-email", element:<ConfirmEmail/> },
+    { path: "/blog/write", element:<WriteBlog/> },
     { path: "/challenge/:challengeId", element:<ChallengeRoom/> },
     { path: "/reset-password/:token", element:<ResetPassword/> },
+    { path: "/question/:questionId", element:<Question/> }
   ];
 
   const privateRoutes = [

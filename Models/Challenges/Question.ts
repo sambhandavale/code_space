@@ -8,7 +8,7 @@ interface IExample {
 
 interface ITestCase {
   input: string;
-  output: string;
+  output: string[];
 }
 
 export interface IQuestion extends Document {
@@ -52,7 +52,14 @@ const QuestionSchema: Schema = new Schema<IQuestion>(
     test_cases: [
       {
         input: { type: String, required: true },
-        output: { type: String, required: true },
+        output: {
+          type: [String],
+          required: true,
+          validate: {
+            validator: (arr: string[]) => arr.length > 0,
+            message: "At least one output is required for each test case",
+          },
+        },
       },
     ],
     template: {
@@ -68,14 +75,18 @@ const QuestionSchema: Schema = new Schema<IQuestion>(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    pings: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    }],
-    submits: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    }],
+    pings: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    submits: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     tags: {
       type: [String],
       default: [],

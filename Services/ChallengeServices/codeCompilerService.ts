@@ -1,6 +1,6 @@
 interface TestResult {
   actual: string;
-  output: string;
+  output: string[];
   input: string;
   status: "PASSED" | "FAILED" | string;
   test_case: number;
@@ -33,7 +33,7 @@ export class CodeCompilerServices {
 
     for (let i = 0; i < testCases.length; i++) {
       const { input, output } = testCases[i];
-      const trimmedExpectedOutput = String(output).trim();
+      const trimmedExpectedOutput:any[] = output.map((o)=>o.trim());
 
       let actualOutput = "";
       let status = "FAILED";
@@ -69,7 +69,7 @@ export class CodeCompilerServices {
           }
 
           actualOutput = data?.run?.output?.trim() ?? "";
-          status = actualOutput === trimmedExpectedOutput ? "PASSED" : "FAILED";
+          status = trimmedExpectedOutput.includes(actualOutput)  ? "PASSED" : "FAILED";
 
           results.push({
             test_case: i + 1,

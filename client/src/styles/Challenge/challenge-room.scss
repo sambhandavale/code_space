@@ -465,22 +465,24 @@
                 border-radius: var(--test-case-border-radius);
 
                 .test_case_text {
-                    font-size: var(--test-case-text-font-size);
-                    max-width: 20rem;
+                  font-size: var(--test-case-text-font-size);
+                  max-width: 70%;
+                  word-wrap: break-word;
+                  white-space: pre-wrap; // keeps formatting for multi-line error messages
                 }
             }
             }
 
             .selected {
-            background: var(--test-case-bg-selected);
+              background: var(--test-case-bg-selected);
             }
 
             .wrong {
-            background: var(--test-case-bg-wrong);
+              background: var(--test-case-bg-wrong);
             }
 
             .right {
-            background: var(--test-case-bg-right);
+              background: var(--test-case-bg-right);
             }
         }
     }

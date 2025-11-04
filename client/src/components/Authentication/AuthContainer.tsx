@@ -69,7 +69,7 @@ const GenericFormContainer = ({
                       placeholder={field.placeholder}
                       value={field.value}
                       onChange={field.onChange}
-                      className={field.className || 'glassmorphism-light'}
+                      className={`${field.className} glassmorphism-light` || 'glassmorphism-light'}
                       aria-label={field.ariaLabel || field.placeholder || field.name}
                     />
                     {isPassword && (

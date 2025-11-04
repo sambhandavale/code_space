@@ -1,0 +1,179 @@
+.question_screen__container {
+  background: linear-gradient(271deg, rgba(0, 0, 0, 0.543) 30.62%, #000 87.07%),
+    url(/assets/bg/moon.jpeg) #141414 50% / cover no-repeat;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  z-index: 1;
+  color: #fff;
+  overflow-y: auto;
+
+  .question_screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin: 0 5rem 5rem 3rem;
+    align-self: stretch;
+
+    header {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      color: #fff;
+    }
+
+    .question_form {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        align-self: stretch;
+        gap:3rem;
+
+        .input_row{
+            display: flex;
+            gap:0.5rem;
+            align-self: stretch;
+        }
+
+        .input_col{
+            display: flex;
+            gap:0.5rem;
+            align-self: stretch;
+            flex-direction: column;
+        }
+
+        .input__label,.input__sublabel {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #ddd;
+
+            display: flex;
+            align-self: stretch;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .input__sublabel {
+            font-size: 1rem;
+            justify-content: flex-start;
+            gap:1rem;
+        }
+
+        .input__field {
+            display: flex;
+            flex-direction: column;
+            gap:0.5rem;
+            align-self: stretch;
+            flex: 1 0 0;
+
+            .input__box,
+            .input__textarea {
+                border: none;
+                border-radius: 8px;
+                padding: 0.9rem 1rem;
+                color: #fff;
+                font-size: 1rem;
+                background: rgba(255, 255, 255, 0.08);
+                outline: none;
+                resize: vertical;
+                transition: all 0.3s ease;
+
+                &:focus {
+                    background: rgba(255, 255, 255, 0.15);
+                }
+
+                &::placeholder {
+                    font-family: 'GoogleSansRegular';
+                    color:#ffffffaf;
+                    font-size: var(--auth-input-font-size);
+                }
+            }
+
+            .input__textarea {
+                min-height: 100px;
+            }
+        }
+
+        .input__tabs {
+            display: flex;
+            gap: 0.3rem;
+
+            .tab__btn {
+                background: transparent;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                color: white;
+                width: 28px;
+                height: 28px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 0.9rem;
+                transition: 0.2s ease;
+
+                &.active {
+                    background: white;
+                    color: black;
+                }
+            }
+        }
+
+        .section__block{
+            display: flex;
+            flex-direction: column;
+            gap:1rem;
+            align-self: stretch;
+
+            .section__header{
+                font-size: 2rem;
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+                color: #ddd;
+            }
+        }
+
+        .add-btn{
+            padding: 0.5rem 0;
+            border-radius: 0.5rem;
+            border: none;
+        }
+
+        .multi_input{
+            display: flex;
+            flex-direction: column;
+            align-self: stretch;
+            gap:1rem;
+        }
+
+        .multi_output__group{
+            display: flex;
+            flex-direction: column;
+            gap:0.5rem;
+        }
+
+        .difficulty__btn{
+            align-self: stretch;
+            flex: 1 0 0;
+            padding: 0.5rem 0;
+            border-radius: 0.5rem;
+        }
+    }
+  }
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.35);
+    }
+  }
+}
