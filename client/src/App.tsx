@@ -6,12 +6,14 @@ import { isAuth } from "./utility/helper";
 import Layout from "./components/Layout/Layout";
 import { UserProvider } from "./context/UserContext";
 import ScrollToTop from "./components/Shared/ScrollUp";
+import { commonPageTitle } from "./utility/general-utility";
 // import { getAction } from "./services/generalServices";
 
 const App = (props: { notification?: any; error?: any }) => {
   const { error } = props;
   const [user, setUser] = useState(() => isAuth());
   const [socketId, setSocketId] = useState<string | null | undefined>(null);
+  const allRoutes = Routes();
 
   useEffect(() => {
     if (user) {
@@ -28,6 +30,17 @@ const App = (props: { notification?: any; error?: any }) => {
       };
     }
   }, [user]);
+
+  useEffect(() => {
+    const match = allRoutes.find(route =>
+      new RegExp("^" + route.path.replace(/:\w+/g, "[^/]+") + "$").test(location.pathname)
+    );
+    if (match?.title) {
+      document.title = `${match.title} | Codespace`;
+    } else {
+      document.title = commonPageTitle;
+    }
+  }, [location.pathname]);
 
   if (error) console.log("App error:", error);
 

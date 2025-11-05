@@ -61,8 +61,6 @@ export const timeControls = [
   { name: "Rapid", time: 20 },
 ]
 
-
-
 export function getInitials(name: string): string {
   if (!name) return '';
 
@@ -72,3 +70,5 @@ export function getInitials(name: string): string {
     .map(word => word[0].toUpperCase())
     .join('');
 }
+
+export const commonPageTitle = "CodeSpace | Coding Challenges, Practice & Developer Community";

@@ -8,9 +8,10 @@ import { IProblem } from "../../interfaces/interfaces";
 import Problem from "../../components/Challenge/ChallengeRoom/Problem";
 import { toast } from "sonner";
 import Editor from '@monaco-editor/react';
-import { languages } from "../../utility/general-utility";
+import { commonPageTitle, languages } from "../../utility/general-utility";
 import { useWindowWidth } from "../../utility/screen-utility";
 import { AiOutlineClose } from "react-icons/ai";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 interface ITestResult {
     actual: string | null;
@@ -241,6 +242,12 @@ const SolveProblem = () => {
             throw error;
         }
     };
+
+    usePageTitle(
+        problemDetails
+        ? `${problemDetails.title}`
+        : commonPageTitle
+    );
 
     return (
         <div 

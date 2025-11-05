@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import UserBlogs from "../../components/User/UserBlogs";
 import axiosInstance from "../../utility/axios_interceptor";
 import UserQuestionsSolved from "../../components/User/UserQuestionsSolved";
+import { usePageTitle } from "../../hooks/usePageTitle";
+import { commonPageTitle } from "../../utility/general-utility";
 
 type ActivityType = "match" | "question" | "both";
 
@@ -51,7 +53,9 @@ const UserProfile = () =>{
     const getUserInfo = async () =>{
         try{
             const res = await getAction(`/users/profile?username=${username?.toLowerCase()}`)
-            setUserProfileInfo(res.data.data);
+            if(res.status === 200){
+                setUserProfileInfo(res.data.data);
+            }
             setLoading(false);
         }catch(err){
             console.error(err)
@@ -227,6 +231,12 @@ const UserProfile = () =>{
             console.error(err)
         }
     }
+
+    usePageTitle(
+        userProfileInfo?.profileCardInfo.fullName
+        ? `${userProfileInfo.profileCardInfo.fullName}'s Profile`
+        : commonPageTitle
+    );
 
     return(
         <div className="profile_page">

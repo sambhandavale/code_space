@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import { calculateReadingTime, languages, Section } from "./WriteBlog";
+import { calculateReadingTime, Section } from "./WriteBlog";
 import { getAction, postAction } from "../../services/generalServices";
 import DefaultProfile from "../../components/Layout/DefaultProfile";
-import { getInitials } from "../../utility/general-utility";
+import { commonPageTitle, getInitials } from "../../utility/general-utility";
 import { useNavigate, useParams } from "react-router";
 import { isAuth } from "../../utility/helper";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import CodeBlockEditor from "../../components/Write/CodeBlockEditor";
-import { FiTrash } from "react-icons/fi";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 const Blog = () =>{
     const { id, slug } = useParams<{ id: string; slug: string }>();
@@ -184,6 +184,12 @@ const Blog = () =>{
             getBlog();
         }
     },[])
+
+    usePageTitle(
+        blogTitle
+        ? `${blogTitle}`
+        : commonPageTitle
+    );
 
     return(
         <>
