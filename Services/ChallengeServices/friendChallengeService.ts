@@ -65,6 +65,14 @@ export class PrivateChallengeService {
     static async joinPrivateChallenge(userId: string, roomCode: string, timezone: string) {
         const challenge = await UserChallengesModel.findOne({ room_code: roomCode });
 
+        // 🧱 Prevent creator or same user from joining again
+        const alreadyJoined = challenge.players.some(
+            (p) => p.user_id.toString() === userId
+        );
+        if (alreadyJoined) {
+            throw new Error("You are already part of this challenge");
+        }
+
         if (!challenge || challenge.status !== "waiting") {
         throw new Error("Room not found or already started");
         }
