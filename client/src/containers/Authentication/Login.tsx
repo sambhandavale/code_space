@@ -82,7 +82,8 @@ const Login = () => {
         if(res.status === 200){
             toast.success(`Welcome, ${res.data.user.first_name} ${res.data.user.last_name}`);
             setLocalStorage('token',res.data.jwtToken);
-            refreshRating(res.data.user.id);
+            setLocalStorage('user',res.data.user);
+            refreshRating(res.data.user.id); 
         }
     } catch (err) {
         console.error("Failed Authentication, ", err);

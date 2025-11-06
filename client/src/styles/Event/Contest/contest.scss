@@ -1,0 +1,132 @@
+.create_contest__page{
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    z-index: 1;
+    color: #fff;
+    padding: 8rem 0 0 0;
+
+    .create_contest{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap:2rem;
+        align-self: stretch;
+
+        header{
+            font-family: 'ARP 150';
+            font-size: 2.5rem;
+        }
+    }
+}
+
+.create_form{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    align-self: stretch;
+    padding: 0 10rem;
+}
+
+.form_section{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-self: stretch;
+    gap:1.5rem;
+
+    .form_section__header{
+        font-family: 'ARP 150';
+        font-size: 1.5rem;
+    }
+}
+
+.form_section__row{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    gap:1rem;
+    flex-wrap: wrap;
+}
+
+.form_input__field{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    align-self: stretch;
+    flex: 1 0 0;
+    gap:0.75rem;
+    
+    .form_input__label{
+        font-size: 1.25rem;
+    }
+
+    .form_input__text,.form_input__textarea{
+        padding: 0.75rem 1.5rem;
+        align-self: stretch;
+        border-radius: 0.5rem;
+        color:#fff;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .form_input__textarea{
+        min-height: 4rem;
+        width: auto;
+        resize: vertical;
+    }
+
+    .form_input__dropdown{
+        display: flex;
+        flex-direction: column;
+        align-self: stretch;
+        position: relative;
+
+        .form_input__dropdown_header{
+            padding: 0.75rem 1rem 0.75rem 1.5rem;
+            align-self: stretch;
+            border-radius: 0.5rem;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            .dropdown_icon {
+                transition: transform 0.2s ease;
+
+                &.rotated {
+                    transform: rotate(180deg);
+                }
+            }
+        }
+
+        .form_input__dropdown_options{
+            display: flex;
+            flex-direction: column;
+            gap:0.5rem;
+            width: 100%;
+            position: absolute;
+            top:3rem;
+
+            max-height: 180px;
+            overflow-y: auto;
+            animation: fadeIn 0.15s ease-in-out;
+
+            .form_input__dropdown_option{
+                padding: 0.75rem 1.5rem;
+                align-self: stretch;
+                border-radius: 0.5rem;
+            }
+        }
+    }
+}

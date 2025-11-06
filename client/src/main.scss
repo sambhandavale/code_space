@@ -40,6 +40,8 @@
 @use "./styles/Solve/question_list.scss" as *;
 @use "./styles/Solve/question_screen.scss" as *;
 
+@use "./styles/Event/Contest/contest.scss" as *;
+
 :root {
     --white: #ffffff;
     --black: #000000;
