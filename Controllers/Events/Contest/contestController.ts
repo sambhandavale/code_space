@@ -68,7 +68,7 @@ export const createContest = async (req: Request, res: Response) => {
       duration: type === 'contest' ? duration ? Number(duration) : 60 : duration ? Number(duration) : 5,
       limit: limit || 100,
       languages: languages.map((l)=>l.toLowerCase()) || ["python", "javascript", "cpp"],
-      rated: rated ?? false,
+      rated: rated === 'Rated' ? true : false,
       host: host || { name: "System", meta: {} },
       status: status || "upcoming",
       visibility: visibility.toLowerCase() || "public",

@@ -26,7 +26,8 @@ interface IFormData{
             logo:string;
             website:string;
         }
-    }
+    },
+    rated:string;
 }
 
 const CreateContest = () =>{
@@ -50,7 +51,8 @@ const CreateContest = () =>{
                 logo:'',
                 website:''
             }
-        }
+        },
+        rated:''
     };
 
     const [formData, setFormData] = useState<IFormData>(initialFormData);
@@ -127,6 +129,15 @@ const CreateContest = () =>{
                                 type="dropdown"
                                 options={['Contest', 'Tournament']}
                                 value={formData.type}
+                            />
+                            <FormInputField 
+                                label="Rated*"
+                                placeholder="Rated/Un-Rated"
+                                onChange={(value) => setFormData({ ...formData, rated: value })}
+                                type="dropdown"
+                                options={['Rated', 'Un-Rated']}
+                                value={formData.rated}
+                                zIndex={2}
                             />
                         </FormSectionRow>
                         <FormSectionRow>
