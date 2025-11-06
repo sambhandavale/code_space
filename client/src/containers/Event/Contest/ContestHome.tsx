@@ -68,11 +68,12 @@ const ContestHome = () => {
                     Starts At {formattedDate(contestDetails.startDate).datePart} <span className="yellow">{formattedDate(contestDetails.startDate).timePart}</span>
                 </div>
             </div>
-
-            <div className="contest_host__details">
-                <img src={contestDetails.host.meta.logo} alt="" />
-                <div className="contest_host__details__name ff-google-n">Organized By {contestDetails.host.name}</div>
-            </div>
+            {contestDetails.host.name && (
+              <div className="contest_host__details">
+                  <img src={contestDetails.host.meta.logo} alt="" />
+                  <div className="contest_host__details__name ff-google-n">Organized By {contestDetails.host.name}</div>
+              </div>
+            )}
             
             <div className="contest_action">
             <div className="contest_action__l1">
