@@ -8,6 +8,8 @@ import { formattedDate } from "../../../utility/Contest/dates-utility";
 import { renderCountdown, useCountdown } from "../../../components/Shared/CountDown";
 import { toast } from "sonner";
 import NotFound from "../../../components/Shared/NotFound";
+import { usePageTitle } from "../../../hooks/usePageTitle";
+import { commonPageTitle } from "../../../utility/general-utility";
 
 const ContestHome = () => {
   const { contestId } = useParams<{ contestId: string }>();
@@ -38,6 +40,12 @@ const ContestHome = () => {
   useEffect(() => {
     getContestDetails();
   }, []);
+
+  usePageTitle(
+      contestDetails
+      ? `${contestDetails.title}`
+      : commonPageTitle
+  );
 
   if (loading) return <ContestSkeleton />;
 
