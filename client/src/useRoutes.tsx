@@ -16,6 +16,7 @@ import ConfirmEmail from "./containers/Authentication/ConfirmEmail";
 import ResetPassword from "./containers/Authentication/ForgotPassword";
 import Question from "./containers/Solve/Question";
 import CreateContest from "./containers/Event/Contest/CreateContest";
+import ContestHome from "./containers/Event/Contest/ContestHome";
 
 // 🔹 Private route wrapper
 interface PrivateRouteProps {
@@ -51,6 +52,7 @@ const routes = (): AppRoute[] => {
     { path: "/reset-password/:token", element: <ResetPassword />, title: "Reset Password" },
     { path: "/question/:questionId", element: <Question />, title: "Question" },
     { path: "/event/contest/create", element: <CreateContest />, title: "Create Contest" },
+    { path: "/event/contest/:contestId/:contestTitle", element: <ContestHome />, title: "Contest" },
   ];
 
   const privateRoutes: AppRoute[] = [

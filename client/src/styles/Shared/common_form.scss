@@ -173,19 +173,19 @@
 }
 
 /* Hover effect */
-.common_button:hover {
+.common_button:hover,.clickbutton:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
 
 /* Active (click) effect */
-.common_button:active {
+.common_button:active,.clickbutton:active {
   transform: scale(0.96);
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 /* Disabled state */
-.common_button:disabled {
+.common_button:disabled,.clickbutton:disabled {
   opacity: 0.7;
   cursor: not-allowed;
   transform: none;
@@ -209,3 +209,187 @@
         padding: 0 1.25rem;
     }
 }
+
+.markdown-input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border-radius: 12px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.5rem;
+  flex: 1 0 0;
+  line-height: normal;
+}
+
+.markdown-label {
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.5rem 1rem 0;
+  color: #fff;
+}
+
+.markdown-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0;
+  flex-wrap: wrap;
+  border-radius: 0.5rem;
+  overflow: hidden;
+
+  .left-controls,
+  .right-controls {
+    display: flex;
+    gap: 0;
+  }
+
+  button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.8rem;
+    color: #fff;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    &.active {
+      background: rgba(255, 255, 255, 0.3);
+      color: #fff;
+      border-bottom: 2px solid #fff;
+    }
+  }
+}
+
+.markdown-textarea {
+  min-height: 200px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 1rem;
+  resize: vertical;
+  outline: none;
+  color: #fff;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+.markdown-preview {
+  border-radius: 8px;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #fff;
+  min-height: 200px;
+
+  h1, h2, h3 {
+    margin-top: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #fff;
+  }
+
+  ul, ol {
+    padding-left: 1.5rem;
+    color: #fff;
+  }
+
+  a {
+    color: #66ccff;
+    text-decoration: underline;
+  }
+
+  code {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 0.875em;
+    color: #fff;
+  }
+
+  blockquote {
+    border-left: 4px solid rgba(255, 255, 255, 0.4);
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+.attachment-area {
+  padding: 0.25rem;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.link-input-popup {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  align-items: center;
+
+  input {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    outline: none;
+
+    &:focus {
+      border-color: #66ccff;
+      box-shadow: 0 0 5px rgba(102, 204, 255, 0.4);
+    }
+  }
+
+  button {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+
+    &:first-of-type {
+      background-color: #66ccff;
+      color: #fff;
+
+      &:hover {
+        background-color: #3399ff;
+      }
+    }
+
+    &:last-of-type {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: #fff;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+      }
+    }
+  }
+}
+

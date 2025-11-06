@@ -28,7 +28,7 @@ export interface IContest extends Document {
 }
 
 const HostSchema = new Schema({
-  name: { type: String, required: true },
+  name: { type: String },
   meta: { type: Object, default: {} },
 });
 

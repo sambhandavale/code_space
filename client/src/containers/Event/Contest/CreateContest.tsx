@@ -3,6 +3,8 @@ import FormInputField from "../../../components/Shared/Form/FormInputField"
 import { FormSection, FormSectionRow } from "../../../components/Shared/Form/FormSection";
 import { FormButton, FormButtons } from "../../../components/Shared/Form/FormButtons";
 import { postAction } from "../../../services/generalServices";
+import MarkdownInput from "../../../components/Shared/Form/MarkdownInput";
+import { toast } from "sonner";
 
 interface IFormData{
     title:string;
@@ -54,13 +56,56 @@ const CreateContest = () =>{
     const [formData, setFormData] = useState<IFormData>(initialFormData);
     const [loading, setLoading] = useState<boolean>(false);
 
-    const submitForm = async() =>{
-        try{
-            const res = await postAction('/events/contest/create',formData);
-        }catch(err){
-            console.error(err)
+    const submitForm = async () => {
+        // Basic validation
+        const requiredFields = [
+            { key: "title", label: "Title" },
+            { key: "type", label: "Type" },
+            { key: "startDate", label: "Start Date" },
+            { key: "registrationDeadline", label: "Registration Deadline" },
+            { key: "rounds", label: "Rounds" },
+            { key: "visibility", label: "Visibility" }
+        ];
+
+        for (const field of requiredFields) {
+            if (!formData[field.key as keyof IFormData] && formData[field.key as keyof IFormData] !== 0) {
+                toast.error(`Please fill in ${field.label}`);
+                return; // Stop submission
+            }
         }
-    }
+
+        // Additional logical checks
+        if (formData.startDate && formData.registrationDeadline) {
+            if (new Date(formData.startDate) < new Date(formData.registrationDeadline)) {
+                toast.error("Start Date cannot be earlier than Registration Deadline");
+                return;
+            }
+        }
+
+        if (formData.duration && formData.duration <= 0) {
+            toast.error("Duration must be greater than 0");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const res = await postAction("/events/contest/create", formData);
+
+            if (res.status === 201) {
+                toast.success("Sent to Approval 👍");
+                setFormData(initialFormData);
+                 window.scrollTo({ top: 0, behavior: "smooth" });
+            } else {
+                toast.error(res.data.message);
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error("An error occurred during submission");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return(
         <div className="create_contest__page">
@@ -85,12 +130,10 @@ const CreateContest = () =>{
                             />
                         </FormSectionRow>
                         <FormSectionRow>
-                            <FormInputField 
+                            <MarkdownInput
                                 label="Description"
-                                placeholder="Enter your Description"
-                                onChange={(value) => setFormData({ ...formData, description: value })}
-                                type="textarea"
                                 value={formData.description}
+                                onChange={(value) => setFormData({ ...formData, description: value })}
                             />
                         </FormSectionRow>
                     </FormSection>
@@ -125,16 +168,21 @@ const CreateContest = () =>{
                             />
                         </FormSectionRow>
                         <FormSectionRow>
-                            <FormInputField 
+                            {/* <FormInputField 
                                 label="Rules"
                                 placeholder="Enter Rules"
                                 onChange={(value) => setFormData({ ...formData, rules: value })}
                                 type="textarea"
                                 value={formData.rules}
+                            /> */}
+                            <MarkdownInput
+                                label="Rules"
+                                value={formData.rules}
+                                onChange={(value) => setFormData({ ...formData, rules: value })}
                             />
                         </FormSectionRow>
                     </FormSection>
-                    <FormSection title="Rounds & Questions">
+                    <FormSection title="Rounds & Questions" zIndex={2}>
                         <FormSectionRow>
                             <FormInputField
                                 label="Rounds*"
@@ -161,7 +209,7 @@ const CreateContest = () =>{
                                 placeholder="Select Languages"
                                 onChange={(updatedTags) => setFormData({ ...formData, languages : updatedTags })}
                                 type="multi-dropdown"
-                                options={["Python", "JavaScript", "CPP","Python1", "JavaScript1", "CPP1"]}
+                                options={["Python", "JavaScript", "CPP"]}
                                 value={formData.languages}
                             />
                             <FormInputField 
@@ -252,7 +300,7 @@ const CreateContest = () =>{
                         />
                         <FormButton
                             buttonText="Send to Approval"
-                            onClick={()=>{}}
+                            onClick={()=>submitForm()}
                             loading={loading}
                         />
                     </FormButtons>

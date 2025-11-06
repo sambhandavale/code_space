@@ -1,6 +1,12 @@
-export const FormSection = ({title,children}) =>{
+interface IFormSection {
+  title:string;
+  children: React.ReactNode;
+  zIndex?: number;
+}
+
+export const FormSection = ({title,children,zIndex}:IFormSection) =>{
     return(
-        <div className="form_section">
+        <div className="form_section" style={zIndex ? {zIndex:zIndex}:{}}>
             <div className="form_section__header">{title}</div>
             {children}
         </div>
