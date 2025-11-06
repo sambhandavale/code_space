@@ -9,9 +9,10 @@ import { getInitials } from "../../utility/general-utility";
 import { useWindowWidth } from "../../utility/screen-utility";
 import { useUser } from "../../context/UserContext";
 
+export const CloseIcon = FiX as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
+
 const MobileSidebar = ({ isOpen, onClose, scrollToChallenge, userRating }: any) => {
     const navigate = useNavigate();
-    const CloseIcon = FiX as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
     const width = useWindowWidth();
     const { setUserRating } = useUser();
 

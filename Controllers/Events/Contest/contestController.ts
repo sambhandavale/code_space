@@ -62,7 +62,7 @@ export const createContest = async (req: Request, res: Response) => {
       type,
       registrationDeadline: new Date(registrationDeadline),
       rounds: Number(rounds),
-      duration: Number(duration),
+      duration: type === 'contest' ? duration ? Number(duration) : 60 : duration ? Number(duration) : 5,
       limit: limit || 100,
       languages: languages || ["Python", "JavaScript", "C++"],
       rated: rated ?? false,

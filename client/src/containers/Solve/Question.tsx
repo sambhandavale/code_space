@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { postAction } from "../../services/generalServices";
 import { toast } from "sonner";
 import InputField from "../../components/Question/InputField";
@@ -214,7 +214,7 @@ const Question = () => {
 
           <div className="form__actions" style={{ marginTop: "2rem" }}>
             <button
-              className="common_button pointer"
+              className="common_button pointer ff-google-n"
               type="button"
               onClick={handleSubmit}
               disabled={loading}

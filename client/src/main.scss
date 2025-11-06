@@ -4,10 +4,11 @@
 @use "./styles/colors.scss" as *;
 @use "./styles/css_shortcuts.scss" as *;
 
-@use "./styles/common/additional_colors.scss" as *;
-@use "./styles/common/glassmorphism.scss" as *;
-@use "./styles/common/glass-box.scss" as *;
-@use "./styles/common/generic_modal.scss" as *;
+@use "./styles/Shared/additional_colors.scss" as *;
+@use "./styles/Shared/glassmorphism.scss" as *;
+@use "./styles/Shared/glass-box.scss" as *;
+@use "./styles/Shared/generic_modal.scss" as *;
+@use "./styles/Shared/common_form.scss" as *;
 
 @use "./styles/Authentication/auth_container.scss" as *;
 @use "./styles/Authentication/register.scss" as *;
