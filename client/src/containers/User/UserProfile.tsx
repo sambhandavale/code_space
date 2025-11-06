@@ -15,6 +15,7 @@ import axiosInstance from "../../utility/axios_interceptor";
 import UserQuestionsSolved from "../../components/User/UserQuestionsSolved";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import { commonPageTitle } from "../../utility/general-utility";
+import NotFound from "../../components/Shared/NotFound";
 
 type ActivityType = "match" | "question" | "both";
 
@@ -43,6 +44,8 @@ const UserProfile = () =>{
     });
 
     const [isOnline, setIsOnline] = useState<boolean>(false);
+
+    const [correctLink, setCorrectLink] = useState<boolean>(false);
  
     useEffect(() => {
         if (username && username !== username.toLowerCase()) {
@@ -55,6 +58,7 @@ const UserProfile = () =>{
             const res = await getAction(`/users/profile?username=${username?.toLowerCase()}`)
             if(res.status === 200){
                 setUserProfileInfo(res.data.data);
+                setCorrectLink(true)
             }
             setLoading(false);
         }catch(err){
@@ -237,6 +241,8 @@ const UserProfile = () =>{
         ? `${userProfileInfo.profileCardInfo.fullName}'s Profile`
         : commonPageTitle
     );
+
+    if(!loading && !correctLink) return <NotFound toptext="404 - Profile Not Found" bottomtext="The profile you are looking for does not exist."/>
 
     return(
         <div className="profile_page">

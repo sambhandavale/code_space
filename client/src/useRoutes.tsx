@@ -17,6 +17,7 @@ import ResetPassword from "./containers/Authentication/ForgotPassword";
 import Question from "./containers/Solve/Question";
 import CreateContest from "./containers/Event/Contest/CreateContest";
 import ContestHome from "./containers/Event/Contest/ContestHome";
+import NotFound from "./components/Shared/NotFound";
 
 // 🔹 Private route wrapper
 interface PrivateRouteProps {
@@ -59,13 +60,15 @@ const routes = (): AppRoute[] => {
     { path: "/challenge/live/:challengeId", element: <ChallengeRoom />, title: "Live Challenge" },
   ];
 
-  // Wrap private routes with authentication
   const protectedRoutes: AppRoute[] = privateRoutes.map((route) => ({
     ...route,
     element: <PrivateRoute element={route.element} />,
   }));
 
-  return [...commonRoutes, ...protectedRoutes];
+  // 🔹 Catch-all 404 route at the end
+  const notFoundRoute: AppRoute = { path: "*", element: <NotFound />, title: "Not Found" };
+
+  return [...commonRoutes, ...protectedRoutes, notFoundRoute];
 };
 
 export default routes;

@@ -17,6 +17,7 @@ import { useUser } from "../../context/UserContext";
 import { AnimatePresence, motion } from "framer-motion";
 import CountUp from "react-countup";
 import SecureEditor from "../../components/Challenge/TextEditor";
+import NotFound from "../../components/Shared/NotFound";
  
 /*
 Note: Message code meaning -
@@ -88,6 +89,8 @@ const ChallengeRoom = () => {
 
     const [isWinner, setIsWinner] = useState<boolean>(false);
     const [userPoints, setUserPoints] = useState<Record<string, number>>({});
+
+    const [correctLink, setCorrectLink] = useState<boolean>(false);
 
     const testCaseOptions = [
         {name:'Test Cases',icon:'test_case'},
@@ -246,7 +249,7 @@ const ChallengeRoom = () => {
         const getChallengeDetails = async () =>{
             try{
                 const res = await getAction(`/challenge/${challengeId}`);
-                if(res && res.data){
+                if(res && res.data && res.status===200){
                     if (res.data.players) {
                         const userId = isAuth()._id;
                         const isAllowed = res.data.active ? res.data.players.some((player: any) => player.user_id === userId) : true;
@@ -299,7 +302,7 @@ const ChallengeRoom = () => {
                     }
 
 
-
+                    setCorrectLink(true)
                     setLangVersion(lang?.version);
                     setLoading(false);
                 }
@@ -536,6 +539,8 @@ const ChallengeRoom = () => {
             console.error(err);
         }
     }
+
+    if(!loading && !correctLink) return <NotFound/>
 
     return (
         <>

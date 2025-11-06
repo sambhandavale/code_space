@@ -6,6 +6,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { formattedDate } from "../../../utility/Contest/dates-utility";
 import { renderCountdown, useCountdown } from "../../../components/Shared/CountDown";
+import { toast } from "sonner";
+import NotFound from "../../../components/Shared/NotFound";
 
 const ContestHome = () => {
   const { contestId } = useParams<{ contestId: string }>();
@@ -13,6 +15,7 @@ const ContestHome = () => {
   const [contestDetails, setContestDetails] = useState<IContest>(null);
   const [participants, setParticipants] = useState<I3ContestParticipants[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [approved,setApproved] = useState<boolean>(false);
 
   const countdown = useCountdown(contestDetails?.registrationDeadline || "");
 
@@ -22,6 +25,7 @@ const ContestHome = () => {
       if (res.status === 200) {
         setContestDetails(res.data.contest);
         setParticipants(res.data.topParticipants);
+        setApproved(res.data.contest.approved);
         setLoading(false)
       }
     } catch (err) {
@@ -36,6 +40,8 @@ const ContestHome = () => {
   }, []);
 
   if (loading) return <ContestSkeleton />;
+
+  if(!approved) return <NotFound/>
 
   return (
     <div className="contest_home__container">
@@ -70,7 +76,12 @@ const ContestHome = () => {
             
             <div className="contest_action">
             <div className="contest_action__l1">
-                <div className="contest_action__button ff-google-b pointer clickbutton">Register Now</div>
+                <div 
+                  className="contest_action__button ff-google-b pointer clickbutton"
+                  onClick={()=>toast.message('Feature coming soon!!!😉')}
+                >
+                  Register Now
+                </div>
                 {participants.length > 0 && (
                 <div className="participants_count">
                     <div className="profiles">

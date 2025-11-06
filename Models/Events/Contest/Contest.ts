@@ -23,6 +23,7 @@ export interface IContest extends Document {
   tags: string[];
   questions_tags: string[];
   backdrop?: string;
+  approved?:boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -57,6 +58,7 @@ const ContestSchema = new Schema<IContest>(
     tags: { type: [String], default: ["competitive-programming"], },
     questions_tags: { type: [String], default: ["algorithms", "data-structures", "maths"], },
     backdrop: { type: String, default: "" },
+    approved: {type:Boolean, default:false}
   },
   { timestamps: true }
 );

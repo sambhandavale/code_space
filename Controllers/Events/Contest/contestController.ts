@@ -84,6 +84,7 @@ export const createContest = async (req: Request, res: Response) => {
         `.trim(),
       tags: tags || [],
       questions_tags: questions_tags || [],
+      approved:false
     });
 
     // 💾 Save to DB

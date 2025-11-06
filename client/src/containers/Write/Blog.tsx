@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import CodeBlockEditor from "../../components/Write/CodeBlockEditor";
 import { usePageTitle } from "../../hooks/usePageTitle";
+import NotFound from "../../components/Shared/NotFound";
 
 const Blog = () =>{
     const { id, slug } = useParams<{ id: string; slug: string }>();
@@ -27,6 +28,8 @@ const Blog = () =>{
     const [blogPingsNo, setBlogPingsNo] = useState<number>(0);
     const [blogViews, setBlogViews] = useState<number>(0);
 
+    const [correctLink, setCorrectLink] = useState<boolean>(false);
+
 
     const getBlog = async () =>{
         try{
@@ -44,6 +47,7 @@ const Blog = () =>{
                 setHasPinged(res.data.hasPinged);
                 setBlogPingsNo(res.data.pingCount);
                 setBlogViews(res.data.viewsCount);
+                setCorrectLink(true);
 
                 const date = new Date(res.data.blog.createdAt);
 
@@ -190,6 +194,8 @@ const Blog = () =>{
         ? `${blogTitle}`
         : commonPageTitle
     );
+
+    if(!correctLink) return <NotFound/>
 
     return(
         <>

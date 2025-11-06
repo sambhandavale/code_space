@@ -2,7 +2,6 @@ import { useParams } from "react-router";
 import { useEffect, useState, useRef } from "react";
 import { getAction, patchAction, postAction } from "../../services/generalServices";
 import { isAuth } from "../../utility/helper";
-import { Socket } from "socket.io-client";
 import { useNavigate } from "react-router";
 import { IProblem } from "../../interfaces/interfaces";
 import Problem from "../../components/Challenge/ChallengeRoom/Problem";
@@ -12,6 +11,7 @@ import { commonPageTitle, languages } from "../../utility/general-utility";
 import { useWindowWidth } from "../../utility/screen-utility";
 import { AiOutlineClose } from "react-icons/ai";
 import { usePageTitle } from "../../hooks/usePageTitle";
+import NotFound from "../../components/Shared/NotFound";
 
 interface ITestResult {
     actual: string | null;
@@ -30,9 +30,6 @@ const SolveProblem = () => {
     const width = useWindowWidth();
     const [loading, setLoading] = useState<boolean>(true);
 
-    const [user, setUser] = useState(() => isAuth());
-    const [socket, setSocket] = useState<Socket | null>(null);
-    const [socketId, setSocketId] = useState<string | null | undefined>(null);
     const [problemDetails,setProblemDetails] = useState<IProblem>()
     const [dividerPosition, setDividerPosition] = useState(50);
 
@@ -42,7 +39,6 @@ const SolveProblem = () => {
     const [selectedMinutes, setSelectedMinutes] = useState(10);
     const [timeLeft, setTimeLeft] = useState(0);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
-    const prevTimeRef = useRef<number>(timeLeft);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const isDragging = useRef(false);
@@ -68,6 +64,7 @@ const SolveProblem = () => {
         {name:'Test Run',icon:'test_run'},
     ]
 
+    const [correctLink, setCorrectLink] = useState<boolean>(false);
 
     useEffect(() => {
         if (!isTimerRunning || timeLeft <= 0) return;
@@ -114,7 +111,7 @@ const SolveProblem = () => {
         const getChallengeDetails = async () =>{
             try{
                 const res = await getAction(`/questions/${problemId}`);
-                if(res && res.data){
+                if(res && res.data && res.status === 200){
                     setProblemDetails(res.data[0]);
                     const lang = languages.find((lang)=>lang.name === languageSelected);
                     setLanguage(lang?.monacoLang);
@@ -126,8 +123,9 @@ const SolveProblem = () => {
                         setCode("");
                     }
                     setLangVersion(lang?.version);
+                    setCorrectLink(true);
                     setLoading(false);
-                }
+                } 
             } catch(err){
                 console.error(err);
             } finally{
@@ -248,6 +246,8 @@ const SolveProblem = () => {
         ? `${problemDetails.title}`
         : commonPageTitle
     );
+
+    if(!correctLink) return <NotFound/>
 
     return (
         <div 

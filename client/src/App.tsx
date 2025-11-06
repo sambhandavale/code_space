@@ -32,15 +32,20 @@ const App = (props: { notification?: any; error?: any }) => {
   }, [user]);
 
   useEffect(() => {
-    const match = allRoutes.find(route =>
-      new RegExp("^" + route.path.replace(/:\w+/g, "[^/]+") + "$").test(location.pathname)
-    );
+    const match = allRoutes.find(route => {
+      if (route.path === "*") return false;
+      const regexPath = "^" + route.path.replace(/:[\w]+/g, "[^/]+").replace(/\//g, "\\/") + "$";
+      return new RegExp(regexPath).test(location.pathname);
+    });
+
     if (match?.title) {
       document.title = `${match.title} | Codespace`;
     } else {
+
       document.title = commonPageTitle;
     }
   }, [location.pathname]);
+
 
   if (error) console.log("App error:", error);
 
