@@ -247,7 +247,7 @@ const SolveProblem = () => {
         : commonPageTitle
     );
 
-    if(!correctLink) return <NotFound/>
+    if(!loading && !correctLink) return <NotFound/>
 
     return (
         <div 
