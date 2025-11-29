@@ -1,0 +1,214 @@
+.contest__list {
+  /* --- 1. SCALING FACTOR --- */
+  --scaleby: 1; 
+
+  /* --- 2. LAYOUT & SPACING VARIABLES --- */
+  --gap-xs: calc(0.25rem * var(--scaleby));
+  --gap-sm: calc(0.375rem * var(--scaleby));
+  --gap-md: calc(0.5rem * var(--scaleby));
+  --gap-lg: calc(1rem * var(--scaleby)); 
+  --gap-xl: calc(2rem * var(--scaleby));
+
+  /* --- 3. CARD DIMENSIONS --- */
+  /* This controls the minimum size before the grid wraps to a new line */
+  --card-min-width: calc(320px * var(--scaleby)); 
+  
+  --card-pad-y: calc(1.5rem * var(--scaleby));
+  --card-pad-x: calc(1.25rem * var(--scaleby));
+  --card-radius: calc(0.75rem * var(--scaleby));
+  --card-border-width: calc(4px * var(--scaleby));
+
+  /* --- 4. FONT SIZES --- */
+  --fs-xs: calc(0.675rem * var(--scaleby));  /* 10.8px */
+  --fs-sm: calc(0.75rem * var(--scaleby));   /* 12px */
+  --fs-md: calc(0.875rem * var(--scaleby));  /* 14px */
+  --fs-xl: calc(1.75rem * var(--scaleby));   /* 28px */
+
+  /* --- 5. COMPONENT SPECIFIC --- */
+  --share-icon-pad: calc(0.5rem * var(--scaleby));
+  --tag-pad-y: calc(0.175rem * var(--scaleby));
+  --tag-pad-x: calc(0.3rem * var(--scaleby));
+  --tag-radius: calc(3px * var(--scaleby));
+  
+  --avatar-size: calc(32px * var(--scaleby));
+  --avatar-border: calc(2px * var(--scaleby));
+  --avatar-overlap: calc(-15px * var(--scaleby));
+
+  --btn-pad-y: calc(0.5rem * var(--scaleby));
+  --btn-pad-x: calc(1rem * var(--scaleby));
+  --btn-radius: calc(5px * var(--scaleby));
+
+  /* --- GRID STYLES --- */
+  display: grid;
+  /* This creates the responsive grid that stretches */
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-min-width), 1fr));
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
+.event_box {
+  
+  background: #ffffff;
+  border-radius: var(--card-radius);
+  padding: var(--card-pad-y) var(--card-pad-x);
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Pushes content to edges if height expands */
+  gap: var(--gap-xl);
+  
+  box-shadow: 0 0 0 var(--card-border-width) #141418;
+  box-sizing: border-box; 
+}
+
+.eb_l1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--gap-xl);
+
+  .event_details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm);
+
+    .title {
+      font-size: var(--fs-xl);
+      color: #1c1c1c;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+
+    .tags {
+      display: flex;
+      gap: var(--gap-md);
+      flex-wrap: wrap;
+
+      .tag {
+        font-size: var(--fs-sm);
+        color: #000000;
+      }
+    }
+  }
+
+  .share {
+    background: #ffd568;
+    padding: var(--share-icon-pad);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Prevents icon from squishing */
+  }
+}
+
+.eb_l2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--gap-md);
+
+  .event_meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+
+    .meta_title {
+      font-size: var(--fs-sm);
+      color: #1c1c1c;
+    }
+
+    .meta_tags {
+      display: flex;
+      gap: var(--gap-sm);
+      flex-wrap: wrap;
+
+      .meta_tag {
+        padding: var(--tag-pad-x);
+        background-color:  #181818f4 ;
+        border: #00000054 2px solid;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.3rem;
+
+        img{
+          height: 1rem;
+        }
+      }
+    }
+  }
+
+  .participants {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-md);
+
+    .participants__profiles {
+      display: flex;
+
+      img {
+        width: var(--avatar-size);
+        height: var(--avatar-size);
+        border-radius: 50%;
+        border: var(--avatar-border) solid #fff;
+        margin-left: var(--avatar-overlap);
+        object-fit: cover;
+        object-position: center;
+
+        &:first-child {
+          margin-left: 0;
+        }
+      }
+    }
+
+    .participants__count {
+      font-size: var(--fs-md);
+      color: #333;
+    }
+  }
+}
+
+.eb_l3 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  gap: var(--gap-xs);
+
+  .event__timing {
+    display: flex;
+    gap: var(--gap-xs);
+
+    .date,
+    .time {
+      background: #2e2e2e;
+      color: #fff;
+      padding: var(--btn-pad-y) var(--btn-pad-x);
+      font-size: var(--fs-sm);
+      border-radius: var(--btn-radius);
+      white-space: nowrap;
+    }
+  }
+
+  .register__bt {
+    background: #ffbc00;
+    padding: var(--btn-pad-y) var(--btn-pad-x);
+    border-radius: var(--btn-radius);
+    color: #fff;
+    font-size: var(--fs-sm);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+}
+
+/* Optional: Mobile override if you want full width on very small screens */
+@media (max-width: 500px) {
+  .contest__list {
+    --scaleby: 0.9;
+    /* Forces single column on small screens */
+    grid-template-columns: 1fr; 
+  }
+}

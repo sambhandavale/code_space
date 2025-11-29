@@ -94,10 +94,9 @@
                         height: 3rem;
                         border-radius: 50%;
                         object-fit: cover;
-                        margin-left: -1.5rem;     /* negative margin to overlap images */
+                        margin-left: -1.5rem;
                     }
 
-                    /* Remove negative margin for first image */
                     .profiles img:first-child {
                         margin-left: 0;
                     }

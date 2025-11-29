@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { isAuth } from "./utility/helper";
 import Layout from "./components/Layout/Layout";
 import { UserProvider } from "./context/UserContext";
-import ScrollToTop from "./components/Shared/ScrollUp";
+import ScrollToTop from "./components/Shared/Utility/ScrollUp";
 import { commonPageTitle } from "./utility/general-utility";
 // import { getAction } from "./services/generalServices";
 

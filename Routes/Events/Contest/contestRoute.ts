@@ -4,6 +4,7 @@ import * as contestController from "../../../Controllers/Events/Contest/contestC
 
 const router = Router()
 
+router.get("/all", contestController.getContests);
 router.get("/:contestId", contestController.getContestDetails);
 router.post("/create", contestController.createContest);
 

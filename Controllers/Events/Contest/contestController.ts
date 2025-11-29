@@ -105,6 +105,41 @@ export const createContest = async (req: Request, res: Response) => {
   }
 };
 
+export const getContests = async (req: Request, res: Response) => {
+  try {
+    const { status, visibility, type } = req.query;
+
+    const query: any = {};
+    if (status) query.status = status;
+    if (visibility) query.visibility = visibility;
+    if (type) query.type = type;
+
+    const contests = await Contest.find(query)
+      .populate({
+        path: "details",
+        select: "participants rounds leaderboard",
+      })
+      .sort({ createdAt: -1 });
+
+    const details = await ContestDetails.find({ 
+      contest: { $in: contests.map(c => c._id) }
+    });
+
+    return res.status(200).json({
+      success: true,
+      count: contests.length,
+      data: contests,
+    });
+
+  } catch (err) {
+    console.error("❌ Error in getContests:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong while fetching contests.",
+    });
+  }
+};
+
 export const getContestDetails = async (req: Request, res: Response) => {
   try {
     const { contestId } = req.params;
@@ -158,3 +193,4 @@ export const getContestDetails = async (req: Request, res: Response) => {
     });
   }
 };
+

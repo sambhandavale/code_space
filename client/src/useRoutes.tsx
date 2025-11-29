@@ -18,6 +18,7 @@ import Question from "./containers/Solve/Question";
 import CreateContest from "./containers/Event/Contest/CreateContest";
 import ContestHome from "./containers/Event/Contest/ContestHome";
 import NotFound from "./components/Shared/NotFound";
+import Contests from "./containers/Event/Contest/Contests";
 
 // 🔹 Private route wrapper
 interface PrivateRouteProps {
@@ -52,8 +53,9 @@ const routes = (): AppRoute[] => {
     { path: "/challenge/:challengeId", element: <ChallengeRoom />, title: "Challenge Room" },
     { path: "/reset-password/:token", element: <ResetPassword />, title: "Reset Password" },
     { path: "/question/:questionId", element: <Question />, title: "Question" },
-    { path: "/event/contest/create", element: <CreateContest />, title: "Create Contest" },
-    { path: "/event/contest/:contestId/:contestTitle", element: <ContestHome />, title: "Contest" },
+    { path: "/event/contests", element: <Contests />, title: "Contests" },
+    { path: "/event/contests/create", element: <CreateContest />, title: "Create Contest" },
+    { path: "/event/contests/:contestId/:contestTitle", element: <ContestHome />, title: "Contest" },
   ];
 
   const privateRoutes: AppRoute[] = [

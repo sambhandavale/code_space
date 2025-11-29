@@ -175,13 +175,11 @@
 /* Hover effect */
 .common_button:hover,.clickbutton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
 
 /* Active (click) effect */
 .common_button:active,.clickbutton:active {
   transform: scale(0.96);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 /* Disabled state */

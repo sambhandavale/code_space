@@ -10,6 +10,7 @@
 @use "./styles/Shared/generic_modal.scss" as *;
 @use "./styles/Shared/common_form.scss" as *;
 @use "./styles/Shared/not_found.scss" as *;
+@use "./styles/Shared/generic_list_page.scss" as *;
 
 @use "./styles/Authentication/auth_container.scss" as *;
 @use "./styles/Authentication/register.scss" as *;
@@ -42,7 +43,8 @@
 @use "./styles/Solve/question_list.scss" as *;
 @use "./styles/Solve/question_screen.scss" as *;
 
-@use "./styles/Event/Contest/contest.scss" as *;
+@use "./styles/Event/Contest/contests.scss" as *;
+@use "./styles/Event/Contest/create_contest.scss" as *;
 @use "./styles/Event/Contest/contest_home.scss" as *;
 
 :root {

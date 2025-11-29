@@ -1,4 +1,5 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Query } from "mongoose";
+import "../Contest/ContestDetails";
 
 export interface IContest extends Document {
   title: string;
@@ -60,7 +61,11 @@ const ContestSchema = new Schema<IContest>(
     backdrop: { type: String, default: "" },
     approved: {type:Boolean, default:false}
   },
-  { timestamps: true }
+  { 
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+  }
 );
 
 // 🔗 Slug generator
@@ -68,10 +73,31 @@ export const generateSlug = (title: string): string => {
   return title
     .trim()
     .toLowerCase()
-    .replace(/[^\w\s-]/g, "") // remove special chars like #, !, etc.
-    .replace(/\s+/g, "-")     // spaces → hyphens
-    .replace(/--+/g, "-");    // collapse multiple hyphens
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/--+/g, "-");
 };
+
+// Safety: Only return approved contests by default
+ContestSchema.pre(/^find/, function (next) {
+  const query = this as unknown as Query<any, any>;
+
+  const current = query.getQuery();
+
+  if (current.approved !== undefined) return next();
+
+  query.where({ approved: true });
+  next();
+});
+
+
+ContestSchema.virtual("details", {
+  ref: "ContestDetails",
+  localField: "_id",
+  foreignField: "contest",
+  justOne: true,
+});
+
 
 // 🧠 Pre-save hook for unique slug
 ContestSchema.pre("save", async function (next) {

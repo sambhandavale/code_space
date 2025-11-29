@@ -5,7 +5,7 @@ import { I3ContestParticipants, IContest } from "../../../interfaces/ContestInte
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { formattedDate } from "../../../utility/Contest/dates-utility";
-import { renderCountdown, useCountdown } from "../../../components/Shared/CountDown";
+import { renderCountdown, useCountdown } from "../../../components/Shared/Utility/CountDown";
 import { toast } from "sonner";
 import NotFound from "../../../components/Shared/NotFound";
 import { usePageTitle } from "../../../hooks/usePageTitle";

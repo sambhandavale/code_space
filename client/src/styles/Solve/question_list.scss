@@ -9,7 +9,7 @@
   --question__filter-btn-font-size: calc(var(--scale-by) * 0.875rem);
 
   /* Padding */
-  --question__list-padding: calc(var(--scale-by) * 6rem) calc(var(--scale-by) * 4rem);
+  --question__list-padding: calc(var(--scale-by) * 8rem) calc(var(--scale-by) * 4rem);
   --question__card-padding: calc(var(--scale-by) * 1.25rem);
   --question__actions-padding-top: calc(var(--scale-by) * 1rem);
   --question__filter-btn-padding: calc(var(--scale-by) * 0.4rem) calc(var(--scale-by) * 1rem);
@@ -151,7 +151,6 @@
 
       }
     }
-
 
     .questions{
       display: flex;
