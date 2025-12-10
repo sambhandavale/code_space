@@ -423,28 +423,28 @@
             border-radius: var(--test-cases-border-radius);
 
             .test_cases__controls {
-            display: flex;
-            padding: 0 var(--test-cases-controls-padding-x);
-            align-items: center;
-            gap: var(--test-cases-controls-gap);
-            align-self: stretch;
-
-            .test_case_control {
                 display: flex;
-                padding: var(--test-case-control-padding);
-                justify-content: center;
+                padding: 0 var(--test-cases-controls-padding-x);
                 align-items: center;
-                gap: var(--test-case-control-gap);
+                gap: var(--test-cases-controls-gap);
+                align-self: stretch;
 
-                img {
-                width: var(--test-case-control-icon-size);
-                height: var(--test-case-control-icon-size);
-                }
+                .test_case_control {
+                    display: flex;
+                    padding: var(--test-case-control-padding);
+                    justify-content: center;
+                    align-items: center;
+                    gap: var(--test-case-control-gap);
 
-                .control_text {
-                font-size: var(--test-case-control-text-font-size);
+                    img {
+                        width: var(--test-case-control-icon-size);
+                        height: var(--test-case-control-icon-size);
+                    }
+
+                    .control_text {
+                        font-size: var(--test-case-control-text-font-size);
+                    }
                 }
-            }
             }
 
             .test_cases {
@@ -455,35 +455,101 @@
                 gap: var(--test-cases-gap);
                 align-self: stretch;
 
-            .test_case {
-                display: flex;
-                padding: var(--test-case-padding);
-                flex-direction: column;
-                justify-content: center;
-                align-items: flex-start;
-                gap: var(--test-case-gap);
-                align-self: stretch;
-                border-radius: var(--test-case-border-radius);
+                .test_case {
+                    display: flex;
+                    padding: var(--test-case-padding);
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: flex-start;
+                    gap: var(--test-case-gap);
+                    align-self: stretch;
+                    border-radius: var(--test-case-border-radius);
 
-                .test_case_text {
-                  font-size: var(--test-case-text-font-size);
-                  max-width: 70%;
-                  word-wrap: break-word;
-                  white-space: pre-wrap; // keeps formatting for multi-line error messages
+                    &.skeleton_card {
+                      pointer-events: none; // Prevent clicks while loading
+                      
+                      .skeleton_loader {
+                          background-color: #2a2a2a; // Base dark color
+                          background-image: linear-gradient(
+                              90deg,
+                              #2a2a2a 0px,
+                              #3f3f3f 40px, // Lighter highlight
+                              #2a2a2a 80px
+                          );
+                          background-size: 200px 100%;
+                          background-repeat: no-repeat;
+                          display: inline-block;
+                          position: relative;
+                          animation-name: shimmer; 
+                          animation-duration: 1.5s;
+                          animation-fill-mode: forwards; 
+                          animation-iteration-count: infinite;
+                          animation-timing-function: linear;
+                          border-radius: 4px;
+                      }
+
+                      .skeleton_title {
+                          width: 30%;
+                          height: 1.2rem;
+                          margin-bottom: 0.5rem;
+                      }
+
+                      .skeleton_body {
+                          width: 80%;
+                          height: 1rem;
+                          margin-bottom: 0.25rem;
+                          
+                          &:last-child {
+                              width: 60%;
+                          }
+                      }
+                    }
+
+                    .test_case_text {
+                        font-size: var(--test-case-text-font-size);
+                        max-width: 70%;
+                        word-wrap: break-word;
+                        white-space: pre-wrap; 
+                    }
+
+                    // --- NEW STYLES START HERE ---
+                    .test_case_results {
+                        margin-top: 0.5rem; // Matches mt-2
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.5rem; // Matches gap-2
+                        width: 100%;
+
+                        .result_box {
+                            padding: 0.5rem; // Matches p-2
+                            border-radius: 0.25rem; // Matches rounded
+                            background-color: #171717; // Matches bg-[#171717]
+                            
+                            // Ensure the white text color takes precedence if inherited differently
+                            &.white {
+                                color: white;
+                            }
+
+                            .result_label {
+                                color: #9ca3af; // Matches text-gray-400
+                                margin-right: 0.5rem;
+                            }
+                        }
+                    }
+                    // --- NEW STYLES END HERE ---
                 }
-            }
             }
 
             .selected {
-              background: var(--test-case-bg-selected);
+                background: var(--test-case-bg-selected);
             }
 
             .wrong {
-              background: var(--test-case-bg-wrong);
+                background: var(--test-case-bg-wrong);
             }
 
             .right {
-              background: var(--test-case-bg-right);
+                background: var(--test-case-bg-right);
             }
         }
     }

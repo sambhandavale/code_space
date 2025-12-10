@@ -12,9 +12,10 @@ import { useWindowWidth } from "../../utility/screen-utility";
 import { AiOutlineClose } from "react-icons/ai";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import NotFound from "../../components/Shared/NotFound";
+import { TestCaseCard } from "../../components/Solve/TestCaseCard";
 
 interface ITestResult {
-    actual: string | null;
+    actual_output: string | null;
     output: string;
     input: string;
     status: string;
@@ -171,65 +172,78 @@ const SolveProblem = () => {
         isDragging.current = false;
     };
 
-    const handleSubmit = async () =>{
-        try{
-            setSubmitLoading(true);
-            setSelectedTestCaseOption(0);
+    const executeCode = async (mode: 'run' | 'submit') => {
+        const isRun = mode === 'run';
+        
+        // 1. Select the correct state setters based on mode
+        const setLoading = isRun ? setRunLoading : setSubmitLoading;
+        const setResult = isRun ? setRunResult : setSubmitResult;
+        
+        try {
+            setLoading(true);
+            
+            // Set the tab: 0 for Submit, 1 for Run
+            setSelectedTestCaseOption(isRun ? 1 : 0);
+
+            // 2. Prepare the payload
+            // Run mode uses only the last 2 cases; Submit uses all cases
+            const testCasesToSend = isRun 
+                ? problemDetails?.test_cases.slice(-2) 
+                : problemDetails?.test_cases;
+
             const data = {
-                "user_code":code,
-                "test_cases":problemDetails?.test_cases,
-                'language':language,
-                'version':langVersion,
-                'extension':langExtension
+                user_code: code,
+                test_cases: testCasesToSend,
+                language,
+                version: langVersion,
+                extension: langExtension
+            };
+
+            // 3. API Call
+            const res = await postAction('/challenge/submit-answer-new', data);
+
+            if (!res || !res.data) {
+                toast.error("No response from server");
+                return;
             }
-            const res = await postAction('/challenge/submit-answer-new',data);
-            if(res && res.data){
-                const results = res.data
-                setSubmitResult(results);
-                setSubmitLoading(false);
-                const allPassed = results.every((testCase:ITestResult) => testCase.status === "PASSED");
-                if(allPassed){
+
+            const response = res.data;
+
+            // 4. Handle Backend/Runtime Errors
+            if (response.status === "ERROR") {
+                toast.error(response.message || (isRun ? "Run Failed" : "Submission Failed"));
+                return;
+            }
+
+            // 5. Success: Update Results
+            const results = response.results;
+            setResult(results);
+
+            // 6. Special Logic for "Submit" mode only
+            if (!isRun) {
+                const allPassed = results.every(
+                    (testCase: ITestResult) => testCase.status === "Accepted"
+                );
+
+                if (allPassed) {
                     stopTimer();
                     updateSubmit();
-                }
-                if(res.data.results[0].status === 'ERROR'){
-                    toast.error(res.data.results[0].error);
+                    toast.success("All test cases passed!");
                 }
             }
-        } catch(err){
+
+        } catch (err) {
             console.error(err);
+            toast.error("Unexpected error occurred.");
+        } finally {
+            // Ensure loading is always turned off
+            setLoading(false);
         }
-    }
-    
-    const handleRun = async () =>{
-        try{
-            setRunLoading(true);
-            setSelectedTestCaseOption(1);
-            const data = {
-                "user_code":code,
-                "test_cases":problemDetails?.test_cases.slice(-2),
-                'language':language,
-                'version':langVersion,
-                'extension':langExtension
-            }
-            const res = await postAction('/challenge/submit-answer-new',data);
-            if(res && res.data){
-                const results = res.data
-                setRunResult(results);
-                setRunLoading(false);
-                console.log(results);
-                // const allPassed = results.every((testCase:ITestResult) => testCase.status === "PASSED");
-                // if(allPassed){
-                //     endChallenge();
-                // }
-                if(res.data.results[0].status === 'ERROR'){
-                    toast.error(res.data.results[0].error);
-                }
-            }
-        } catch(err){
-            console.error(err);
-        }
-    }
+    };
+
+    const handleRun = () => executeCode('run');
+    const handleSubmit = () => executeCode('submit');
+
 
     const updateSubmit = async () => {
         try {
@@ -398,123 +412,60 @@ const SolveProblem = () => {
                         </div>
                     </div>
                     <div className="test_cases__section glassmorphism-dark">
+                        {/* Controls Header */}
                         <div className="test_cases__controls glassmorphism-dark">
-                            {testCaseOptions.map((op,index)=>(
-                                <div 
-                                    key={index}
-                                    className={`test_case_control pointer ${index===selectedTestCaseOption ? 'selected':''}`}
-                                    onClick={()=>setSelectedTestCaseOption(index)}
-                                >
-                                    <img src={`/icons/challenge/${op.icon}.svg`} alt="" />
-                                    <div className="control_text ff-google-n white">{op.name}</div>
-                                </div>
+                            {testCaseOptions.map((op, index) => (
+                            <div
+                                key={index}
+                                className={`test_case_control pointer ${index === selectedTestCaseOption ? 'selected' : ''}`}
+                                onClick={() => setSelectedTestCaseOption(index)}
+                            >
+                                <img src={`/icons/challenge/${op.icon}.svg`} alt="" />
+                                <div className="control_text ff-google-n white">{op.name}</div>
+                            </div>
                             ))}
                         </div>
-                        {selectedTestCaseOption === 0 ? (
-                            <div className="test_cases">
-                                {
-                                    submitResult.length > 0 && (
-                                        <div className="testcase_result_count nn-google-n white">
-                                            Test Cases Passed: { submitResult.filter((testCase: ITestResult) => testCase.status === "PASSED").length} / {submitResult.length}
-                                        </div>
 
-                                    )
-                                }
-                                {problemDetails?.test_cases.slice(0, 3).map((testCase, index) => (
-                                    <div
-                                        key={index}
-                                        className={`test_case glassmorphism-medium ${
-                                            submitResult?.length > 0 && submitResult[index]?.status === 'FAILED'
-                                                ? 'wrong'
-                                                : submitResult[index]?.status === 'PASSED'
-                                                ? 'right'
-                                                : ''
-                                        }`}
-                                    >
-                                        <div 
-                                            className={`test_case_text ff-google-b ${
-                                                submitResult?.length > 0 && submitResult[index]?.status === 'PASSED'
-                                                    ? 'black'
-                                                    : 'white'
-                                            }`}
-                                        >
-                                            Testcase {index + 1}
-                                        </div>
-                                        <div
-                                            className={`test_case_text ff-google-n ${
-                                                submitResult?.length > 0 && submitResult[index]?.status === 'PASSED'
-                                                    ? 'black'
-                                                    : 'white'
-                                            }`}
-                                        >
-                                            {testCase.input.includes('\n') &&
-                                                testCase.input.split('\n').map((line, index) => (
-                                                    <div key={index}>{line}</div>
-                                                ))}
-                                            {!testCase.input.includes('\n') && <div key={index}>{testCase.input}</div>}
-                                        </div>
-                                        {submitResult?.length > 0 && (
-                                            <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
-                                                Expected: {submitResult[index]?.output}
-                                            </div>
-                                        )}
-                                        {submitResult?.length > 0 && (
-                                            <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
-                                                Your Output: {submitResult[index]?.actual}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                ))}
+                        <div className="test_cases">
+                            {/* PASS COUNT HEADER (Only for Submit mode) */}
+                            {selectedTestCaseOption === 0 && submitResult.length > 0 && (
+                            <div className="testcase_result_count nn-google-n white mb-4">
+                                Passed: {submitResult.filter((t: any) => t.status === "Accepted").length} / {submitResult.length}
                             </div>
-                        ):(
-                            <div className="test_cases">
-                                {problemDetails?.test_cases.slice(-2).map((testCase, index) => (
-                                    <div
-                                        key={index}
-                                        className={`test_case glassmorphism-medium ${
-                                                runResult?.length > 0 ? runResult[index]?.status === 'PASSED'
-                                                    ? 'right'
-                                                    : 'wrong':''
-                                            }`}
-                                    >
-                                        <div 
-                                            className={`test_case_text ff-google-b ${
-                                                runResult?.length > 0 && runResult[index]?.status === 'PASSED'
-                                                    ? 'black'
-                                                    : 'white'
-                                            }`}
-                                        >
-                                            Testcase {index + 1}
-                                        </div>
-                                        <div
-                                            className={`test_case_text ff-google-n ${
-                                                runResult?.length > 0 && runResult[index]?.status === 'PASSED'
-                                                    ? 'black'
-                                                    : 'white'
-                                            }`}
-                                        >
-                                            {testCase.input.includes('\n') &&
-                                                testCase.input.split('\n').map((line, index) => (
-                                                    <div key={index}>{line}</div>
-                                                ))}
-                                            {!testCase.input.includes('\n') && <div key={index}>{testCase.input}</div>}
-                                        </div>
-                                        {runResult?.length > 0 && (
-                                            <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
-                                                Expected: {runResult[index]?.output}
-                                            </div>
-                                        )}
-                                        {runResult?.length > 0 && (
-                                            <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
-                                                Your Output: {runResult[index]?.actual}
-                                            </div>
-                                        )}
-                                    </div>
+                            )}
 
-                                ))}
-                            </div>
-                        )}
+                            {(() => {
+                                const isSubmitTab = selectedTestCaseOption === 0;
+                                
+                                // 1. Determine Global Loading State for this section
+                                const isSectionLoading = isSubmitTab ? submitLoading : runLoading;
+
+                                // 2. Select Cases
+                                const casesToRender = isSubmitTab 
+                                    ? problemDetails?.test_cases.slice(0, 3) 
+                                    : problemDetails?.test_cases.slice(-2);
+
+                                const currentResults = isSubmitTab ? submitResult : runResult;
+
+                                return casesToRender?.map((testCase: any, index: number) => {
+                                    const res = currentResults?.[index]; 
+                                    
+                                    return (
+                                        <TestCaseCard
+                                            key={index}
+                                            index={index}
+                                            input={testCase.input}
+                                            // Pass the loading state here
+                                            isLoading={isSectionLoading} 
+                                            
+                                            status={res?.status} 
+                                            expectedOutput={res?.output || testCase.output}
+                                            actualOutput={res?.actual_output} 
+                                        />
+                                    );
+                                });
+                            })()}
+                        </div>
                     </div>
                 </div>
             )}

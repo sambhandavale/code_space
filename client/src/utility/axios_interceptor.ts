@@ -5,7 +5,7 @@ let url = `${import.meta.env.VITE_SERVER_URL}/api`;
 
 const axiosInstance = axios.create({
   baseURL: url,
-  timeout: 15000,
+  timeout: 30000,
   withCredentials: true,
 });
 

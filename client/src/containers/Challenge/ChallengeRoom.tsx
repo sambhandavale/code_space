@@ -18,6 +18,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import CountUp from "react-countup";
 import SecureEditor from "../../components/Challenge/TextEditor";
 import NotFound from "../../components/Shared/NotFound";
+import { TestCaseCard } from "../../components/Solve/TestCaseCard";
  
 /*
 Note: Message code meaning -
@@ -29,7 +30,7 @@ Note: Message code meaning -
 */
 
 interface ITestResult {
-    actual: string | null;
+    actual_output: string | null;
     output: string;
     input: string;
     status: string;
@@ -485,60 +486,111 @@ const ChallengeRoom = () => {
         isDragging.current = false;
     };
 
-    const handleSubmit = async () =>{
-        try{
+    const handleSubmit = async () => {
+        try {
             setSubmitLoading(true);
-            setSelectedTestCaseOption(0); 
-            const data = {
-                "user_code":code,
-                "test_cases":challengeDetails?.problem_id.test_cases,
-                'language':language,
-                'version':langVersion,
-                'extension':langExtension
-            }
-            const res = await postAction('/challenge/submit-answer-new',data);
-            if(res && res.data){
-                const results = res.data
-                setSubmitResult(results);
+            setSelectedTestCaseOption(0);
+
+            if (!challengeDetails?.problem_id?.test_cases) {
+                toast.error("No test cases found.");
                 setSubmitLoading(false);
-                const allPassed = results.every((testCase:ITestResult) => testCase.status === "PASSED");
-                if(allPassed){
-                    endChallenge(results.length);
-                }
-                if(results[0].status === 'ERROR'){
-                    toast.error(results[0].error);
-                }
+                return;
             }
-        } catch(err){
+
+            const body = {
+                user_code: code,
+                test_cases: challengeDetails.problem_id.test_cases,
+                language,
+                version: langVersion,
+                extension: langExtension,
+            };
+
+            const res = await postAction("/challenge/submit-answer-new", body);
+
+            if (!res || !res.data) {
+                toast.error("No response from server.");
+                setSubmitLoading(false);
+                return;
+            }
+
+            const response = res.data;
+
+            // Handle server-side compilation/runtime error from your backend
+            if (response.status === "ERROR") {
+                toast.error(response.message || "Submission failed.");
+                setSubmitLoading(false);
+                return;
+            }
+
+            // SUCCESS CASE
+            const results = response.results;
+            setSubmitResult(results);
+            setSubmitLoading(false);
+
+            const allPassed = results.every(
+                (tc: ITestResult) => tc.status === "Accepted"
+            );
+
+            if (allPassed) {
+                endChallenge(results.length);
+            }
+
+        } catch (err) {
             console.error(err);
+            toast.error("Unexpected system error.");
+            setSubmitLoading(false);
         }
-    }
+    };
+
     
-    const handleRun = async () =>{
-        try{
+    const handleRun = async () => {
+        try {
             setRunLoading(true);
             setSelectedTestCaseOption(1);
-            const data = {
-                "user_code":code,
-                "test_cases":challengeDetails?.problem_id.test_cases.slice(-2),
-                'language':language,
-                'version':langVersion,
-                'extension':langExtension
-            }
-            const res = await postAction('/challenge/submit-answer-new',data);
-            if(res && res.data){
-                const results = res.data
-                setRunResult(results);
+
+            if (!challengeDetails?.problem_id?.test_cases) {
+                toast.error("No test cases found.");
                 setRunLoading(false);
-                console.log(results);
-                if(results[0].status === 'ERROR'){
-                    toast.error(results[0].error);
-                }
+                return;
             }
-        } catch(err){
+
+            const lastTwo = challengeDetails.problem_id.test_cases.slice(-2);
+
+            const body = {
+                language,
+                version: langVersion,
+                extension: langExtension,
+                user_code: code,
+                test_cases: lastTwo,
+            };
+
+            const res = await postAction("/challenge/submit-answer-new", body);
+
+            if (!res || !res.data) {
+                toast.error("No response from server.");
+                setRunLoading(false);
+                return;
+            }
+
+            const response = res.data;
+
+            if (response.status === "ERROR") {
+                toast.error(response.message || "Run failed.");
+                setRunLoading(false);
+                return;
+            }
+
+            const results = response.results;
+            setRunResult(results);
+            setRunLoading(false);
+
+        } catch (err) {
             console.error(err);
+            toast.error("Unexpected system error.");
+            setRunLoading(false);
         }
-    }
+    };
+
 
     if(!loading && !correctLink) return <NotFound/>
 
@@ -677,123 +729,60 @@ const ChallengeRoom = () => {
                             </div>
                         </div>
                         <div className="test_cases__section glassmorphism-dark">
+                            {/* Controls Header */}
                             <div className="test_cases__controls glassmorphism-dark">
-                                {testCaseOptions.map((op,index)=>(
-                                    <div 
-                                        key={index}
-                                        className={`test_case_control pointer ${index===selectedTestCaseOption ? 'selected':''}`}
-                                        onClick={()=>setSelectedTestCaseOption(index)}
-                                    >
-                                        <img src={`/icons/challenge/${op.icon}.svg`} alt="" />
-                                        <div className="control_text ff-google-n white">{op.name}</div>
-                                    </div>
+                                {testCaseOptions.map((op, index) => (
+                                <div
+                                    key={index}
+                                    className={`test_case_control pointer ${index === selectedTestCaseOption ? 'selected' : ''}`}
+                                    onClick={() => setSelectedTestCaseOption(index)}
+                                >
+                                    <img src={`/icons/challenge/${op.icon}.svg`} alt="" />
+                                    <div className="control_text ff-google-n white">{op.name}</div>
+                                </div>
                                 ))}
                             </div>
-                            {selectedTestCaseOption === 0 ? (
-                                <div className="test_cases">
-                                    {
-                                        submitResult.length > 0 && (
-                                            <div className="testcase_result_count nn-google-n white">
-                                                Test Cases Passed: { submitResult.filter((testCase: ITestResult) => testCase.status === "PASSED").length} / {submitResult.length}
-                                            </div>
 
-                                        )
-                                    }
-                                    {challengeDetails?.problem_id.test_cases.slice(0, 3).map((testCase, index) => (
-                                        <div
-                                            key={index}
-                                            className={`test_case glassmorphism-medium ${
-                                                submitResult?.length > 0 && submitResult[index]?.status === 'FAILED'
-                                                    ? 'wrong'
-                                                    : submitResult[index]?.status === 'PASSED'
-                                                    ? 'right'
-                                                    : ''
-                                            }`}
-                                        >
-                                            <div 
-                                                className={`test_case_text ff-google-b ${
-                                                    submitResult?.length > 0 && submitResult[index]?.status === 'PASSED'
-                                                        ? 'black'
-                                                        : 'white'
-                                                }`}
-                                            >
-                                                Testcase {index + 1}
-                                            </div>
-                                            <div
-                                                className={`test_case_text ff-google-n ${
-                                                    submitResult?.length > 0 && submitResult[index]?.status === 'PASSED'
-                                                        ? 'black'
-                                                        : 'white'
-                                                }`}
-                                            >
-                                                {testCase.input.includes('\n') &&
-                                                    testCase.input.split('\n').map((line, index) => (
-                                                        <div key={index}>{line}</div>
-                                                    ))}
-                                                {!testCase.input.includes('\n') && <div key={index}>{testCase.input}</div>}
-                                            </div>
-                                            {submitResult?.length > 0 && (
-                                                <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
-                                                    Expected: {submitResult[index]?.output}
-                                                </div>
-                                            )}
-                                            {submitResult?.length > 0 && (
-                                                <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
-                                                    Your Output: {submitResult[index]?.actual}
-                                                </div>
-                                            )}
-                                        </div>
-
-                                    ))}
+                            <div className="test_cases">
+                                {/* PASS COUNT HEADER (Only for Submit mode) */}
+                                {selectedTestCaseOption === 0 && submitResult.length > 0 && (
+                                <div className="testcase_result_count nn-google-n white mb-4">
+                                    Passed: {submitResult.filter((t: any) => t.status === "Accepted").length} / {submitResult.length}
                                 </div>
-                            ):(
-                                <div className="test_cases">
-                                    {challengeDetails?.problem_id.test_cases.slice(-2).map((testCase, index) => (
-                                        <div
-                                            key={index}
-                                            className={`test_case glassmorphism-medium ${
-                                                    runResult?.length > 0 ? runResult[index]?.status === 'PASSED'
-                                                        ? 'right'
-                                                        : 'wrong':''
-                                                }`}
-                                        >
-                                            <div 
-                                                className={`test_case_text ff-google-b ${
-                                                    runResult?.length > 0 && runResult[index]?.status === 'PASSED'
-                                                        ? 'black'
-                                                        : 'white'
-                                                }`}
-                                            >
-                                                Testcase {index + 1}
-                                            </div>
-                                            <div
-                                                className={`test_case_text ff-google-n ${
-                                                    runResult?.length > 0 && runResult[index]?.status === 'PASSED'
-                                                        ? 'black'
-                                                        : 'white'
-                                                }`}
-                                            >
-                                                {testCase.input.includes('\n') &&
-                                                    testCase.input.split('\n').map((line, index) => (
-                                                        <div key={index}>{line}</div>
-                                                    ))}
-                                                {!testCase.input.includes('\n') && <div key={index}>{testCase.input}</div>}
-                                            </div>
-                                            {runResult?.length > 0 && (
-                                                <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
-                                                    Expected: {runResult[index]?.output}
-                                                </div>
-                                            )}
-                                            {runResult?.length > 0 && (
-                                                <div className="test_case_text ff-google-n white" style={{padding:"0.5rem",borderRadius:'0.5rem',background:"#171717"}}>
-                                                    Your Output: {runResult[index]?.actual}
-                                                </div>
-                                            )}
-                                        </div>
+                                )}
 
-                                    ))}
-                                </div>
-                            )}
+                                {(() => {
+                                    const isSubmitTab = selectedTestCaseOption === 0;
+                                    
+                                    // 1. Determine Global Loading State for this section
+                                    const isSectionLoading = isSubmitTab ? submitLoading : runLoading;
+
+                                    // 2. Select Cases
+                                    const casesToRender = isSubmitTab 
+                                        ? challengeDetails.problem_id?.test_cases.slice(0, 3) 
+                                        : challengeDetails.problem_id?.test_cases.slice(-2);
+
+                                    const currentResults = isSubmitTab ? submitResult : runResult;
+
+                                    return casesToRender?.map((testCase: any, index: number) => {
+                                        const res = currentResults?.[index]; 
+                                        
+                                        return (
+                                            <TestCaseCard
+                                                key={index}
+                                                index={index}
+                                                input={testCase.input}
+                                                // Pass the loading state here
+                                                isLoading={isSectionLoading} 
+                                                
+                                                status={res?.status} 
+                                                expectedOutput={res?.output || testCase.output}
+                                                actualOutput={res?.actual_output} 
+                                            />
+                                        );
+                                    });
+                                })()}
+                            </div>
                         </div>
                     </div>
                     {resultPopup && (
