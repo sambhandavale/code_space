@@ -22,7 +22,8 @@ export const submitChallengeResult = async (req: Request, res: Response) => {
 
 export const getChallengeById = async (req: Request, res: Response) => {
   try {
-    const result = await ChallengeResultService.getChallengeById(req.params.id);
+    const id = req.params.id as string;
+    const result = await ChallengeResultService.getChallengeById(id);
     res.status(200).json(result);
   } catch (error: any) {
     console.error("Error fetching challenge:", error);

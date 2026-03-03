@@ -142,7 +142,7 @@ export const getContests = async (req: Request, res: Response) => {
 
 export const getContestDetails = async (req: Request, res: Response) => {
   try {
-    const { contestId } = req.params;
+    const contestId = req.params.contestId as string;
 
     if (!mongoose.Types.ObjectId.isValid(contestId)) {
       return res.status(400).json({

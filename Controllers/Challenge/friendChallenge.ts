@@ -56,7 +56,7 @@ export const joinPrivateChallenge = async (req: Request, res: Response) => {
 
 export const checkRoomStatus = async (req: Request, res: Response) => {
   try {
-    const { roomCode } = req.params;
+    const roomCode = req.params.roomCode as string;
 
     const result = await PrivateChallengeService.checkRoomStatus(roomCode);
 

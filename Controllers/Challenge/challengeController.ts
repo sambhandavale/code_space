@@ -38,7 +38,7 @@ export const getAllChallenges = getAll(UserChallenges);
 
 export const getChallengeStatus = async (req: Request, res: Response) => {
   try {
-    const { challengeId } = req.params;
+    const challengeId = req.params.challengeId as string;
     const result = await ChallengeService.getChallengeStatus(challengeId);
     res.status(200).json({ status: "success", data: result });
   } catch (err: any) {
