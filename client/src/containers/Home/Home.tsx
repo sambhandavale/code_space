@@ -223,7 +223,7 @@ const Home = () => {
                             <div className="tp-text">Step into the Arena</div>
                             <div className="btm-text">Let Your Code Speak!</div>
                         </div>
-                        <div className="headline-text-minor">Challenge your friends</div>
+                        <div className="headline-text-minor">Challenge your friends for a 1v1 Coding Battle</div>
                     </div>
                     <div className="main-tabs">
                         <div className="tab gls-box glassmorphism-dark pointer" onClick={() => scrollToChallenge()}>Challenge</div>
