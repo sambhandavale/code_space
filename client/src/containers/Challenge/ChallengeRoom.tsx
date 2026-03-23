@@ -9,13 +9,10 @@ import { IChallenge } from "../../interfaces/interfaces";
 import DefaultProfile from "../../components/Layout/DefaultProfile";
 import Problem from "../../components/Challenge/ChallengeRoom/Problem";
 import { toast } from "sonner";
-import Editor from '@monaco-editor/react';
 import { getInitials, languages } from "../../utility/general-utility";
 import Popup from "../../components/Challenge/ChallengeRoom/Popup";
 import { useWindowWidth } from "../../utility/screen-utility";
 import { useUser } from "../../context/UserContext";
-import { AnimatePresence, motion } from "framer-motion";
-import CountUp from "react-countup";
 import SecureEditor from "../../components/Challenge/TextEditor";
 import NotFound from "../../components/Shared/NotFound";
 import { TestCaseCard } from "../../components/Solve/TestCaseCard";
@@ -505,7 +502,7 @@ const ChallengeRoom = () => {
                 extension: langExtension,
             };
 
-            const res = await postAction("/challenge/submit-answer-new", body);
+            const res = await postAction("/challenge/submit-code", body);
 
             if (!res || !res.data) {
                 toast.error("No response from server.");
@@ -564,7 +561,7 @@ const ChallengeRoom = () => {
                 test_cases: lastTwo,
             };
 
-            const res = await postAction("/challenge/submit-answer-new", body);
+            const res = await postAction("/challenge/submit-code", body);
 
             if (!res || !res.data) {
                 toast.error("No response from server.");

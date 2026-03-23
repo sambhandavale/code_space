@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { getAll } from "../../Utility/handlerFactory";
 import UserChallenges from "../../Models/Challenges/User-Challenges";
 import { ChallengeService } from "../../Services/ChallengeServices/challengeServices";
-import { io, userSockets } from "../../App";
+import { io, userSockets } from "../../Config/socket";
 
 /*
 Note: Message code meaning -

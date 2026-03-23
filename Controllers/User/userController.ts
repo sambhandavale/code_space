@@ -5,7 +5,7 @@ import UserModel from "../../Models/Users/Users";
 import mongoose from "mongoose";
 import { Request, Response } from "express";
 import { updateLoginStreak } from "./userProfileController";
-import { userSockets } from "../../App";
+import { userSockets } from "../../Config/socket";
 
 export const getAllUsers = getAll(User);
 

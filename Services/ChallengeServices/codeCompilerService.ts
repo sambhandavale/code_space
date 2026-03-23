@@ -23,31 +23,8 @@ interface ExecutionResult {
   memory_usage?: number;
 }
 
-// --- Service ---
 
 export class CodeCompilerServices {
-  static async proxyPythonTestCaseCompiler(body: any) {
-    const response = await fetch("https://python-compiler-mu.vercel.app/api/test-code", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    return response.json();
-  }
-
-  static async proxyPythonCompiler(body: any) {
-    const response = await fetch("https://python-compiler-mu.vercel.app/api/test-code", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    return response.json();
-  }
-  
-  /**
-   * Orchestrates the execution of multiple test cases.
-   * Uses Promise.all for parallelism to speed up execution.
-   */
   static async executeBatch(reqBody: any): Promise<ExecutionResult[]> {
     const { language, version, user_code, test_cases, extension } = reqBody;
 
@@ -68,8 +45,7 @@ export class CodeCompilerServices {
     return results;
   }
 
-
-  private static async runSingleTestCase(
+  static async runSingleTestCase(
     index: number,
     language: string,
     version: string,
@@ -100,8 +76,16 @@ export class CodeCompilerServices {
       const data = await response.json();
       const endTime = Date.now();
 
-      console.log(data);
-
+      if (data.message && data.message.includes("whitelist")) {
+        return {
+            test_case_number: index,
+            status: Verdict.RUNTIME_ERROR,
+            input: testCase.input,
+            expected_output: testCase.output,
+            actual_output: "System Error",
+            stderr: "Piston API Error: Whitelist required. Please check server logs.",
+        };
+      }
       // 1. Handle Compilation Errors (Piston returns non-zero compile code)
       if (data.compile && data.compile.code !== 0) {
         return {
@@ -152,10 +136,6 @@ export class CodeCompilerServices {
     }
   }
 
-  /**
-   * Normalizes strings to handle different line endings (CRLF vs LF)
-   * and trailing whitespace issues.
-   */
   private static compareOutputs(actual: string, expected: string[]): boolean {
     const normalize = (str: string) => 
       str

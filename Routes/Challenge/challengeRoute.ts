@@ -1,104 +1,41 @@
 import { Router } from "express";
 import passport from "passport";
 
+import * as challengeCtrl from "../../Controllers/Challenge/challengeController";
+import * as friendCtrl from "../../Controllers/Challenge/friendChallenge";
+import * as resultCtrl from "../../Controllers/Challenge/resultController";
+import * as matchCtrl from "../../Controllers/Challenge/matchmakingController";
+import * as codeCtrl from "../../Controllers/Challenge/codeExecutionController";
+
 const router = Router();
+const auth = passport.authenticate("jwt", { session: false });
 
-import {
-  getAllChallenges,
-  leaveChallenge,
-  askDrawChallenge,
-  getChallengeStatus,
-  acceptDrawChallenge,
-  rejectDrawChallenge,
-} from "../../Controllers/Challenge/challengeController";
+// --- General ---
+router.get("/", challengeCtrl.getAllChallenges);
+router.get("/:id", resultCtrl.getChallengeById);
+router.get("/status/:challengeId", challengeCtrl.getChallengeStatus);
+router.get("/room-status/:roomCode", friendCtrl.checkRoomStatus);
 
-import {
-  checkRoomStatus,
-  createPrivateChallenge,
-  joinPrivateChallenge,
-} from "../../Controllers/Challenge/friendChallenge";
-import { getChallengeById, submitChallengeResult } from "../../Controllers/Challenge/resultController";
-import { joinMatchmaking, leaveMatchmaking } from "../../Controllers/Challenge/matchmakingController";
-import { proxyPythonCompiler, proxyPythonTestCaseCompiler, runCodeWithTestCases } from "../../Controllers/Challenge/codeExecutionController";
+// --- Matchmaking ---
+router.post("/joinMatchmaking", auth, matchCtrl.joinMatchmaking);
+router.post("/stopMatchmaking", auth, matchCtrl.leaveMatchmaking);
 
-router.get("/", getAllChallenges);
+// --- Draw Requests ---
+router.post("/askDrawChallenge", auth, challengeCtrl.askDrawChallenge);
+router.post("/acceptDrawChallenge", auth, challengeCtrl.acceptDrawChallenge);
+router.post("/rejectDrawChallenge", auth, challengeCtrl.rejectDrawChallenge);
 
-router.get("/:id", getChallengeById);
+// --- Code Execution ---
+router.post("/submit-code", auth, codeCtrl.runCodeWithTestCases);
+router.post("/submit/code", auth, codeCtrl.submitCode);
+router.get("/code/status/:jobId", auth, codeCtrl.getJobResult);
 
-router.get("/status/:challengeId", getChallengeStatus);
+// --- Challenge Actions ---
+router.post("/leaveChallenge", auth, challengeCtrl.leaveChallenge);
+router.post("/endChallenge", auth, resultCtrl.submitChallengeResult);
 
-router.get("/room-status/:roomCode", checkRoomStatus);
-
-router.post(
-  "/joinMatchmaking",
-  passport.authenticate("jwt", { session: false }),
-  joinMatchmaking
-);
-
-router.post(
-  "/leaveChallenge",
-  passport.authenticate("jwt", { session: false }),
-  leaveChallenge
-);
-
-router.post(
-  "/askDrawChallenge",
-  passport.authenticate("jwt", { session: false }),
-  askDrawChallenge
-);
-
-router.post(
-  "/acceptDrawChallenge",
-  passport.authenticate("jwt", { session: false }),
-  acceptDrawChallenge
-);
-
-router.post(
-  "/rejectDrawChallenge",
-  passport.authenticate("jwt", { session: false }),
-  rejectDrawChallenge
-);
-
-router.post(
-  "/stopMatchmaking",
-  passport.authenticate("jwt", { session: false }),
-  leaveMatchmaking
-);
-
-router.post(
-  "/endChallenge",
-  passport.authenticate("jwt", { session: false }),
-  submitChallengeResult
-);
-
-router.post(
-  "/submit-answer",
-  passport.authenticate("jwt", { session: false }),
-  proxyPythonTestCaseCompiler
-);
-
-router.post(
-  "/submit-answer-new",
-  passport.authenticate("jwt", { session: false }),
-  runCodeWithTestCases
-);
-
-router.post(
-  "/run-answer",
-  passport.authenticate("jwt", { session: false }),
-  proxyPythonCompiler
-);
-
-router.post(
-  "/create-private",
-  passport.authenticate("jwt", { session: false }),
-  createPrivateChallenge
-);
-
-router.post(
-  "/join-private",
-  passport.authenticate("jwt", { session: false }),
-  joinPrivateChallenge
-);
+// --- Private Challenges ---
+router.post("/create-private", auth, friendCtrl.createPrivateChallenge);
+router.post("/join-private", auth, friendCtrl.joinPrivateChallenge);
 
 export default router;

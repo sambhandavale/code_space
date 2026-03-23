@@ -9,7 +9,7 @@ import UserModel from "../../Models/Users/Users";
 import { updateChallengeStreak } from "../../Utility/Challenge/updateStreak";
 import { updateUserFavorites } from "../../Utility/User/updateFavourites";
 import { emitToUser } from "../../Controllers/Challenge/challengeController";
-import { io, userSockets } from "../../App";
+import { io, userSockets } from "../../Config/socket";
 
 export class MatchmakingService {
     // Add user to matchmaking queue or match them with an opponent

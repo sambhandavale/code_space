@@ -12,21 +12,14 @@ import { Server } from 'socket.io';
 import path from 'path';
 import MatchMaking from './Models/Challenges/MatchMaking';
 import { MatchmakingService } from './Services/ChallengeServices/matchmakingService';
+import { initSocket, io, userSockets } from './Config/socket';
+import './Workers/Challenges/CodeWorker';
 
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
-export const io = new Server(server, {
-  cors: {
-    origin: [
-      process.env.REACT_APP_BASE_URL,
-    ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  },
-  path: '/socket.io/',
-});
+initSocket(server);
 
 app.use(
     cors({
@@ -55,8 +48,6 @@ app.use(passport.initialize());
 passportInit(passport);
 
 routes(app);
-
-export const userSockets = new Map<string, Set<string>>();
 
 io.on("connection", (socket) => {
   console.log(`🔌 New connection: ${socket.id}`);

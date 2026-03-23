@@ -13,6 +13,8 @@ import { AiOutlineClose } from "react-icons/ai";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import NotFound from "../../components/Shared/NotFound";
 import { TestCaseCard } from "../../components/Solve/TestCaseCard";
+import { Socket } from "socket.io-client";
+import { getSocket } from "../../hooks/Sockets";
 
 interface ITestResult {
     actual_output: string | null;
@@ -30,6 +32,10 @@ const SolveProblem = () => {
     const navigate = useNavigate();
     const width = useWindowWidth();
     const [loading, setLoading] = useState<boolean>(true);
+
+    const [user, setUser] = useState(() => isAuth());
+    const [socket, setSocket] = useState<Socket | null>(null);
+    const [socketId, setSocketId] = useState<string | null | undefined>(null);
 
     const [problemDetails,setProblemDetails] = useState<IProblem>()
     const [dividerPosition, setDividerPosition] = useState(50);
@@ -66,6 +72,7 @@ const SolveProblem = () => {
     ]
 
     const [correctLink, setCorrectLink] = useState<boolean>(false);
+    const [currentJobId, setCurrentJobId] = useState<string | null>(null);
 
     useEffect(() => {
         if (!isTimerRunning || timeLeft <= 0) return;
@@ -86,7 +93,66 @@ const SolveProblem = () => {
         return () => clearInterval(timerRef.current!);
     }, [isTimerRunning]);
 
+    useEffect(() => {
+        if (user) {
+            const newSocket = getSocket();
+            setSocket(newSocket);
 
+            newSocket.on("connect", () => {
+                setSocketId(newSocket.id);
+            });
+
+            if (!newSocket.connected) {
+                newSocket.connect();
+            }
+        }
+    }, [user]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const user = isAuth();
+        if (user?._id) {
+            console.log("6. [FRONTEND] Registering user:", user._id);
+            socket.emit("register", user._id);
+        }
+
+        const handleSocketResult = (data: { jobId: string; results: ITestResult[] }) => {
+            console.log("5. [FRONTEND] Socket event 'code_result' arrived!");
+            console.log("   Received Job ID:", data.jobId);
+
+            // We use the functional setter to ensure we always have the latest state
+            setCurrentJobId((prevJobId) => {
+                console.log("   Comparing against Current Expected ID:", prevJobId);
+                
+                if (data.jobId === prevJobId) {
+                    console.log("   ✅ MATCH FOUND!");
+                    setRunLoading(false);
+                    setSubmitLoading(false);
+                    setRunResult(data.results);
+                    setSubmitResult(data.results);
+
+                    const allPassed = data.results.every(r => r.status === "Accepted");
+                    if (allPassed) {
+                        toast.success("All test cases passed!");
+                        stopTimer();
+                        updateSubmit();
+                    }
+                    return null; // Reset Job ID
+                }
+                console.warn("   ❌ ID MISMATCH");
+                return prevJobId;
+            });
+        };
+
+        socket.on("code_result", handleSocketResult);
+
+        // CLEANUP is critical here to avoid duplicate listeners when socket changes
+        return () => {
+            console.log("Cleaning up socket listener...");
+            socket.off("code_result", handleSocketResult);
+        };
+    }, [socket]);
 
     const stopTimer = () => {
         if (timerRef.current) {
@@ -172,21 +238,83 @@ const SolveProblem = () => {
         isDragging.current = false;
     };
 
+    // const executeCode = async (mode: 'run' | 'submit') => {
+    //     const isRun = mode === 'run';
+        
+    //     // 1. Select the correct state setters based on mode
+    //     const setLoading = isRun ? setRunLoading : setSubmitLoading;
+    //     const setResult = isRun ? setRunResult : setSubmitResult;
+        
+    //     try {
+    //         setLoading(true);
+            
+    //         // Set the tab: 0 for Submit, 1 for Run
+    //         setSelectedTestCaseOption(isRun ? 1 : 0);
+
+    //         // 2. Prepare the payload
+    //         // Run mode uses only the last 2 cases; Submit uses all cases
+    //         const testCasesToSend = isRun 
+    //             ? problemDetails?.test_cases.slice(-2) 
+    //             : problemDetails?.test_cases;
+
+    //         const data = {
+    //             user_code: code,
+    //             test_cases: testCasesToSend,
+    //             language,
+    //             version: langVersion,
+    //             extension: langExtension
+    //         };
+
+    //         // 3. API Call
+    //         const res = await postAction('/challenge/submit-code', data);
+
+    //         if (!res || !res.data) {
+    //             toast.error("No response from server");
+    //             return;
+    //         }
+
+    //         const response = res.data;
+
+    //         // 4. Handle Backend/Runtime Errors
+    //         if (response.status === "ERROR") {
+    //             toast.error(response.message || (isRun ? "Run Failed" : "Submission Failed"));
+    //             return;
+    //         }
+
+    //         // 5. Success: Update Results
+    //         const results = response.results;
+    //         setResult(results);
+
+    //         // 6. Special Logic for "Submit" mode only
+    //         if (!isRun) {
+    //             const allPassed = results.every(
+    //                 (testCase: ITestResult) => testCase.status === "Accepted"
+    //             );
+
+    //             if (allPassed) {
+    //                 stopTimer();
+    //                 updateSubmit();
+    //                 toast.success("All test cases passed!");
+    //             }
+    //         }
+
+    //     } catch (err) {
+    //         console.error(err);
+    //         toast.error("Unexpected error occurred.");
+    //     } finally {
+    //         // Ensure loading is always turned off
+    //         setLoading(false);
+    //     }
+    // };
+
     const executeCode = async (mode: 'run' | 'submit') => {
         const isRun = mode === 'run';
-        
-        // 1. Select the correct state setters based on mode
         const setLoading = isRun ? setRunLoading : setSubmitLoading;
-        const setResult = isRun ? setRunResult : setSubmitResult;
         
         try {
             setLoading(true);
-            
-            // Set the tab: 0 for Submit, 1 for Run
             setSelectedTestCaseOption(isRun ? 1 : 0);
 
-            // 2. Prepare the payload
-            // Run mode uses only the last 2 cases; Submit uses all cases
             const testCasesToSend = isRun 
                 ? problemDetails?.test_cases.slice(-2) 
                 : problemDetails?.test_cases;
@@ -199,46 +327,24 @@ const SolveProblem = () => {
                 extension: langExtension
             };
 
-            // 3. API Call
-            const res = await postAction('/challenge/submit-answer-new', data);
-
-            if (!res || !res.data) {
-                toast.error("No response from server");
-                return;
-            }
-
-            const response = res.data;
-
-            // 4. Handle Backend/Runtime Errors
-            if (response.status === "ERROR") {
-                toast.error(response.message || (isRun ? "Run Failed" : "Submission Failed"));
-                return;
-            }
-
-            // 5. Success: Update Results
-            const results = response.results;
-            setResult(results);
-
-            // 6. Special Logic for "Submit" mode only
-            if (!isRun) {
-                const allPassed = results.every(
-                    (testCase: ITestResult) => testCase.status === "Accepted"
-                );
-
-                if (allPassed) {
-                    stopTimer();
-                    updateSubmit();
-                    toast.success("All test cases passed!");
-                }
+            // UPDATE THIS ENDPOINT to the one that uses BullMQ
+            const res = await postAction('/challenge/submit/code', data);
+            console.log(res);
+            if (res?.data?.jobId) {
+                console.log("1. [FRONTEND] Received Job ID from API:", res.data.jobId);
+                setCurrentJobId(res.data.jobId);
+            } else {
+                setLoading(false);
+                toast.error("Failed to queue code execution.");
             }
 
         } catch (err) {
             console.error(err);
-            toast.error("Unexpected error occurred.");
-        } finally {
-            // Ensure loading is always turned off
             setLoading(false);
+            toast.error("Unexpected error occurred.");
         }
+        // Note: We REMOVED 'setLoading(false)' from finally. 
+        // Loading stays true until the Socket emits the result.
     };
 
     const handleRun = () => executeCode('run');
@@ -436,30 +542,26 @@ const SolveProblem = () => {
 
                             {(() => {
                                 const isSubmitTab = selectedTestCaseOption === 0;
-                                
-                                // 1. Determine Global Loading State for this section
                                 const isSectionLoading = isSubmitTab ? submitLoading : runLoading;
+                                const currentResults = isSubmitTab ? submitResult : runResult;
 
-                                // 2. Select Cases
+                                // Use the original test cases to ensure the UI structure stays consistent
                                 const casesToRender = isSubmitTab 
                                     ? problemDetails?.test_cases.slice(0, 3) 
                                     : problemDetails?.test_cases.slice(-2);
 
-                                const currentResults = isSubmitTab ? submitResult : runResult;
-
                                 return casesToRender?.map((testCase: any, index: number) => {
-                                    const res = currentResults?.[index]; 
+                                    // Find the result by matching the test case number/index
+                                    const res = currentResults?.find((r: any) => r.test_case_number === index + 1) || currentResults?.[index];
                                     
                                     return (
                                         <TestCaseCard
                                             key={index}
                                             index={index}
                                             input={testCase.input}
-                                            // Pass the loading state here
                                             isLoading={isSectionLoading} 
-                                            
                                             status={res?.status} 
-                                            expectedOutput={res?.output || testCase.output}
+                                            expectedOutput={testCase.output}
                                             actualOutput={res?.actual_output} 
                                         />
                                     );
