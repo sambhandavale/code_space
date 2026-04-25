@@ -8,6 +8,7 @@ import questionRouter from "./Questions/questionsRoute";
 import extraRouter from "./Extra/extraRoute";
 import blogsRouter from "./Blogs/blogsRoute";
 import contestRouter from "./Events/Contest/contestRoute";
+import searchRouter from "./Search/searchRoute";
 
 export const routes = (app: Express) =>{
     app.use("/api/auth", authRouter);
@@ -17,4 +18,5 @@ export const routes = (app: Express) =>{
     app.use('/api/extra',extraRouter);
     app.use('/api/blogs',blogsRouter);
     app.use('/api/events/contest',contestRouter);
+    app.use('/api/search', searchRouter);
 }
